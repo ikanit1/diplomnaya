@@ -68,6 +68,7 @@ public class WorkSpace extends AppCompatActivity {
     }
 
     // Добавить задачу на экран
+
     private void addTask(String taskText) {
         LayoutInflater inflater = getLayoutInflater();
         final View taskView = inflater.inflate(R.layout.task_item, null);
@@ -80,11 +81,29 @@ public class WorkSpace extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Удаление задачи при нажатии на кнопку удаления
-                tasksLayout.removeView(taskView);
+                // Показать диалог подтверждения перед удалением задачи
+                AlertDialog.Builder deleteDialogBuilder = new AlertDialog.Builder(WorkSpace.this);
+                deleteDialogBuilder.setTitle("Удалить задачу");
+                deleteDialogBuilder.setMessage("Вы уверены, что хотите удалить эту задачу?");
+                deleteDialogBuilder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Удаление задачи при подтверждении
+                        tasksLayout.removeView(taskView);
+                        dialog.dismiss();
+                    }
+                });
+                deleteDialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                deleteDialogBuilder.show();
             }
         });
 
         tasksLayout.addView(taskView, 0);
     }
+
 }
