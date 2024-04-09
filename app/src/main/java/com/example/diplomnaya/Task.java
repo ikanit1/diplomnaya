@@ -1,23 +1,34 @@
 package com.example.diplomnaya;
-// Task.java
+
 public class Task {
     private int id;
     private String text;
     private String dateCreated;
     private String timeCreated;
+    private String imagePath; // Поле для хранения пути к изображению
 
     public Task() {
         // Пустой конструктор
     }
 
-    public Task(int id, String text, String dateCreated, String timeCreated) {
+    public Task(int id, String text, String dateCreated, String timeCreated, String imagePath) {
         this.id = id;
         this.text = text;
         this.dateCreated = dateCreated;
         this.timeCreated = timeCreated;
+        this.imagePath = imagePath;
     }
 
-    // Геттеры и сеттеры
+    // Геттеры и сеттеры для поля imagePath
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    // Геттеры и сеттеры для остальных полей
     public int getId() {
         return id;
     }

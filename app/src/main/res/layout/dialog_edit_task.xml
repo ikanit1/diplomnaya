@@ -16,7 +16,6 @@
         android:id="@+id/textViewDateTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Выберите дату и время:"
         android:textSize="16sp"
         android:layout_marginTop="16dp"/>
 
@@ -24,8 +23,15 @@
         android:id="@+id/buttonPickDateTime"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:text="Выбрать дату и время"
+        android:layout_marginTop="8dp"
         android:src="@drawable/clock"
-        android:layout_marginTop="8dp"/>
+        android:text="Выбрать дату и время" />
+
+    <ImageButton
+        android:id="@+id/buttonPickImage"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="Pick Image"
+        android:src="@android:drawable/ic_menu_gallery" />
 
 </LinearLayout>

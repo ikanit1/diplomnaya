@@ -20,6 +20,10 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import android.content.Intent;
+import android.net.Uri;
+
+
 
 
 
@@ -31,6 +35,9 @@ public class WorkSpace extends AppCompatActivity {
 
     private LinearLayout tasksLayout;
     private TaskDatabaseHelper dbHelper;
+
+    private static final int PICK_IMAGE_REQUEST = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +55,15 @@ public class WorkSpace extends AppCompatActivity {
                 showAddTaskDialog();
             }
         });
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            // Здесь вы можете обработать полученное изображение, например, сохранить его путь в базе данных
+        }
     }
 
     private void showAddTaskDialog() {
@@ -127,6 +143,15 @@ public class WorkSpace extends AppCompatActivity {
         });
 
         builder.show();
+
+        ImageButton buttonPickImage = dialogView.findViewById(R.id.buttonPickImage);
+        buttonPickImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent pickImageIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(pickImageIntent, PICK_IMAGE_REQUEST);
+            }
+        });
     }
 
 

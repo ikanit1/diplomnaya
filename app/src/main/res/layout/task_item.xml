@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Виджет TextView для отображения текста задачи -->
     <TextView
         android:id="@+id/task_text"
         android:layout_width="match_parent"
@@ -12,13 +13,27 @@
         android:textSize="18sp"
         android:textColor="@android:color/black" />
 
-    <!-- Добавим пустой View для создания пространства -->
+    <!-- Виджет ImageView для отображения изображения -->
+    <ImageView
+        android:id="@+id/task_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
 
+    <!-- Пустой View для создания пространства -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp" />
+
+    <!-- Линейный макет для кнопок удаления и редактирования задачи -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <!-- Виджет TextView для отображения даты и времени создания задачи -->
         <TextView
             android:id="@+id/task_date_time"
             android:layout_width="0dp"
@@ -27,6 +42,7 @@
             android:textSize="14sp"
             android:textColor="@android:color/darker_gray" />
 
+        <!-- Кнопка удаления задачи -->
         <ImageButton
             android:id="@+id/button_delete_task"
             android:layout_width="wrap_content"
@@ -34,13 +50,13 @@
             android:contentDescription="Delete"
             android:src="@android:drawable/ic_delete" />
 
+        <!-- Кнопка редактирования задачи -->
         <ImageButton
             android:id="@+id/button_edit_task"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_edit"
             android:contentDescription="Edit" />
-
 
     </LinearLayout>
 </LinearLayout>
