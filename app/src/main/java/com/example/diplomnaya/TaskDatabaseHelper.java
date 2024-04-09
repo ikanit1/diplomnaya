@@ -19,6 +19,9 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_DATE_CREATED = "date_created";
     private static final String COLUMN_TIME_CREATED = "time_created";
 
+
+
+
     public TaskDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -54,6 +57,18 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
     }
+    public void updateTask(Task task) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TASK_TEXT, task.getText());
+        values.put(COLUMN_DATE_CREATED, task.getDateCreated());
+        values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
+
+        db.update(TABLE_TASKS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
+        db.close();
+    }
+
 
     @SuppressLint("Range")
     public List<Task> getAllTasks() {

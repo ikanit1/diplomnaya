@@ -130,6 +130,15 @@ public class WorkSpace extends AppCompatActivity {
     }
 
 
+    private void updateTaskView(View taskView, Task task) {
+        TextView taskTextView = taskView.findViewById(R.id.task_text);
+        taskTextView.setText(task.getText());
+
+        TextView taskDateTimeView = taskView.findViewById(R.id.task_date_time);
+        String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
+        taskDateTimeView.setText(dateTime);
+    }
+
     private void addTaskToLayout(Task task) {
         LayoutInflater inflater = getLayoutInflater();
         final View taskView = inflater.inflate(R.layout.task_item, null);
@@ -142,6 +151,65 @@ public class WorkSpace extends AppCompatActivity {
         taskDateTimeView.setText(dateTime);
 
         ImageButton deleteButton = taskView.findViewById(R.id.button_delete_task);
+
+        ImageButton editButton = taskView.findViewById(R.id.button_edit_task);
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Создайте диалоговое окно для редактирования задачи
+                        AlertDialog.Builder editDialogBuilder = new AlertDialog.Builder(WorkSpace.this);
+                        editDialogBuilder.setTitle("Редактировать задачу");
+
+                        LayoutInflater inflater = getLayoutInflater();
+                        View editDialogView = inflater.inflate(R.layout.dialog_edit_task, null);
+                        final EditText editTextTask = editDialogView.findViewById(R.id.editTextTask);
+                        final TextView textViewDateTime = editDialogView.findViewById(R.id.textViewDateTime);
+                        ImageButton buttonPickDateTime = editDialogView.findViewById(R.id.buttonPickDateTime);
+
+                        // Инициализируйте поля диалога значениями текущей задачи
+
+                        editDialogBuilder.setView(editDialogView);
+
+                        // Логика выбора даты и времени остаётся такой же, как и в showAddTaskDialog
+
+                        editDialogBuilder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Получите отредактированный текст задачи и дату/время
+                                String editedTaskText = editTextTask.getText().toString().trim();
+                                String editedDateTime = textViewDateTime.getText().toString().trim();
+
+                                // Обновите данные задачи в базе данных и обновите отображение на экране
+                                if (!editedTaskText.isEmpty() && !editedDateTime.isEmpty()) {
+                                    task.setText(editedTaskText);
+                                    String[] parts = editedDateTime.split(" ");
+                                    task.setDateCreated(parts[0]);
+                                    task.setTimeCreated(parts[1]);
+                                    dbHelper.updateTask(task);
+                                    updateTaskView(taskView, task);
+                                } else {
+                                    Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу и выберите дату и время", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                        editDialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                        editDialogBuilder.show();
+                    }
+                });
+
+            }
+        });
+
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

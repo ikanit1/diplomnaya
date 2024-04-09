@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Введите задачу"
+        android:minHeight="48dp" />
+
+    <TextView
+        android:id="@+id/textViewDateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Выберите дату и время:"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"/>
+
+    <ImageButton
+        android:id="@+id/buttonPickDateTime"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:text="Выбрать дату и время"
+        android:src="@drawable/clock"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>
