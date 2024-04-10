@@ -145,7 +145,7 @@ public class WorkSpace extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String taskText = editTextTask.getText().toString().trim();
                 String dateTime = textViewDateTime.getText().toString().trim();
-                if (!taskText.isEmpty() && !dateTime.isEmpty()) {
+                if (!taskText.isEmpty()) { // Изменено здесь
                     Task task = new Task();
                     task.setText(taskText);
                     String[] parts = dateTime.split(" ");
@@ -162,7 +162,7 @@ public class WorkSpace extends AppCompatActivity {
                     dbHelper.addTask(task);
                     addTaskToLayout(task);
                 } else {
-                    Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу и выберите дату и время", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу", Toast.LENGTH_SHORT).show(); // Изменено здесь
                 }
             }
         });
