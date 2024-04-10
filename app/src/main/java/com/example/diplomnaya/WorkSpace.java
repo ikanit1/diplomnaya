@@ -1,6 +1,5 @@
 package com.example.diplomnaya;
 
-// WorkSpace.java
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -23,21 +22,14 @@ import android.widget.TimePicker;
 import android.content.Intent;
 import android.net.Uri;
 
-
-
-
-
-
-
-
-
 public class WorkSpace extends AppCompatActivity {
 
     private LinearLayout tasksLayout;
     private TaskDatabaseHelper dbHelper;
 
-    private static final int PICK_IMAGE_REQUEST = 1;
+    private Task task;
 
+    private static final int PICK_IMAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +48,14 @@ public class WorkSpace extends AppCompatActivity {
             }
         });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
-            // Здесь вы можете обработать полученное изображение, например, сохранить его путь в базе данных
+            // Обработка полученного изображения, например, сохранение его пути в базе данных
         }
     }
 
@@ -76,13 +69,17 @@ public class WorkSpace extends AppCompatActivity {
         final TextView textViewDateTime = dialogView.findViewById(R.id.textViewDateTime);
         ImageButton buttonPickDateTime = dialogView.findViewById(R.id.buttonPickDateTime);
 
+        // Установка текста задачи, если он есть
+        if (task != null) {
+            editTextTask.setText(task.getText());
+        }
+
         builder.setView(dialogView);
 
-        // Listener для выбора даты и времени
+        // Обработчик для выбора даты и времени
         buttonPickDateTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Получение текущей даты и времени
                 final Calendar calendar = Calendar.getInstance();
                 int year = calendar.get(Calendar.YEAR);
                 int month = calendar.get(Calendar.MONTH);
@@ -90,14 +87,12 @@ public class WorkSpace extends AppCompatActivity {
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
 
-                // Отображение диалога выбора даты и времени
                 DatePickerDialog datePickerDialog = new DatePickerDialog(WorkSpace.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         TimePickerDialog timePickerDialog = new TimePickerDialog(WorkSpace.this, new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                // Установка выбранной даты и времени в TextView
                                 calendar.set(Calendar.YEAR, year);
                                 calendar.set(Calendar.MONTH, month);
                                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -124,10 +119,17 @@ public class WorkSpace extends AppCompatActivity {
                 if (!taskText.isEmpty() && !dateTime.isEmpty()) {
                     Task task = new Task();
                     task.setText(taskText);
-                    // Разделим дату и время, чтобы установить их в объект Task
                     String[] parts = dateTime.split(" ");
                     task.setDateCreated(parts[0]);
-                    task.setTimeCreated(parts[1]);
+
+                    // Проверяем, было ли выбрано время
+                    if (parts.length > 1) {
+                        task.setTimeCreated(parts[1]);
+                    } else {
+                        // Время не было указано, устанавливаем пустое значение
+                        task.setTimeCreated("");
+                    }
+
                     dbHelper.addTask(task);
                     addTaskToLayout(task);
                 } else {
@@ -135,6 +137,7 @@ public class WorkSpace extends AppCompatActivity {
                 }
             }
         });
+
         builder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -181,57 +184,7 @@ public class WorkSpace extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Создайте диалоговое окно для редактирования задачи
-                        AlertDialog.Builder editDialogBuilder = new AlertDialog.Builder(WorkSpace.this);
-                        editDialogBuilder.setTitle("Редактировать задачу");
-
-                        LayoutInflater inflater = getLayoutInflater();
-                        View editDialogView = inflater.inflate(R.layout.dialog_edit_task, null);
-                        final EditText editTextTask = editDialogView.findViewById(R.id.editTextTask);
-                        final TextView textViewDateTime = editDialogView.findViewById(R.id.textViewDateTime);
-                        ImageButton buttonPickDateTime = editDialogView.findViewById(R.id.buttonPickDateTime);
-
-                        // Инициализируйте поля диалога значениями текущей задачи
-
-                        editDialogBuilder.setView(editDialogView);
-
-                        // Логика выбора даты и времени остаётся такой же, как и в showAddTaskDialog
-
-                        editDialogBuilder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Получите отредактированный текст задачи и дату/время
-                                String editedTaskText = editTextTask.getText().toString().trim();
-                                String editedDateTime = textViewDateTime.getText().toString().trim();
-
-                                // Обновите данные задачи в базе данных и обновите отображение на экране
-                                if (!editedTaskText.isEmpty() && !editedDateTime.isEmpty()) {
-                                    task.setText(editedTaskText);
-                                    String[] parts = editedDateTime.split(" ");
-                                    task.setDateCreated(parts[0]);
-                                    task.setTimeCreated(parts[1]);
-                                    dbHelper.updateTask(task);
-                                    updateTaskView(taskView, task);
-                                } else {
-                                    Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу и выберите дату и время", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
-                        editDialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                        editDialogBuilder.show();
-                    }
-                });
-
+                showEditTaskDialog(taskView, task);
             }
         });
 
@@ -262,14 +215,90 @@ public class WorkSpace extends AppCompatActivity {
         tasksLayout.addView(taskView, 0);
     }
 
-
-
-
     private void loadTasks() {
         List<Task> tasks = dbHelper.getAllTasks();
         for (Task task : tasks) {
             addTaskToLayout(task);
         }
     }
-}
 
+    private void showEditTaskDialog(View taskView, Task task) {
+        AlertDialog.Builder editDialogBuilder = new AlertDialog.Builder(WorkSpace.this);
+        editDialogBuilder.setTitle("Редактировать задачу");
+
+        LayoutInflater inflater = getLayoutInflater();
+        View editDialogView = inflater.inflate(R.layout.dialog_edit_task, null);
+        final EditText editTextTask = editDialogView.findViewById(R.id.editTextTask);
+        final TextView textViewDateTime = editDialogView.findViewById(R.id.textViewDateTime);
+        ImageButton buttonPickDateTime = editDialogView.findViewById(R.id.buttonPickDateTime);
+
+        // Устанавливаем текущий текст и время задачи в поля диалогового окна
+        editTextTask.setText(task.getText());
+        textViewDateTime.setText(task.getDateCreated() + " " + task.getTimeCreated());
+
+        editDialogBuilder.setView(editDialogView);
+
+        buttonPickDateTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar calendar = Calendar.getInstance();
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(WorkSpace.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        TimePickerDialog timePickerDialog = new TimePickerDialog(WorkSpace.this, new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                calendar.set(Calendar.YEAR, year);
+                                calendar.set(Calendar.MONTH, month);
+                                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                                calendar.set(Calendar.MINUTE, minute);
+
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                                String dateTime = sdf.format(calendar.getTime());
+                                textViewDateTime.setText(dateTime);
+                            }
+                        }, hour, minute, true);
+                        timePickerDialog.show();
+                    }
+                }, year, month, day);
+                datePickerDialog.show();
+            }
+        });
+
+        editDialogBuilder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String editedTaskText = editTextTask.getText().toString().trim();
+                String editedDateTime = textViewDateTime.getText().toString().trim();
+
+                if (!editedTaskText.isEmpty() && !editedDateTime.isEmpty()) {
+                    task.setText(editedTaskText);
+                    String[] parts = editedDateTime.split(" ");
+                    task.setDateCreated(parts[0]);
+                    task.setTimeCreated(parts[1]);
+                    dbHelper.updateTask(task);
+                    updateTaskView(taskView, task);
+                } else {
+                    Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу и выберите дату и время", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        editDialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        editDialogBuilder.show();
+    }
+
+}
