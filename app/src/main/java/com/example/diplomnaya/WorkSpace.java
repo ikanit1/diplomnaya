@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.content.Intent;
 import android.net.Uri;
+import com.squareup.picasso.Picasso;
 
 public class WorkSpace extends AppCompatActivity {
 
@@ -55,9 +57,36 @@ public class WorkSpace extends AppCompatActivity {
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
-            // Обработка полученного изображения, например, сохранение его пути в базе данных
+            // Call the handleImage method with the URI
+            handleImage(uri);
         }
     }
+
+    private void handleImage(Uri uri) {
+        // Здесь вы можете выполнить действия с выбранным изображением, например, сохранить путь в базе данных
+        String imagePath = uri.toString();
+
+        // Показать изображение на экране
+        ImageView imageThumbnail = findViewById(R.id.image_thumbnail); // Исправлено здесь
+        if (imageThumbnail != null) {
+            Picasso.get().load(imagePath).into(imageThumbnail);
+
+            // Установка слушателя нажатий на миниатюру
+            imageThumbnail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(WorkSpace.this, FullscreenImageActivity.class);
+                    intent.putExtra("image_path", imagePath);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            // Обработка ошибки
+        }
+    }
+
+
+
 
     private void showAddTaskDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -180,6 +209,11 @@ public class WorkSpace extends AppCompatActivity {
 
         ImageButton deleteButton = taskView.findViewById(R.id.button_delete_task);
 
+        ImageView imageThumbnail = taskView.findViewById(R.id.image_thumbnail);
+        if (imageThumbnail != null && task.getImagePath() != null) {
+            Picasso.get().load(task.getImagePath()).into(imageThumbnail);
+        }
+
         ImageButton editButton = taskView.findViewById(R.id.button_edit_task);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,6 +248,8 @@ public class WorkSpace extends AppCompatActivity {
 
         tasksLayout.addView(taskView, 0);
     }
+
+
 
     private void loadTasks() {
         List<Task> tasks = dbHelper.getAllTasks();

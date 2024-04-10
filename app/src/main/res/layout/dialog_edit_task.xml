@@ -34,4 +34,8 @@
         android:contentDescription="Pick Image"
         android:src="@android:drawable/ic_menu_gallery" />
 
+
+
+
+
 </LinearLayout>
