@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     tools:context=".MainActivity">
 
     <RelativeLayout
@@ -23,45 +25,26 @@
             android:id="@+id/welcome_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="center"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="17dp"
-            android:layout_marginBottom="312dp"
-            android:text="Добро пожаловать!\n\nВы используете наш органайзер дел.\nЗдесь вы можете эффективно планировать свои задачи и управлять ими.\nНачните прямо сейчас!"
+            android:layout_centerInParent="true"
+            android:text="Добро пожаловать в наш органайзер дел!\n\nЗдесь вы можете эффективно планировать свои задачи и управлять ими. Наше приложение поможет вам оставаться продуктивным и организованным.\n\nНажмите 'Приступить', чтобы начать работу"
             android:textAlignment="center"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:fontFamily="@font/roboto_bold"
+            android:background="@drawable/rounded_white_background" />
 
-        <!-- Кнопка для перехода к экрану настроек -->
 
         <Button
             android:id="@+id/button_start"
-            android:layout_width="148dp"
-            android:layout_height="60dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="111dp"
-            android:layout_marginEnd="112dp"
-            android:layout_marginBottom="247dp"
-            android:onClick="startNextActivity"
-            android:text="Приступить" />
-
-        <Button
-            android:id="@+id/button_settings"
-            android:layout_width="147dp"
+            android:layout_width="117dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="212dp"
-            android:layout_marginBottom="11dp"
-            android:onClick="openSettingsActivity"
-            android:text="Настройки" />
+            android:layout_below="@+id/welcome_message"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/rounded_button_background"
+            android:onClick="startNextActivity"
+            android:textColor="@android:color/black"
+            android:text="Приступить"/>
+
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

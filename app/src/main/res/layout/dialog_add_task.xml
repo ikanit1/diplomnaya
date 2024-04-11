@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Введите задачу"
+        android:textColor="@android:color/black"
         android:minHeight="48dp" />
 
 
@@ -20,6 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
+        android:textColor="@android:color/black"
         android:layout_marginTop="16dp"/>
 
     <Switch
@@ -27,6 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:textColor="@android:color/black"
         android:text="Важная задача" />
 
     <ImageButton
@@ -34,6 +37,7 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginTop="8dp"
+        android:textColor="@android:color/black"
         android:src="@drawable/clock"
         android:text="Выбрать дату и время" />
 

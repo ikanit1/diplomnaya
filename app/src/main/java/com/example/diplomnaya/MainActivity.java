@@ -5,42 +5,39 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
 import android.widget.Button;
+import android.content.SharedPreferences;
+
 
 
 public class MainActivity extends AppCompatActivity {
 
     private Button settingsButton;
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        settingsButton = findViewById(R.id.button_settings);
+        sharedPreferences = getSharedPreferences("MyPreferences", MODE_PRIVATE);
 
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openSettingsActivity(); // Вызываем метод для открытия экрана настроек
-            }
-        });
+        // Проверяем, была ли страница приветствия уже показана
+        if (sharedPreferences.getBoolean("isWelcomeShown", false)) {
+            // Если да, то переходим сразу на страницу workspace_main
+            startNextActivity(null);
+        } else {
+            // Если нет, то показываем страницу приветствия
+            setContentView(R.layout.activity_main);
+
+        }
     }
 
     public void openSettingsActivity() {
         Intent intent = new Intent(this, SettingsActivity.class); // Создаем Intent для перехода на экран настроек
         startActivity(intent); // Запускаем экран настроек
     }
-        // Настройка вашего пользовательского интерфейса, инициализация переменных и т.д.
-
-
-
 
     // Метод для перехода на следующую активити
     public void startNextActivity(View view) {
@@ -51,5 +48,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         // Завершаем текущую активити
         finish();
+
+        // Сохраняем информацию о том, что страница приветствия была показана
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isWelcomeShown", true);
+        editor.apply();
     }
 }
