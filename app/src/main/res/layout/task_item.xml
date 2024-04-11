@@ -13,18 +13,6 @@
         android:textSize="18sp"
         android:textColor="@android:color/black" />
 
-    <!-- Виджет ImageView для отображения изображения -->
-    <ImageView
-        android:id="@+id/image_thumbnail"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:scaleType="centerCrop" />
-
-    <!-- Пустой View для создания пространства -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="8dp" />
-
     <!-- Линейный макет для кнопок удаления и редактирования задачи -->
     <LinearLayout
         android:layout_width="match_parent"

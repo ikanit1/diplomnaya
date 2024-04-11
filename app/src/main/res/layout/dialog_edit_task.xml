@@ -27,12 +27,7 @@
         android:src="@drawable/clock"
         android:text="Выбрать дату и время" />
 
-    <ImageButton
-        android:id="@+id/buttonPickImage"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:contentDescription="Pick Image"
-        android:src="@android:drawable/ic_menu_gallery" />
+
 
 
 

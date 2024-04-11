@@ -13,6 +13,7 @@
         android:minHeight="48dp" />
 
     <!-- Добавляем новые элементы для выбора даты и времени -->
+
     <TextView
         android:id="@+id/textViewDateTime"
         android:layout_width="wrap_content"
@@ -27,14 +28,6 @@
         android:layout_marginTop="8dp"
         android:src="@drawable/clock"
         android:text="Выбрать дату и время" />
-
-    <ImageButton
-        android:id="@+id/buttonPickImage"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:contentDescription="Pick Image"
-        android:src="@android:drawable/ic_menu_gallery" />
-
 
 
 </LinearLayout>

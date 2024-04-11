@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,6 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_TASK_TEXT = "task_text";
     private static final String COLUMN_DATE_CREATED = "date_created";
     private static final String COLUMN_TIME_CREATED = "time_created";
-    private static final String COLUMN_IMAGE_PATH = "image_path";
 
     public TaskDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -30,8 +30,8 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_ID + " INTEGER PRIMARY KEY,"
                 + COLUMN_TASK_TEXT + " TEXT,"
                 + COLUMN_DATE_CREATED + " TEXT,"
-                + COLUMN_TIME_CREATED + " TEXT,"
-                + COLUMN_IMAGE_PATH + " TEXT" + ")";
+                + COLUMN_TIME_CREATED + " TEXT"
+                + ")";
         db.execSQL(CREATE_TABLE_TASKS);
     }
 
@@ -47,7 +47,6 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TASK_TEXT, task.getText());
         values.put(COLUMN_DATE_CREATED, task.getDateCreated());
         values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
-        values.put(COLUMN_IMAGE_PATH, task.getImagePath());
         db.insert(TABLE_TASKS, null, values);
         db.close();
     }
@@ -58,7 +57,6 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TASK_TEXT, task.getText());
         values.put(COLUMN_DATE_CREATED, task.getDateCreated());
         values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
-        values.put(COLUMN_IMAGE_PATH, task.getImagePath());
         db.update(TABLE_TASKS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
         db.close();
     }
@@ -76,7 +74,6 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
                 task.setText(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_TEXT)));
                 task.setDateCreated(cursor.getString(cursor.getColumnIndex(COLUMN_DATE_CREATED)));
                 task.setTimeCreated(cursor.getString(cursor.getColumnIndex(COLUMN_TIME_CREATED)));
-                task.setImagePath(cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH)));
                 taskList.add(task);
             }
             cursor.close();
