@@ -34,11 +34,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void openSettingsActivity() {
-        Intent intent = new Intent(this, SettingsActivity.class); // Создаем Intent для перехода на экран настроек
-        startActivity(intent); // Запускаем экран настроек
-    }
-
     // Метод для перехода на следующую активити
     public void startNextActivity(View view) {
         // Создаем Intent для перехода на следующую активити

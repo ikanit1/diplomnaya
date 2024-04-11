@@ -17,10 +17,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ImageView;
-
-
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -338,4 +338,11 @@ public class WorkSpace extends AppCompatActivity {
 
         editDialogBuilder.show();
     }
+    public static class NotificationReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Обработка приема уведомлений
+        }
+    }
+
 }
