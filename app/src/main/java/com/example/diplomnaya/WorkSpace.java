@@ -29,7 +29,9 @@ public class WorkSpace extends AppCompatActivity {
     private LinearLayout tasksLayout;
     private TaskDatabaseHelper dbHelper;
 
+    private Uri tempImageUri;
     private Task task;
+    private String imagePath;
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
@@ -46,6 +48,8 @@ public class WorkSpace extends AppCompatActivity {
         findViewById(R.id.button_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Создаем новый объект Task перед отображением диалогового окна добавления задачи
+                task = new Task();
                 showAddTaskDialog();
             }
         });
@@ -57,31 +61,39 @@ public class WorkSpace extends AppCompatActivity {
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
-            // Call the handleImage method with the URI
+            // Здесь обрабатываем URI выбранного изображения
             handleImage(uri);
         }
     }
 
     private void handleImage(Uri uri) {
-        // Здесь вы можете выполнить действия с выбранным изображением, например, сохранить путь в базе данных
-        String imagePath = uri.toString();
-
-        // Показать изображение на экране
-        ImageView imageThumbnail = findViewById(R.id.image_thumbnail); // Исправлено здесь
+        tempImageUri = uri;
+        // Здесь обрабатываем выбранное изображение
+        // Показываем изображение на экране
+        ImageView imageThumbnail = findViewById(R.id.image_thumbnail); // Проверьте, что у вас есть ImageView для отображения миниатюры
         if (imageThumbnail != null) {
-            Picasso.get().load(imagePath).into(imageThumbnail);
+            Picasso.get().load(uri).into(imageThumbnail);
+
+            imagePath = uri.toString(); // Сохраняем путь к изображению в переменной класса
 
             // Установка слушателя нажатий на миниатюру
             imageThumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // Здесь открываем полное изображение
                     Intent intent = new Intent(WorkSpace.this, FullscreenImageActivity.class);
-                    intent.putExtra("image_path", imagePath);
+                    intent.putExtra("image_path", task.getImagePath()); // Используем task.getImagePath() вместо imagePath
                     startActivity(intent);
                 }
             });
+
+            // Сохраняем путь к изображению в задаче
+            if (task != null) {
+                task.setImagePath(imagePath);
+            }
         } else {
             // Обработка ошибки
+
         }
     }
 
@@ -89,6 +101,8 @@ public class WorkSpace extends AppCompatActivity {
 
 
     private void showAddTaskDialog() {
+        task = new Task();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Добавить задачу");
 
@@ -97,6 +111,7 @@ public class WorkSpace extends AppCompatActivity {
         final EditText editTextTask = dialogView.findViewById(R.id.editTextTask);
         final TextView textViewDateTime = dialogView.findViewById(R.id.textViewDateTime);
         ImageButton buttonPickDateTime = dialogView.findViewById(R.id.buttonPickDateTime);
+        ImageButton buttonPickImage = dialogView.findViewById(R.id.buttonPickImage);
 
         // Установка текста задачи, если он есть
         if (task != null) {
@@ -145,27 +160,35 @@ public class WorkSpace extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String taskText = editTextTask.getText().toString().trim();
                 String dateTime = textViewDateTime.getText().toString().trim();
-                if (!taskText.isEmpty()) { // Изменено здесь
-                    Task task = new Task();
-                    task.setText(taskText);
+
+                if (!taskText.isEmpty()) {
+                    Task newTask = new Task();
+                    newTask.setText(taskText);
                     String[] parts = dateTime.split(" ");
-                    task.setDateCreated(parts[0]);
+                    newTask.setDateCreated(parts[0]);
 
                     // Проверяем, было ли выбрано время
                     if (parts.length > 1) {
-                        task.setTimeCreated(parts[1]);
+                        newTask.setTimeCreated(parts[1]);
                     } else {
                         // Время не было указано, устанавливаем пустое значение
-                        task.setTimeCreated("");
+                        newTask.setTimeCreated("");
                     }
 
-                    dbHelper.addTask(task);
-                    addTaskToLayout(task);
+                    // Проверяем, было ли выбрано изображение
+                    if (tempImageUri != null) {
+                        newTask.setImagePath(tempImageUri.toString());
+                        tempImageUri = null; // Обнуляем временный URI
+                    }
+
+                    dbHelper.addTask(newTask);
+                    addTaskToLayout(newTask);
                 } else {
-                    Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу", Toast.LENGTH_SHORT).show(); // Изменено здесь
+                    Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
 
         builder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             @Override
@@ -176,14 +199,13 @@ public class WorkSpace extends AppCompatActivity {
 
         builder.show();
 
-        ImageButton buttonPickImage = dialogView.findViewById(R.id.buttonPickImage);
-        buttonPickImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent pickImageIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickImageIntent, PICK_IMAGE_REQUEST);
-            }
+
+        buttonPickImage.setOnClickListener(v -> {
+            // Здесь запускаем Intent для выбора изображения из галереи
+            Intent pickImageIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(pickImageIntent, PICK_IMAGE_REQUEST);
         });
+
     }
 
 
@@ -194,6 +216,11 @@ public class WorkSpace extends AppCompatActivity {
         TextView taskDateTimeView = taskView.findViewById(R.id.task_date_time);
         String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
         taskDateTimeView.setText(dateTime);
+
+        ImageView imageThumbnail = taskView.findViewById(R.id.image_thumbnail);
+        if (imageThumbnail != null && task.getImagePath() != null) {
+            Picasso.get().load(Uri.parse(task.getImagePath())).into(imageThumbnail);
+        }
     }
 
     private void addTaskToLayout(Task task) {
@@ -211,7 +238,7 @@ public class WorkSpace extends AppCompatActivity {
 
         ImageView imageThumbnail = taskView.findViewById(R.id.image_thumbnail);
         if (imageThumbnail != null && task.getImagePath() != null) {
-            Picasso.get().load(task.getImagePath()).into(imageThumbnail);
+            Picasso.get().load(Uri.parse(task.getImagePath())).into(imageThumbnail);
         }
 
         ImageButton editButton = taskView.findViewById(R.id.button_edit_task);
@@ -267,6 +294,7 @@ public class WorkSpace extends AppCompatActivity {
         final EditText editTextTask = editDialogView.findViewById(R.id.editTextTask);
         final TextView textViewDateTime = editDialogView.findViewById(R.id.textViewDateTime);
         ImageButton buttonPickDateTime = editDialogView.findViewById(R.id.buttonPickDateTime);
+        ImageButton buttonPickImage = editDialogView.findViewById(R.id.buttonPickImage);
 
         // Устанавливаем текущий текст и время задачи в поля диалогового окна
         editTextTask.setText(task.getText());
