@@ -5,7 +5,7 @@ public class Task {
     private String text;
     private String dateCreated;
     private String timeCreated;
-    // Поле для хранения пути к изображению
+    private boolean important; // поле для хранения информации о важности задачи
 
     public Task() {
         // Пустой конструктор
@@ -18,6 +18,22 @@ public class Task {
         this.timeCreated = timeCreated;
     }
 
+    public Task(int id, String text, String dateCreated, String timeCreated, boolean important) {
+        this.id = id;
+        this.text = text;
+        this.dateCreated = dateCreated;
+        this.timeCreated = timeCreated;
+        this.important = important;
+    }
+
+    // Геттер и сеттер для поля important
+    public boolean isImportant() {
+        return important;
+    }
+
+    public void setImportant(boolean important) {
+        this.important = important;
+    }
 
     // Геттеры и сеттеры для остальных полей
     public int getId() {

@@ -28,6 +28,24 @@
             android:textSize="14sp"
             android:textColor="@android:color/darker_gray" />
 
+        <!-- Линейный макет для размещения иконки favicon -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Иконка favicon -->
+            <ImageView
+                android:id="@+id/image_star"
+                android:layout_width="16sp"
+                android:layout_height="16sp"
+                android:src="@drawable/favicon"
+                android:layout_gravity="end"
+                android:layout_marginStart="8dp"
+                android:visibility="gone" /> <!-- Устанавливаем по умолчанию невидимой -->
+
+        </LinearLayout>
+
         <!-- Кнопка удаления задачи -->
         <ImageButton
             android:id="@+id/button_delete_task"

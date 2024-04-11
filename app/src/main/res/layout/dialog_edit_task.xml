@@ -12,12 +12,20 @@
         android:hint="Введите задачу"
         android:minHeight="48dp" />
 
+
     <TextView
         android:id="@+id/textViewDateTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:layout_marginTop="16dp"/>
+
+    <Switch
+        android:id="@+id/switchPriority"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Важная задача" />
 
     <ImageButton
         android:id="@+id/buttonPickDateTime"
