@@ -20,6 +20,14 @@
         android:textSize="16sp"
         android:layout_marginTop="16dp"/>
 
+    <ImageButton
+        android:id="@+id/buttonPickDateTime"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/baseline_access_time_24"
+        android:text="Выбрать дату и время" />
+
     <Switch
         android:id="@+id/switchPriority"
         android:layout_width="wrap_content"
@@ -27,18 +35,12 @@
         android:layout_marginTop="8dp"
         android:text="Важная задача" />
 
-    <ImageButton
-        android:id="@+id/buttonPickDateTime"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="8dp"
-        android:src="@drawable/clock"
-        android:text="Выбрать дату и время" />
-
-
-
-
-
-
+    <Switch
+        android:id="@+id/switch_notify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:checked="false"
+        android:text="Уведомить" />
 
 </LinearLayout>

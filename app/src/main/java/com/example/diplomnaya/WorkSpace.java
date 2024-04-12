@@ -1,39 +1,45 @@
 package com.example.diplomnaya;
-
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-import android.widget.ImageView;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import android.app.AlarmManager;
+import java.text.ParseException;
+import java.util.Date;
+
+
 
 public class WorkSpace extends AppCompatActivity {
 
     private LinearLayout tasksLayout;
     private TaskDatabaseHelper dbHelper;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Task task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,30 +48,28 @@ public class WorkSpace extends AppCompatActivity {
 
         tasksLayout = findViewById(R.id.tasks_layout);
         dbHelper = new TaskDatabaseHelper(this);
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout); // Инициализируйте SwipeRefreshLayout
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
 
         loadTasks();
 
         findViewById(R.id.button_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                task = new Task();
                 showAddTaskDialog();
             }
         });
 
-        // Установите слушатель для обработки события обновления при свайпе вниз
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadTasks(); // Вызовите метод загрузки задач при обновлении
-                swipeRefreshLayout.setRefreshing(false); // Скрыть индикатор обновления
+                loadTasks();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
     private void showAddTaskDialog() {
-        task = new Task();
+        final Task newTask = new Task();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Добавить задачу");
@@ -76,12 +80,11 @@ public class WorkSpace extends AppCompatActivity {
         final TextView textViewDateTime = dialogView.findViewById(R.id.textViewDateTime);
         ImageButton buttonPickDateTime = dialogView.findViewById(R.id.buttonPickDateTime);
         Switch switchPriority = dialogView.findViewById(R.id.switchPriority);
+        Switch switchNotify = dialogView.findViewById(R.id.switch_notify);
 
         builder.setView(dialogView);
 
-        if (task != null) {
-            editTextTask.setText(task.getText());
-        }
+        switchNotify.setChecked(newTask.isNotify());
 
         final Calendar calendar = Calendar.getInstance();
 
@@ -124,9 +127,10 @@ public class WorkSpace extends AppCompatActivity {
                 String taskText = editTextTask.getText().toString().trim();
                 String dateTime = textViewDateTime.getText().toString().trim();
                 boolean isImportant = switchPriority.isChecked();
+                boolean notify = switchNotify.isChecked();
+                newTask.setNotify(notify);
 
                 if (!taskText.isEmpty()) {
-                    Task newTask = new Task();
                     newTask.setText(taskText);
 
                     if (!dateTime.isEmpty()) {
@@ -146,6 +150,7 @@ public class WorkSpace extends AppCompatActivity {
                     newTask.setImportant(isImportant);
                     dbHelper.addTask(newTask);
                     addTaskToLayout(newTask);
+                    scheduleNotification(newTask); // Вызовите метод планирования уведомления после добавления задачи
                 } else {
                     Toast.makeText(WorkSpace.this, "Пожалуйста, введите текст задачи", Toast.LENGTH_SHORT).show();
                 }
@@ -234,10 +239,8 @@ public class WorkSpace extends AppCompatActivity {
                 deleteDialogBuilder.show();
             }
         });
-            tasksLayout.addView(taskView);
-        }
-
-
+        tasksLayout.addView(taskView);
+    }
 
 
     private void loadTasks() {
@@ -267,6 +270,9 @@ public class WorkSpace extends AppCompatActivity {
         final TextView textViewDateTime = editDialogView.findViewById(R.id.textViewDateTime);
         ImageButton buttonPickDateTime = editDialogView.findViewById(R.id.buttonPickDateTime);
         Switch switchPriority = editDialogView.findViewById(R.id.switchPriority);
+        Switch switchNotify = editDialogView.findViewById(R.id.switch_notify);
+
+        switchNotify.setChecked(task.isNotify());
 
         editTextTask.setText(task.getText());
         textViewDateTime.setText(task.getDateCreated() + " " + task.getTimeCreated());
@@ -325,6 +331,20 @@ public class WorkSpace extends AppCompatActivity {
                     updateTaskView(taskView, task);
                 } else {
                     Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу и выберите дату и время", Toast.LENGTH_SHORT).show();
+                    // Declaration of 'parts' outside of the 'if' block
+                    String[] parts;
+                    if (!editedDateTime.isEmpty()) {
+                        // Parsing date and time
+                        parts = editedDateTime.split(" ");
+                        // Отмена предыдущего уведомления
+                        cancelNotification(task);
+                        task.setDateCreated(parts[0]);
+                        task.setTimeCreated(parts[1]);
+                        task.setImportant(switchPriority.isChecked());
+                        dbHelper.updateTask(task);
+                        updateTaskView(taskView, task);
+                        scheduleNotification(task); // Планирование нового уведомления
+                    }
                 }
             }
         });
@@ -338,11 +358,78 @@ public class WorkSpace extends AppCompatActivity {
 
         editDialogBuilder.show();
     }
-    public static class NotificationReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Обработка приема уведомлений
+
+    private void createNotificationChannel() {
+        // Проверка версии SDK, так как создание каналов уведомлений требуется только для API 26 и выше
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = "Channel for task notifications";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("channel_1", name, importance);
+            channel.setDescription(description);
+
+            // Получение менеджера уведомлений и создание канала
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+    private void cancelNotification(Task task) {
+        Intent notificationIntent = new Intent(this, NotificationHelper.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
+    }
+
+
+    private void scheduleNotification(Task task) {
+        if (task.isNotify()) {
+            // Получение даты и времени задачи
+            String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
+
+            // Проверка наличия времени
+            if (task.getTimeCreated().equals("Время не установлено")) {
+                Toast.makeText(this, "Пожалуйста, укажите время для задачи", Toast.LENGTH_SHORT).show();
+                return; // Если время не указано, выходим из метода без планирования уведомления
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            try {
+                Date date = sdf.parse(dateTime);
+                long triggerAtMillis = date.getTime();
+
+                Intent notificationIntent = new Intent(this, NotificationHelper.class);
+                notificationIntent.putExtra("TASK_TEXT", task.getText());
+                notificationIntent.putExtra("TASK_ID", task.getId());
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, task.getId(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                // Установка уведомления с использованием AlarmManager
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            // Проверка, создан ли канал уведомлений
+            if (!isNotificationChannelCreated("channel_1")) {
+                createNotificationChannel();
+            }
         }
     }
 
+
+    private boolean isNotificationChannelCreated(String channelId) {
+        // Проверяем, создан ли канал уведомлений с заданным идентификатором
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
+            return channel != null;
+        }
+        // Если SDK меньше версии 26, возвращаем true, так как каналы уведомлений не требуются
+        return true;
+    }
 }
+
+
+
+

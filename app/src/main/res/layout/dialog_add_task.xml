@@ -11,8 +11,8 @@
         android:layout_height="wrap_content"
         android:hint="Введите задачу"
         android:textColor="@android:color/black"
-        android:minHeight="48dp" />
-
+        android:minHeight="48dp"
+        android:layout_weight="1"/>
 
     <!-- Добавляем новые элементы для выбора даты и времени -->
 
@@ -22,24 +22,34 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:textColor="@android:color/black"
-        android:layout_marginTop="16dp"/>
-
-    <Switch
-        android:id="@+id/switchPriority"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textColor="@android:color/black"
-        android:text="Важная задача" />
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"/>
 
     <ImageButton
         android:id="@+id/buttonPickDateTime"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginTop="8dp"
-        android:textColor="@android:color/black"
-        android:src="@drawable/clock"
-        android:text="Выбрать дату и время" />
+        android:layout_weight="1"
+        android:src="@drawable/baseline_access_time_24"
+        android:text="Выбрать дату и время"
+        android:textColor="@android:color/black" />
 
+    <Switch
+        android:id="@+id/switch_notify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:checked="false"
+        android:text="Уведомить" />
+
+    <Switch
+        android:id="@+id/switchPriority"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Важная задача"
+        android:textColor="@android:color/black"
+        android:layout_weight="1"/>
 
 </LinearLayout>

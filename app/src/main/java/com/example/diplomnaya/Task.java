@@ -4,6 +4,7 @@ public class Task {
     private int id;
     private String text;
     private String dateCreated;
+    private boolean notify;
     private String timeCreated;
     private boolean important; // поле для хранения информации о важности задачи
 
@@ -24,6 +25,14 @@ public class Task {
         this.dateCreated = dateCreated;
         this.timeCreated = timeCreated;
         this.important = important;
+    }
+
+    public boolean isNotify() {
+        return notify;
+    }
+
+    public void setNotify(boolean notify) {
+        this.notify = notify;
     }
 
     // Геттер и сеттер для поля important

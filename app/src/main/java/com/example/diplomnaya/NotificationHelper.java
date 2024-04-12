@@ -1,40 +1,49 @@
 package com.example.diplomnaya;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.os.Build;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-public class NotificationHelper {
-    private Context mContext;
-    private static final String CHANNEL_ID = "your_channel_id";
-    private static final String CHANNEL_NAME = "Your Channel Name";
+import android.content.BroadcastReceiver;
+import android.media.RingtoneManager;
 
-    public NotificationHelper(Context context) {
-        mContext = context;
-    }
+import androidx.core.app.NotificationManagerCompat;
 
-    public void createNotification(String title, String message, int notificationId) {
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(mContext, CHANNEL_ID)
-                        .setSmallIcon(R.drawable.notification_icon)
-                        .setContentTitle(title)
-                        .setContentText(message)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+import android.Manifest;
+import android.content.pm.PackageManager;
 
-        NotificationManager notificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+import androidx.core.content.ContextCompat;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            notificationManager.createNotificationChannel(channel);
+import android.content.Context;
+import android.content.Intent;
+
+public class NotificationHelper extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String taskText = intent.getStringExtra("TASK_TEXT");
+        int taskId = intent.getIntExtra("TASK_ID", 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "channel_1")
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle("Напоминание о задаче")
+                .setContentText(taskText)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setVibrate(new long[]{1000, 500, 1000});
+
+        // Здесь задается массив, который определяет паузы и длительности вибрации (в миллисекундах)
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
-
-        notificationManager.notify(notificationId, builder.build());
+        notificationManager.notify(taskId, builder.build());
     }
 }
+
