@@ -29,7 +29,7 @@
             android:text="Добро пожаловать в наш органайзер дел!\n\nЗдесь вы можете эффективно планировать свои задачи и управлять ими. Наше приложение поможет вам оставаться продуктивным и организованным.\n\nНажмите 'Приступить', чтобы начать работу"
             android:textAlignment="center"
             android:textColor="@android:color/black"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:fontFamily="@font/roboto_bold"
             android:background="@drawable/rounded_white_background" />
 

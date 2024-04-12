@@ -3,5 +3,5 @@
     <string name="current_date">Current Date</string>
     <string name="title_activity_work_space">work_space</string>
     <string name="buttonchangetheme">Сменить тему</string>
-    <string name="channel_name">Название канала</string>
+    <string name="channel_name">Уведомления Заметок</string>
 </resources>

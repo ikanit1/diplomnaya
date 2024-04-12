@@ -14,6 +14,7 @@ import android.os.Vibrator;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,16 +43,27 @@ public class NotificationService extends Service {
         // Проверка версии SDK, так как создание каналов уведомлений требуется только для API 26 и выше
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
-            String description = "Channel for task notifications";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("channel_1", name, importance);
+            String description = "Как будут появляться заметки";
+            int importance = NotificationManager.IMPORTANCE_HIGH; // Используем IMPORTANCE_HIGH для важных уведомлений
+
+            // Установка вибрации
+            long[] vibrationPattern = {1000, 500, 1000}; // Паттерн вибрации (пауза, вибрация, пауза, вибрация)
+
+            // Создание канала уведомлений
+            NotificationChannel channel = new NotificationChannel("channel_name", name, importance);
             channel.setDescription(description);
+            channel.enableVibration(true);
+            channel.setVibrationPattern(vibrationPattern);
+
+            // Установка настройки, чтобы уведомления показывались на экране блокировки
+            channel.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
             // Получение менеджера уведомлений и создание канала
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
+
 
     private void scheduleNotification() {
         // Получаем список задач из базы данных
@@ -86,7 +98,7 @@ public class NotificationService extends Service {
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
 
                     // Проверка, создан ли канал уведомлений
-                    if (!isNotificationChannelCreated("channel_1")) {
+                    if (!isNotificationChannelCreated("channel_name")) {
                         createNotificationChannel();
                     }
                 } catch (ParseException e) {

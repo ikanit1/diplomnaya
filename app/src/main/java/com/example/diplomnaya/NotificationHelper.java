@@ -29,7 +29,7 @@ public class NotificationHelper extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, workspaceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Создание уведомления с установленным PendingIntent
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "channel_1")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "channel_name")
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle("Напоминание о задаче")
                 .setContentText(taskText)

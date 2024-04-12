@@ -46,6 +46,12 @@ public class WorkSpace extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.workspace_main);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!isNotificationChannelCreated("channel_name")) {
+                createNotificationChannel();
+            }
+        }
+
         tasksLayout = findViewById(R.id.tasks_layout);
         dbHelper = new TaskDatabaseHelper(this);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
@@ -395,9 +401,9 @@ public class WorkSpace extends AppCompatActivity {
         // Проверка версии SDK, так как создание каналов уведомлений требуется только для API 26 и выше
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
-            String description = "Channel for task notifications";
+            String description = "Как будут появляться уведомления";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("channel_1", name, importance);
+            NotificationChannel channel = new NotificationChannel("channel_name", name, importance);
             channel.setDescription(description);
 
             // Получение менеджера уведомлений и создание канала
@@ -444,7 +450,7 @@ public class WorkSpace extends AppCompatActivity {
             }
 
             // Проверка, создан ли канал уведомлений
-            if (!isNotificationChannelCreated("channel_1")) {
+            if (!isNotificationChannelCreated("channel_name")) {
                 createNotificationChannel();
             }
         }
