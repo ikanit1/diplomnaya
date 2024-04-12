@@ -1,49 +1,80 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <!-- SwipeRefreshLayout для обновления задач -->
+    <TextView
+        android:id="@+id/text_add_task_notification"
+        android:layout_width="236dp"
+        android:layout_height="72dp"
+        android:layout_gravity="center"
+        android:text="Добавьте свою первую задачу"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/button_add_task"
+        app:layout_constraintBottom_toTopOf="@id/bottom_menu"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fillViewport="true">
 
-            <LinearLayout
-                android:id="@+id/tasks_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <!-- Здесь размещаются ваши элементы задач -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ваши задачи здесь"
-                    android:visibility="gone" /> <!-- Скрыть текст, но он будет проговорен -->
-            </LinearLayout>
-
         </ScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <Button
-        android:id="@+id/button_add_task"
-        android:layout_width="221dp"
+    <LinearLayout
+        android:id="@+id/tasks_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="Добавить задачу"
+        android:orientation="vertical">
+
+        <!-- Здесь размещаются ваши элементы задач -->
+        <!-- Ваша логика отображения задач -->
+
+        <!-- Текст уведомления о добавлении первой задачи -->
+
+    </LinearLayout>
+
+    <!-- Нижняя панель для кнопок -->
+    <LinearLayout
+        android:id="@+id/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- Кнопка добавить задачу -->
+        <ImageButton
+            android:id="@+id/button_add_task"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="Добавить задачу"
+            android:padding="16dp"
+            android:rotationX="4"
+            android:src="@drawable/add_button" />
+
+        <!-- Дополнительные кнопки или элементы управления могут быть добавлены здесь -->
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

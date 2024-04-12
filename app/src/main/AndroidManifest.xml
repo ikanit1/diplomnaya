@@ -26,8 +26,14 @@
             android:exported="false"
             android:label="@string/title_activity_work_space"
             android:theme="@style/Theme.Diplomnaya" />
+        <receiver android:name=".NotificationHelper"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
 
-        <receiver android:name=".NotificationHelper" />
 
         <service android:name=".NotificationService" />
         <activity
@@ -38,6 +44,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
 
     </application>
 </manifest>

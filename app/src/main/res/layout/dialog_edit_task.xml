@@ -27,6 +27,15 @@
         android:layout_marginTop="8dp"
         android:src="@drawable/baseline_access_time_24"
         android:text="Выбрать дату и время" />
+    <TextView
+        android:id="@+id/textSelectDateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:text="Выбрать время для уведомления"
+        android:textColor="@android:color/black"
+        android:textSize="12sp" />
 
     <Switch
         android:id="@+id/switchPriority"

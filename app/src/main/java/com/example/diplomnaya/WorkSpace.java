@@ -88,6 +88,7 @@ public class WorkSpace extends AppCompatActivity {
 
         final Calendar calendar = Calendar.getInstance();
 
+        final TextView textSelectDateTime = dialogView.findViewById(R.id.textSelectDateTime); // Добавляем это
         buttonPickDateTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,6 +113,13 @@ public class WorkSpace extends AppCompatActivity {
                                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
                                 String dateTime = sdf.format(calendar.getTime());
                                 textViewDateTime.setText(dateTime);
+
+                                // Проверяем, выбрано ли уже время, и скрываем или показываем соответствующий TextView
+                                if (!dateTime.isEmpty()) {
+                                    textSelectDateTime.setVisibility(View.GONE); // Скрыть TextView
+                                } else {
+                                    textSelectDateTime.setVisibility(View.VISIBLE); // Показать TextView
+                                }
                             }
                         }, hour, minute, true);
                         timePickerDialog.show();
@@ -154,6 +162,7 @@ public class WorkSpace extends AppCompatActivity {
                 } else {
                     Toast.makeText(WorkSpace.this, "Пожалуйста, введите текст задачи", Toast.LENGTH_SHORT).show();
                 }
+                loadTasks();
             }
         });
 
@@ -255,10 +264,19 @@ public class WorkSpace extends AppCompatActivity {
             }
         });
 
+        if (tasks.isEmpty()) {
+            // Если список задач пуст, делаем TextView видимым
+            findViewById(R.id.text_add_task_notification).setVisibility(View.VISIBLE);
+        } else {
+            // Если в списке есть задачи, скрываем TextView
+            findViewById(R.id.text_add_task_notification).setVisibility(View.GONE);
+        }
+
         for (Task task : tasks) {
             addTaskToLayout(task);
         }
     }
+
 
     private void showEditTaskDialog(View taskView, Task task) {
         AlertDialog.Builder editDialogBuilder = new AlertDialog.Builder(WorkSpace.this);
@@ -268,6 +286,7 @@ public class WorkSpace extends AppCompatActivity {
         View editDialogView = inflater.inflate(R.layout.dialog_edit_task, null);
         final EditText editTextTask = editDialogView.findViewById(R.id.editTextTask);
         final TextView textViewDateTime = editDialogView.findViewById(R.id.textViewDateTime);
+        final TextView textSelectDateTime = editDialogView.findViewById(R.id.textSelectDateTime); // Добавляем это
         ImageButton buttonPickDateTime = editDialogView.findViewById(R.id.buttonPickDateTime);
         Switch switchPriority = editDialogView.findViewById(R.id.switchPriority);
         Switch switchNotify = editDialogView.findViewById(R.id.switch_notify);
@@ -306,6 +325,13 @@ public class WorkSpace extends AppCompatActivity {
                                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
                                 String dateTime = sdf.format(calendar.getTime());
                                 textViewDateTime.setText(dateTime);
+
+                                // Проверяем, выбрано ли уже время, и скрываем или показываем соответствующий TextView
+                                if (!dateTime.isEmpty()) {
+                                    textSelectDateTime.setVisibility(View.GONE); // Скрыть TextView
+                                } else {
+                                    textSelectDateTime.setVisibility(View.VISIBLE); // Показать TextView
+                                }
                             }
                         }, hour, minute, true);
                         timePickerDialog.show();
@@ -329,6 +355,10 @@ public class WorkSpace extends AppCompatActivity {
                     task.setImportant(switchPriority.isChecked());
                     dbHelper.updateTask(task);
                     updateTaskView(taskView, task);
+
+                    // Отменяем предыдущее уведомление перед планированием нового
+                    cancelNotification(task);
+                    scheduleNotification(task); // Планирование нового уведомления
                 } else {
                     Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу и выберите дату и время", Toast.LENGTH_SHORT).show();
                     // Declaration of 'parts' outside of the 'if' block
@@ -346,8 +376,10 @@ public class WorkSpace extends AppCompatActivity {
                         scheduleNotification(task); // Планирование нового уведомления
                     }
                 }
+                loadTasks();
             }
         });
+
 
         editDialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             @Override
@@ -375,10 +407,11 @@ public class WorkSpace extends AppCompatActivity {
     }
     private void cancelNotification(Task task) {
         Intent notificationIntent = new Intent(this, NotificationHelper.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, task.getId(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
     }
+
 
 
     private void scheduleNotification(Task task) {
