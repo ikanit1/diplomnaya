@@ -4,9 +4,10 @@ public class Task {
     private int id;
     private String text;
     private String dateCreated;
-    private boolean notify;
     private String timeCreated;
-    private boolean important; // поле для хранения информации о важности задачи
+    private boolean notify;
+    private boolean is_repeating;
+    private boolean important;
 
     public Task() {
         // Пустой конструктор
@@ -35,7 +36,15 @@ public class Task {
         this.notify = notify;
     }
 
-    // Геттер и сеттер для поля important
+    // Геттер и сеттер для repeating
+    public boolean isRepeating() {
+        return is_repeating;
+    }
+
+    public void setRepeating(boolean is_repeating) {
+        this.is_repeating = is_repeating;
+    }
+
     public boolean isImportant() {
         return important;
     }
@@ -44,7 +53,6 @@ public class Task {
         this.important = important;
     }
 
-    // Геттеры и сеттеры для остальных полей
     public int getId() {
         return id;
     }

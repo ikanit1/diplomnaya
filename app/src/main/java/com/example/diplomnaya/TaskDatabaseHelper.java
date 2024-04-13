@@ -19,10 +19,9 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_TASK_TEXT = "task_text";
     private static final String COLUMN_DATE_CREATED = "date_created";
     private static final String COLUMN_TIME_CREATED = "time_created";
-    private static final String COLUMN_IMPORTANT = "important"; // Новое поле для хранения информации о важности задачи
-
+    private static final String COLUMN_IMPORTANT = "important";
     private static final String COLUMN_NOTIFY = "notify";
-
+    private static final String COLUMN_IS_REPEATING = "is_repeating";
 
     public TaskDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -36,8 +35,10 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_DATE_CREATED + " TEXT,"
                 + COLUMN_TIME_CREATED + " TEXT,"
                 + COLUMN_IMPORTANT + " INTEGER,"
-                + COLUMN_NOTIFY + " INTEGER" // Добавлен новый столбец для уведомлений
+                + COLUMN_NOTIFY + " INTEGER,"
+                + COLUMN_IS_REPEATING + " INTEGER" // Добавляем новое поле для типа задачи
                 + ")";
+
         db.execSQL(CREATE_TABLE_TASKS);
     }
 
@@ -53,8 +54,10 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TASK_TEXT, task.getText());
         values.put(COLUMN_DATE_CREATED, task.getDateCreated());
         values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
-        values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0); // Записываем 1 для true и 0 для false
-        values.put(COLUMN_IMPORTANT, task.isImportant() ? 1 : 0); // Записываем 1 для true и 0 для false
+        values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0);
+        values.put(COLUMN_IMPORTANT, task.isImportant() ? 1 : 0);
+        values.put(COLUMN_IS_REPEATING, task.isRepeating() ? 1 : 0); // Записываем 1 для true и 0 для false
+
         db.insert(TABLE_TASKS, null, values);
         db.close();
     }
@@ -65,8 +68,10 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TASK_TEXT, task.getText());
         values.put(COLUMN_DATE_CREATED, task.getDateCreated());
         values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
-        values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0); // Записываем 1 для true и 0 для false
-        values.put(COLUMN_IMPORTANT, task.isImportant() ? 1 : 0); // Записываем 1 для true и 0 для false
+        values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0);
+        values.put(COLUMN_IMPORTANT, task.isImportant() ? 1 : 0);
+        values.put(COLUMN_IS_REPEATING, task.isRepeating() ? 1 : 0);
+
         db.update(TABLE_TASKS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
         db.close();
     }
@@ -83,9 +88,10 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
                 task.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
                 task.setText(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_TEXT)));
                 task.setDateCreated(cursor.getString(cursor.getColumnIndex(COLUMN_DATE_CREATED)));
-                task.setNotify(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTIFY)) == 1); // Преобразуем 1 обратно в true и 0 в false
+                task.setNotify(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTIFY)) == 1);
                 task.setTimeCreated(cursor.getString(cursor.getColumnIndex(COLUMN_TIME_CREATED)));
-                task.setImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1); // Преобразуем 1 обратно в true и 0 в false
+                task.setRepeating(cursor.getInt(cursor.getColumnIndex(COLUMN_IS_REPEATING)) == 1);
+                task.setImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
                 taskList.add(task);
             }
             cursor.close();
@@ -93,6 +99,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return taskList;
     }
+
     @SuppressLint("Range")
     public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -114,6 +121,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
             task.setTimeCreated(cursor.getString(cursor.getColumnIndex(COLUMN_TIME_CREATED)));
             task.setImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
             task.setNotify(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTIFY)) == 1);
+            task.setRepeating(cursor.getInt(cursor.getColumnIndex(COLUMN_IS_REPEATING)) == 1);
 
             cursor.close();
 
@@ -122,7 +130,6 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
             return null;
         }
     }
-
 
     public void deleteTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();

@@ -4,4 +4,6 @@
     <string name="title_activity_work_space">work_space</string>
     <string name="buttonchangetheme">Сменить тему</string>
     <string name="channel_name">Уведомления Заметок</string>
+    <string name="important">Избранное</string>
+    <string name="Selectdate">Выбрать дату и время</string>
 </resources>

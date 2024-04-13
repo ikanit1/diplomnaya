@@ -6,19 +6,59 @@
     android:padding="16dp">
 
     <EditText
+        android:id="@+id/editTitleTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Введите Заголовок"
+        android:textColor="@android:color/black"
+        android:minHeight="48dp" />
+
+    <EditText
         android:id="@+id/editTextTask"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Введите задачу"
+        android:hint="Введите Текст"
+        android:textColor="@android:color/black"
         android:minHeight="48dp" />
 
+    <TextView
+        android:id="@+id/textViewTaskType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Тип задачи"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupTaskType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioButtonOneTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Одноразовая"
+            android:checked="true"
+            android:textColor="@android:color/black" />
+
+        <RadioButton
+            android:id="@+id/radioButtonRepeating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Повторяющаяся"
+            android:textColor="@android:color/black" />
+
+    </RadioGroup>
 
     <TextView
         android:id="@+id/textViewDateTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp" />
 
     <ImageButton
         android:id="@+id/buttonPickDateTime"
@@ -27,12 +67,12 @@
         android:layout_marginTop="8dp"
         android:src="@drawable/baseline_access_time_24"
         android:text="Выбрать дату и время" />
+
     <TextView
         android:id="@+id/textSelectDateTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_weight="1"
         android:text="Выбрать время для уведомления"
         android:textColor="@android:color/black"
         android:textSize="12sp" />
@@ -48,7 +88,6 @@
         android:id="@+id/switch_notify"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:checked="false"
         android:text="Уведомить" />
 

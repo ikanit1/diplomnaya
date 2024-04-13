@@ -5,6 +5,9 @@ import android.os.Build;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
+import android.widget.RadioButton;
+import android.widget.CompoundButton;
+import android.widget.RadioGroup;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -87,6 +90,11 @@ public class WorkSpace extends AppCompatActivity {
         ImageButton buttonPickDateTime = dialogView.findViewById(R.id.buttonPickDateTime);
         Switch switchPriority = dialogView.findViewById(R.id.switchPriority);
         Switch switchNotify = dialogView.findViewById(R.id.switch_notify);
+        RadioGroup radioGroupTaskType = dialogView.findViewById(R.id.radioGroupTaskType);
+        RadioButton radioButtonOneTime = dialogView.findViewById(R.id.radioButtonOneTime);
+        RadioButton radioButtonRepeating = dialogView.findViewById(R.id.radioButtonRepeating);
+
+        radioButtonRepeating.setChecked(newTask.isRepeating());
 
         builder.setView(dialogView);
 
@@ -135,6 +143,18 @@ public class WorkSpace extends AppCompatActivity {
             }
         });
 
+        radioButtonRepeating.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Проверяем, выбран ли RadioButton "Повторяющаяся задача"
+                if (isChecked) {
+                    newTask.setRepeating(true); // Если выбран, устанавливаем repeating в true
+                } else {
+                    newTask.setRepeating(false); // Иначе устанавливаем repeating в false
+                }
+            }
+        });
+
         builder.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -143,6 +163,13 @@ public class WorkSpace extends AppCompatActivity {
                 boolean isImportant = switchPriority.isChecked();
                 boolean notify = switchNotify.isChecked();
                 newTask.setNotify(notify);
+
+                // Определяем тип задачи в зависимости от выбранного переключателя
+                if (radioButtonOneTime.isChecked()) {
+                    newTask.setRepeating(false);
+                } else if (radioButtonRepeating.isChecked()) {
+                    newTask.setRepeating(true);
+                }
 
                 if (!taskText.isEmpty()) {
                     newTask.setText(taskText);
@@ -182,6 +209,8 @@ public class WorkSpace extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+
 
     private void updateTaskView(View taskView, Task task) {
         TextView taskTextView = taskView.findViewById(R.id.task_text);
@@ -243,6 +272,7 @@ public class WorkSpace extends AppCompatActivity {
                         dbHelper.deleteTask(task);
                         tasksLayout.removeView(taskView);
                         dialog.dismiss();
+                        loadTasks();
                     }
                 });
                 deleteDialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -296,13 +326,15 @@ public class WorkSpace extends AppCompatActivity {
         ImageButton buttonPickDateTime = editDialogView.findViewById(R.id.buttonPickDateTime);
         Switch switchPriority = editDialogView.findViewById(R.id.switchPriority);
         Switch switchNotify = editDialogView.findViewById(R.id.switch_notify);
+        RadioButton radioButtonOneTime = editDialogView.findViewById(R.id.radioButtonOneTime);
+        RadioButton radioButtonRepeating = editDialogView.findViewById(R.id.radioButtonRepeating);
 
+        // Установка состояния RadioButton в соответствии с текущим значением задачи
+        radioButtonRepeating.setChecked(task.isRepeating());
         switchNotify.setChecked(task.isNotify());
-
         editTextTask.setText(task.getText());
         textViewDateTime.setText(task.getDateCreated() + " " + task.getTimeCreated());
         switchPriority.setChecked(task.isImportant());
-
         editDialogBuilder.setView(editDialogView);
 
         final Calendar calendar = Calendar.getInstance();
@@ -345,7 +377,21 @@ public class WorkSpace extends AppCompatActivity {
                 }, year, month, day);
                 datePickerDialog.show();
             }
+
         });
+
+        radioButtonRepeating.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Проверяем, выбран ли RadioButton "Повторяющаяся задача"
+                if (isChecked) {
+                    task.setRepeating(true); // Устанавливаем repeating в true для конкретной задачи
+                } else {
+                    task.setRepeating(false); // Устанавливаем repeating в false для конкретной задачи
+                }
+            }
+        });
+
 
         editDialogBuilder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
             @Override
@@ -359,6 +405,8 @@ public class WorkSpace extends AppCompatActivity {
                     task.setDateCreated(parts[0]);
                     task.setTimeCreated(parts[1]);
                     task.setImportant(switchPriority.isChecked());
+                    // Обновление состояния RadioButton в объекте задачи
+                    task.setRepeating(radioButtonRepeating.isChecked());
                     dbHelper.updateTask(task);
                     updateTaskView(taskView, task);
 
@@ -367,16 +415,15 @@ public class WorkSpace extends AppCompatActivity {
                     scheduleNotification(task); // Планирование нового уведомления
                 } else {
                     Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу и выберите дату и время", Toast.LENGTH_SHORT).show();
-                    // Declaration of 'parts' outside of the 'if' block
                     String[] parts;
                     if (!editedDateTime.isEmpty()) {
-                        // Parsing date and time
                         parts = editedDateTime.split(" ");
-                        // Отмена предыдущего уведомления
                         cancelNotification(task);
                         task.setDateCreated(parts[0]);
                         task.setTimeCreated(parts[1]);
                         task.setImportant(switchPriority.isChecked());
+                        // Обновление состояния RadioButton в объекте задачи
+                        task.setRepeating(radioButtonRepeating.isChecked());
                         dbHelper.updateTask(task);
                         updateTaskView(taskView, task);
                         scheduleNotification(task); // Планирование нового уведомления
@@ -385,6 +432,7 @@ public class WorkSpace extends AppCompatActivity {
                 loadTasks();
             }
         });
+
 
 
         editDialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -398,6 +446,8 @@ public class WorkSpace extends AppCompatActivity {
     }
 
     private void createNotificationChannel() {
+
+
         // Проверка версии SDK, так как создание каналов уведомлений требуется только для API 26 и выше
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
@@ -439,12 +489,22 @@ public class WorkSpace extends AppCompatActivity {
                 Intent notificationIntent = new Intent(this, NotificationHelper.class);
                 notificationIntent.putExtra("TASK_TEXT", task.getText());
                 notificationIntent.putExtra("TASK_ID", task.getId());
+                notificationIntent.putExtra("IS_REPEATING", task.isRepeating()); // Добавляем флаг повторения
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(this, task.getId(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 // Установка уведомления с использованием AlarmManager
                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+
+                // Используем разные методы для планирования повторяющегося и одноразового уведомлений
+                if (task.isRepeating()) {
+                    // Планируем повторяющееся уведомление с интервалом в сутки
+                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, triggerAtMillis, AlarmManager.INTERVAL_DAY, pendingIntent);
+                } else {
+                    // Устанавливаем одноразовое уведомление
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                }
+
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -455,6 +515,7 @@ public class WorkSpace extends AppCompatActivity {
             }
         }
     }
+
 
 
     private boolean isNotificationChannelCreated(String channelId) {

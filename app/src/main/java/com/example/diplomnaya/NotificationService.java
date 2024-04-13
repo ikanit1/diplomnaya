@@ -23,22 +23,18 @@ import java.util.Locale;
 
 public class NotificationService extends Service {
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // Создание канала уведомлений
+        createNotificationChannel();
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // Планирование уведомления с использованием AlarmManager
-        scheduleNotification();
-
-        // Возвращаем START_NOT_STICKY, так как служба не должна быть перезапущена автоматически,
-        // если она будет остановлена системой после завершения выполнения
-        return START_NOT_STICKY;
-    }
-
     private void createNotificationChannel() {
         // Проверка версии SDK, так как создание каналов уведомлений требуется только для API 26 и выше
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -63,7 +59,15 @@ public class NotificationService extends Service {
             notificationManager.createNotificationChannel(channel);
         }
     }
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // Планирование уведомления с использованием AlarmManager
+        scheduleNotification();
 
+        // Возвращаем START_NOT_STICKY, так как служба не должна быть перезапущена автоматически,
+        // если она будет остановлена системой после завершения выполнения
+        return START_NOT_STICKY;
+    }
 
     private void scheduleNotification() {
         // Получаем список задач из базы данных
