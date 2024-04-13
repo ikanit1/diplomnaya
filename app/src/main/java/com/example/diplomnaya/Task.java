@@ -3,6 +3,7 @@ package com.example.diplomnaya;
 public class Task {
     private int id;
     private String text;
+    private String title;
     private String dateCreated;
     private String timeCreated;
     private boolean notify;
@@ -13,21 +14,6 @@ public class Task {
         // Пустой конструктор
     }
 
-    public Task(int id, String text, String dateCreated, String timeCreated) {
-        this.id = id;
-        this.text = text;
-        this.dateCreated = dateCreated;
-        this.timeCreated = timeCreated;
-    }
-
-    public Task(int id, String text, String dateCreated, String timeCreated, boolean important) {
-        this.id = id;
-        this.text = text;
-        this.dateCreated = dateCreated;
-        this.timeCreated = timeCreated;
-        this.important = important;
-    }
-
     public boolean isNotify() {
         return notify;
     }
@@ -36,7 +22,6 @@ public class Task {
         this.notify = notify;
     }
 
-    // Геттер и сеттер для repeating
     public boolean isRepeating() {
         return is_repeating;
     }
@@ -67,6 +52,14 @@ public class Task {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDateCreated() {

@@ -6,13 +6,21 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Виджет TextView для отображения текста задачи -->
+    <TextView
+        android:id="@+id/task_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:textColor="@android:color/black" /> <!-- Устанавливаем по умолчанию невидимой --><!-- Виджет TextView для отображения текста задачи -->
     <TextView
         android:id="@+id/task_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textColor="@android:color/black" />
+
+    <!-- Виджет TextView для отображения заголовка задачи -->
+
 
     <!-- Линейный макет для кнопок удаления и редактирования задачи -->
     <LinearLayout
@@ -29,8 +37,7 @@
             android:textSize="14sp"
             android:textColor="@android:color/black" />
 
-
-
+        <!-- Виджет ImageView для отображения важности задачи -->
         <ImageView
             android:id="@+id/image_star"
             android:layout_width="16sp"
@@ -39,23 +46,14 @@
             android:layout_marginStart="8dp"
             android:src="@android:drawable/btn_star_big_on"
             android:visibility="gone" /> <!-- Устанавливаем по умолчанию невидимой -->
-        <!-- Линейный макет для размещения иконки favicon -->
+
+        <!-- Кнопка редактирования задачи -->
         <ImageButton
             android:id="@+id/button_edit_task"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="Edit"
             android:src="@android:drawable/ic_menu_edit" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Иконка favicon -->
-
-
-        </LinearLayout>
 
         <!-- Кнопка удаления задачи -->
         <ImageButton
@@ -65,8 +63,6 @@
             android:contentDescription="Delete"
             android:src="@android:drawable/ic_menu_delete"
             tools:src="@android:drawable/ic_menu_delete" />
-
-        <!-- Кнопка редактирования задачи -->
 
     </LinearLayout>
 </LinearLayout>

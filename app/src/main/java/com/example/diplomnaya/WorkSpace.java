@@ -85,6 +85,7 @@ public class WorkSpace extends AppCompatActivity {
 
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_task, null);
+        final EditText editTitleTask = dialogView.findViewById(R.id.editTitleTask);
         final EditText editTextTask = dialogView.findViewById(R.id.editTextTask);
         final TextView textViewDateTime = dialogView.findViewById(R.id.textViewDateTime);
         ImageButton buttonPickDateTime = dialogView.findViewById(R.id.buttonPickDateTime);
@@ -159,6 +160,10 @@ public class WorkSpace extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String taskText = editTextTask.getText().toString().trim();
+                String taskTitle = editTitleTask.getText().toString().trim();
+                if (!taskTitle.isEmpty()) {
+                    newTask.setTitle(taskTitle);
+                }
                 String dateTime = textViewDateTime.getText().toString().trim();
                 boolean isImportant = switchPriority.isChecked();
                 boolean notify = switchNotify.isChecked();
@@ -216,6 +221,9 @@ public class WorkSpace extends AppCompatActivity {
         TextView taskTextView = taskView.findViewById(R.id.task_text);
         taskTextView.setText(task.getText());
 
+        TextView taskTitleView = taskView.findViewById(R.id.task_title); // Найдите TextView для заголовка
+        taskTitleView.setText(task.getTitle()); // Установите заголовок
+
         TextView taskDateTimeView = taskView.findViewById(R.id.task_date_time);
         String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
         taskDateTimeView.setText(dateTime);
@@ -236,6 +244,9 @@ public class WorkSpace extends AppCompatActivity {
 
         TextView taskTextView = taskView.findViewById(R.id.task_text);
         taskTextView.setText(task.getText());
+
+        TextView taskTitleView = taskView.findViewById(R.id.task_title); // Найдите TextView для заголовка
+        taskTitleView.setText(task.getTitle()); // Установите заголовок
 
         TextView taskDateTimeView = taskView.findViewById(R.id.task_date_time);
         String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
@@ -321,18 +332,31 @@ public class WorkSpace extends AppCompatActivity {
         LayoutInflater inflater = getLayoutInflater();
         View editDialogView = inflater.inflate(R.layout.dialog_edit_task, null);
         final EditText editTextTask = editDialogView.findViewById(R.id.editTextTask);
+        final EditText editTitleTask = editDialogView.findViewById(R.id.editTitleTask);
         final TextView textViewDateTime = editDialogView.findViewById(R.id.textViewDateTime);
-        final TextView textSelectDateTime = editDialogView.findViewById(R.id.textSelectDateTime); // Добавляем это
+        final TextView textSelectDateTime = editDialogView.findViewById(R.id.textSelectDateTime);
         ImageButton buttonPickDateTime = editDialogView.findViewById(R.id.buttonPickDateTime);
         Switch switchPriority = editDialogView.findViewById(R.id.switchPriority);
         Switch switchNotify = editDialogView.findViewById(R.id.switch_notify);
-        RadioButton radioButtonOneTime = editDialogView.findViewById(R.id.radioButtonOneTime);
         RadioButton radioButtonRepeating = editDialogView.findViewById(R.id.radioButtonRepeating);
+
+        cancelNotification(task);
+        scheduleNotification(task); // Планирование нового уведомления
+        // Установка состояния переключателя уведомлений в соответствии с задачей
+        switchNotify.setChecked(task.isNotify());
+
+        switchNotify.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Обновляем значение task.isNotify() в соответствии с новым состоянием переключателя
+                task.setNotify(isChecked);
+            }
+        });
 
         // Установка состояния RadioButton в соответствии с текущим значением задачи
         radioButtonRepeating.setChecked(task.isRepeating());
-        switchNotify.setChecked(task.isNotify());
         editTextTask.setText(task.getText());
+        editTitleTask.setText(task.getTitle()); // Установка текста заголовка задачи
         textViewDateTime.setText(task.getDateCreated() + " " + task.getTimeCreated());
         switchPriority.setChecked(task.isImportant());
         editDialogBuilder.setView(editDialogView);
@@ -397,38 +421,32 @@ public class WorkSpace extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String editedTaskText = editTextTask.getText().toString().trim();
+                String editedTaskTitle = editTitleTask.getText().toString().trim();
                 String editedDateTime = textViewDateTime.getText().toString().trim();
 
-                if (!editedTaskText.isEmpty() && !editedDateTime.isEmpty()) {
-                    task.setText(editedTaskText);
-                    String[] parts = editedDateTime.split(" ");
-                    task.setDateCreated(parts[0]);
-                    task.setTimeCreated(parts[1]);
-                    task.setImportant(switchPriority.isChecked());
-                    // Обновление состояния RadioButton в объекте задачи
-                    task.setRepeating(radioButtonRepeating.isChecked());
-                    dbHelper.updateTask(task);
-                    updateTaskView(taskView, task);
-
-                    // Отменяем предыдущее уведомление перед планированием нового
-                    cancelNotification(task);
-                    scheduleNotification(task); // Планирование нового уведомления
-                } else {
+                // Проверка, что текст задачи и дата и время не пустые
+                if (editedTaskText.isEmpty() || editedDateTime.isEmpty()) {
                     Toast.makeText(WorkSpace.this, "Пожалуйста, введите задачу и выберите дату и время", Toast.LENGTH_SHORT).show();
-                    String[] parts;
-                    if (!editedDateTime.isEmpty()) {
-                        parts = editedDateTime.split(" ");
-                        cancelNotification(task);
-                        task.setDateCreated(parts[0]);
-                        task.setTimeCreated(parts[1]);
-                        task.setImportant(switchPriority.isChecked());
-                        // Обновление состояния RadioButton в объекте задачи
-                        task.setRepeating(radioButtonRepeating.isChecked());
-                        dbHelper.updateTask(task);
-                        updateTaskView(taskView, task);
-                        scheduleNotification(task); // Планирование нового уведомления
-                    }
+                    return; // Прекратить выполнение метода, если одно из условий не выполнено
                 }
+
+                // Обновление данных задачи
+                task.setText(editedTaskText);
+                task.setTitle(editedTaskTitle); // Обновление заголовка задачи
+                String[] parts = editedDateTime.split(" ");
+                task.setDateCreated(parts[0]);
+                task.setTimeCreated(parts[1]);
+                task.setImportant(switchPriority.isChecked());
+                task.setRepeating(radioButtonRepeating.isChecked());
+                dbHelper.updateTask(task);
+                task.setNotify(switchNotify.isChecked());
+                updateTaskView(taskView, task);
+
+                // Отменяем предыдущее уведомление перед планированием нового
+                cancelNotification(task);
+                task.setNotify(switchNotify.isChecked());
+                // Планирование нового уведомления
+                scheduleNotification(task);
                 loadTasks();
             }
         });

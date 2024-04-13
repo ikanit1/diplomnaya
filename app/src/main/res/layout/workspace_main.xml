@@ -35,21 +35,21 @@
             android:layout_height="wrap_content"
             android:fillViewport="true">
 
+            <LinearLayout
+                android:id="@+id/tasks_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Здесь размещаются ваши элементы задач -->
+                <!-- Ваша логика отображения задач -->
+
+                <!-- Текст уведомления о добавлении первой задачи -->
+
+            </LinearLayout>
+
         </ScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <LinearLayout
-        android:id="@+id/tasks_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!-- Здесь размещаются ваши элементы задач -->
-        <!-- Ваша логика отображения задач -->
-
-        <!-- Текст уведомления о добавлении первой задачи -->
-
-    </LinearLayout>
 
     <!-- Нижняя панель для кнопок -->
     <LinearLayout

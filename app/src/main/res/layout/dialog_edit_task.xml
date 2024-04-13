@@ -1,94 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/editTitleTask"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Введите Заголовок"
-        android:textColor="@android:color/black"
-        android:minHeight="48dp" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <EditText
-        android:id="@+id/editTextTask"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Введите Текст"
-        android:textColor="@android:color/black"
-        android:minHeight="48dp" />
+        <EditText
+            android:id="@+id/editTitleTask"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите Заголовок"
+            android:textColor="@android:color/black"
+            android:minHeight="48dp" />
 
-    <TextView
-        android:id="@+id/textViewTaskType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Тип задачи"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
-        android:layout_marginTop="16dp" />
+        <EditText
+            android:id="@+id/editTextTask"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите Текст"
+            android:textColor="@android:color/black"
+            android:minHeight="48dp" />
 
-    <RadioGroup
-        android:id="@+id/radioGroupTaskType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:id="@+id/radioButtonOneTime"
+        <TextView
+            android:id="@+id/textViewTaskType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Одноразовая"
-            android:checked="true"
-            android:textColor="@android:color/black" />
+            android:text="Тип задачи"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp" />
 
-        <RadioButton
-            android:id="@+id/radioButtonRepeating"
+        <RadioGroup
+            android:id="@+id/radioGroupTaskType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Повторяющаяся"
-            android:textColor="@android:color/black" />
+            android:orientation="horizontal">
 
-    </RadioGroup>
+            <RadioButton
+                android:id="@+id/radioButtonOneTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Одноразовая"
+                android:checked="true"
+                android:textColor="@android:color/black" />
 
-    <TextView
-        android:id="@+id/textViewDateTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:layout_marginTop="16dp" />
+            <RadioButton
+                android:id="@+id/radioButtonRepeating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Повторяющаяся"
+                android:textColor="@android:color/black" />
 
-    <ImageButton
-        android:id="@+id/buttonPickDateTime"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="8dp"
-        android:src="@drawable/baseline_access_time_24"
-        android:text="Выбрать дату и время" />
+        </RadioGroup>
 
-    <TextView
-        android:id="@+id/textSelectDateTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Выбрать время для уведомления"
-        android:textColor="@android:color/black"
-        android:textSize="12sp" />
+        <TextView
+            android:id="@+id/textViewDateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp" />
 
-    <Switch
-        android:id="@+id/switchPriority"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Важная задача" />
+        <ImageButton
+            android:id="@+id/buttonPickDateTime"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/baseline_access_time_24"
+            android:text="Выбрать дату и время" />
 
-    <Switch
-        android:id="@+id/switch_notify"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checked="false"
-        android:text="Уведомить" />
+        <TextView
+            android:id="@+id/textSelectDateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Выбрать время для уведомления"
+            android:textColor="@android:color/black"
+            android:textSize="12sp" />
 
-</LinearLayout>
+        <Switch
+            android:id="@+id/switchPriority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Избранное" />
+
+        <Switch
+            android:id="@+id/switch_notify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="Уведомить" />
+
+    </LinearLayout>
+
+</ScrollView>

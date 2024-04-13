@@ -17,6 +17,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_TASKS = "tasks";
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_TASK_TEXT = "task_text";
+    private static final String COLUMN_TASK_TITLE = "task_title";
     private static final String COLUMN_DATE_CREATED = "date_created";
     private static final String COLUMN_TIME_CREATED = "time_created";
     private static final String COLUMN_IMPORTANT = "important";
@@ -32,6 +33,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         String CREATE_TABLE_TASKS = "CREATE TABLE " + TABLE_TASKS + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY,"
                 + COLUMN_TASK_TEXT + " TEXT,"
+                + COLUMN_TASK_TITLE + " TEXT,"
                 + COLUMN_DATE_CREATED + " TEXT,"
                 + COLUMN_TIME_CREATED + " TEXT,"
                 + COLUMN_IMPORTANT + " INTEGER,"
@@ -52,6 +54,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_TASK_TEXT, task.getText());
+        values.put(COLUMN_TASK_TITLE, task.getTitle());
         values.put(COLUMN_DATE_CREATED, task.getDateCreated());
         values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
         values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0);
@@ -66,6 +69,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_TASK_TEXT, task.getText());
+        values.put(COLUMN_TASK_TITLE, task.getTitle());
         values.put(COLUMN_DATE_CREATED, task.getDateCreated());
         values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
         values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0);
@@ -87,6 +91,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
                 Task task = new Task();
                 task.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
                 task.setText(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_TEXT)));
+                task.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_TITLE)));
                 task.setDateCreated(cursor.getString(cursor.getColumnIndex(COLUMN_DATE_CREATED)));
                 task.setNotify(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTIFY)) == 1);
                 task.setTimeCreated(cursor.getString(cursor.getColumnIndex(COLUMN_TIME_CREATED)));
@@ -105,7 +110,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_TASKS,
-                new String[]{COLUMN_ID, COLUMN_TASK_TEXT, COLUMN_DATE_CREATED, COLUMN_TIME_CREATED, COLUMN_IMPORTANT, COLUMN_NOTIFY},
+                new String[]{COLUMN_ID, COLUMN_TASK_TEXT, COLUMN_TASK_TITLE, COLUMN_DATE_CREATED, COLUMN_TIME_CREATED, COLUMN_IMPORTANT, COLUMN_NOTIFY},
                 COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)},
                 null,
@@ -117,6 +122,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
             Task task = new Task();
             task.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
             task.setText(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_TEXT)));
+            task.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_TITLE)));
             task.setDateCreated(cursor.getString(cursor.getColumnIndex(COLUMN_DATE_CREATED)));
             task.setTimeCreated(cursor.getString(cursor.getColumnIndex(COLUMN_TIME_CREATED)));
             task.setImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);

@@ -36,7 +36,8 @@ public class NotificationHelper extends BroadcastReceiver {
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle("Напоминание о задаче")
                 .setContentText(taskText)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(taskText)) // Установка расширенного макета для уведомления
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)) // Устанавливаем звук по умолчанию
                 .setVibrate(new long[]{1000, 500, 1000})
                 .setContentIntent(pendingIntent) // Установка PendingIntent для открытия активности при нажатии на уведомление
@@ -44,16 +45,10 @@ public class NotificationHelper extends BroadcastReceiver {
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         notificationManager.notify(taskId, builder.build());
+
 
         if (isRepeating) {
             // Получаем время следующего уведомления
