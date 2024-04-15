@@ -38,6 +38,7 @@ public class NotificationHelper extends BroadcastReceiver {
                 .setContentText(taskText)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(taskText)) // Установка расширенного макета для уведомления
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)) // Устанавливаем звук по умолчанию
                 .setVibrate(new long[]{1000, 500, 1000})
                 .setContentIntent(pendingIntent) // Установка PendingIntent для открытия активности при нажатии на уведомление

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -6,21 +5,37 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/task_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        android:textColor="@android:color/black" /> <!-- Устанавливаем по умолчанию невидимой --><!-- Виджет TextView для отображения текста задачи -->
+        android:orientation="horizontal">
+
+        <!-- Виджет TextView для отображения заголовка задачи -->
+        <TextView
+            android:id="@+id/task_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            android:textSize="25sp" />
+
+        <!-- Виджет TextView для отображения времени создания задачи -->
+        <TextView
+            android:id="@+id/task_creation_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@android:color/black"
+            android:gravity="end" />
+    </LinearLayout>
+
+    <!-- Виджет TextView для отображения текста задачи -->
     <TextView
         android:id="@+id/task_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:textColor="@android:color/black" />
-
-    <!-- Виджет TextView для отображения заголовка задачи -->
-
 
     <!-- Линейный макет для кнопок удаления и редактирования задачи -->
     <LinearLayout

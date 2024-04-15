@@ -1,5 +1,7 @@
 package com.example.diplomnaya;
+import android.app.Notification;
 import android.app.NotificationChannel;
+import android.graphics.Paint;
 import android.app.NotificationManager;
 import android.os.Build;
 import android.app.AlertDialog;
@@ -215,18 +217,39 @@ public class WorkSpace extends AppCompatActivity {
         dialog.show();
     }
 
-
+    private boolean isDateTimePassed(String date, String time) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        try {
+            Date taskDateTime = sdf.parse(date + " " + time); // Парсим дату и время задачи
+            Date currentDateTime = new Date(); // Получаем текущую дату и время
+            // Сравниваем дату и время задачи с текущей датой и временем
+            return taskDateTime != null && currentDateTime.after(taskDateTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     private void updateTaskView(View taskView, Task task) {
         TextView taskTextView = taskView.findViewById(R.id.task_text);
         taskTextView.setText(task.getText());
 
-        TextView taskTitleView = taskView.findViewById(R.id.task_title); // Найдите TextView для заголовка
-        taskTitleView.setText(task.getTitle()); // Установите заголовок
+        TextView taskTitleView = taskView.findViewById(R.id.task_title);
+        taskTitleView.setText(task.getTitle());
 
         TextView taskDateTimeView = taskView.findViewById(R.id.task_date_time);
         String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
         taskDateTimeView.setText(dateTime);
+
+        // Проверяем, если время уже прошло, перечеркиваем текст
+        if (isDateTimePassed(task.getDateCreated(), task.getTimeCreated())) {
+            taskTextView.setPaintFlags(taskTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            taskDateTimeView.setPaintFlags(taskDateTimeView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            // Если время еще не прошло, возвращаем обычный текст
+            taskTextView.setPaintFlags(taskTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            taskDateTimeView.setPaintFlags(taskDateTimeView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
 
         ImageView starImageView = taskView.findViewById(R.id.image_star);
         if (starImageView != null) {
@@ -237,6 +260,7 @@ public class WorkSpace extends AppCompatActivity {
             }
         }
     }
+
 
     private void addTaskToLayout(Task task) {
         LayoutInflater inflater = getLayoutInflater();
@@ -252,6 +276,13 @@ public class WorkSpace extends AppCompatActivity {
         String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
         taskDateTimeView.setText(dateTime);
 
+        TextView taskCreationTimeView = taskView.findViewById(R.id.task_creation_time);
+        // Получаем текущее системное время для времени создания задачи
+        Calendar currentDateTime = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        String dateTimeCreated = sdf.format(currentDateTime.getTime());
+        taskCreationTimeView.setText("Дата создания: " + dateTimeCreated);
+
         ImageButton deleteButton = taskView.findViewById(R.id.button_delete_task);
         ImageButton editButton = taskView.findViewById(R.id.button_edit_task);
 
@@ -263,13 +294,6 @@ public class WorkSpace extends AppCompatActivity {
                 starImageView.setVisibility(View.GONE);
             }
         }
-
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showEditTaskDialog(taskView, task);
-            }
-        });
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -295,8 +319,17 @@ public class WorkSpace extends AppCompatActivity {
                 deleteDialogBuilder.show();
             }
         });
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showEditTaskDialog(taskView, task);
+            }
+        });
+
         tasksLayout.addView(taskView);
     }
+
 
 
     private void loadTasks() {
@@ -464,21 +497,25 @@ public class WorkSpace extends AppCompatActivity {
     }
 
     private void createNotificationChannel() {
-
-
         // Проверка версии SDK, так как создание каналов уведомлений требуется только для API 26 и выше
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
             String description = "Как будут появляться уведомления";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_HIGH; // Повышаем важность уведомлений до HIGH
             NotificationChannel channel = new NotificationChannel("channel_name", name, importance);
             channel.setDescription(description);
+
+            // Включение звука, вибрации и всплывающих уведомлений
+            channel.enableVibration(true);
+            channel.enableLights(true);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC); // Показ уведомлений на экране блокировки
 
             // Получение менеджера уведомлений и создание канала
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
+
     private void cancelNotification(Task task) {
         Intent notificationIntent = new Intent(this, NotificationHelper.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, task.getId(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
