@@ -10,6 +10,9 @@ public class Task {
     private boolean is_repeating;
     private boolean important;
 
+    // Добавляем поле для хранения времени создания задачи
+    private String creationTime;
+
     public Task() {
         // Пустой конструктор
     }
@@ -76,5 +79,15 @@ public class Task {
 
     public void setTimeCreated(String timeCreated) {
         this.timeCreated = timeCreated;
+    }
+
+    // Метод для получения времени создания задачи
+    public String getCreationTime() {
+        return creationTime;
+    }
+
+    // Метод для установки времени создания задачи
+    public void setCreationTime(String creationTime) {
+        this.creationTime = creationTime;
     }
 }

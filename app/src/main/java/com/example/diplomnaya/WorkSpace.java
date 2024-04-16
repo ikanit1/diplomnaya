@@ -277,11 +277,22 @@ public class WorkSpace extends AppCompatActivity {
         taskDateTimeView.setText(dateTime);
 
         TextView taskCreationTimeView = taskView.findViewById(R.id.task_creation_time);
-        // Получаем текущее системное время для времени создания задачи
-        Calendar currentDateTime = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        String dateTimeCreated = sdf.format(currentDateTime.getTime());
-        taskCreationTimeView.setText("Дата создания: " + dateTimeCreated);
+
+        // Проверяем, установлено ли время создания в объекте задачи
+        if (task.getCreationTime() != null && !task.getCreationTime().isEmpty()) {
+            taskCreationTimeView.setText("Дата создания: " + task.getCreationTime());
+        } else {
+            // Если время создания не установлено, берем текущее системное время
+            Calendar currentDateTime = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            String dateTimeCreated = sdf.format(currentDateTime.getTime());
+            taskCreationTimeView.setText("Дата создания: " + dateTimeCreated);
+
+            // Сохраняем время создания в объекте задачи
+            task.setCreationTime(dateTimeCreated);
+            // Обновляем базу данных с новым временем создания задачи
+            dbHelper.updateTask(task);
+        }
 
         ImageButton deleteButton = taskView.findViewById(R.id.button_delete_task);
         ImageButton editButton = taskView.findViewById(R.id.button_edit_task);
