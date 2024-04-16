@@ -63,6 +63,17 @@ public class WorkSpace extends AppCompatActivity {
 
         loadTasks();
 
+        ImageButton buttonGoto = findViewById(R.id.button_goto);
+        buttonGoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Создаем Intent для перехода на activity_login.xml
+                Intent intent = new Intent(WorkSpace.this, Login.class);
+
+                // Запускаем активность
+                startActivity(intent);
+            }
+        });
         findViewById(R.id.button_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -241,16 +252,6 @@ public class WorkSpace extends AppCompatActivity {
         String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
         taskDateTimeView.setText(dateTime);
 
-        // Проверяем, если время уже прошло, перечеркиваем текст
-        if (isDateTimePassed(task.getDateCreated(), task.getTimeCreated())) {
-            taskTextView.setPaintFlags(taskTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            taskDateTimeView.setPaintFlags(taskDateTimeView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        } else {
-            // Если время еще не прошло, возвращаем обычный текст
-            taskTextView.setPaintFlags(taskTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-            taskDateTimeView.setPaintFlags(taskDateTimeView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-        }
-
         ImageView starImageView = taskView.findViewById(R.id.image_star);
         if (starImageView != null) {
             if (task.isImportant()) {
@@ -277,11 +278,22 @@ public class WorkSpace extends AppCompatActivity {
         taskDateTimeView.setText(dateTime);
 
         TextView taskCreationTimeView = taskView.findViewById(R.id.task_creation_time);
-        // Получаем текущее системное время для времени создания задачи
-        Calendar currentDateTime = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        String dateTimeCreated = sdf.format(currentDateTime.getTime());
-        taskCreationTimeView.setText("Дата создания: " + dateTimeCreated);
+
+        // Проверяем, установлено ли время создания в объекте задачи
+        if (task.getCreationTime() != null && !task.getCreationTime().isEmpty()) {
+            taskCreationTimeView.setText("Дата создания: " + task.getCreationTime());
+        } else {
+            // Если время создания не установлено, берем текущее системное время
+            Calendar currentDateTime = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            String dateTimeCreated = sdf.format(currentDateTime.getTime());
+            taskCreationTimeView.setText("Дата создания: " + dateTimeCreated);
+
+            // Сохраняем время создания в объекте задачи
+            task.setCreationTime(dateTimeCreated);
+            // Обновляем базу данных с новым временем создания задачи
+            dbHelper.updateTask(task);
+        }
 
         ImageButton deleteButton = taskView.findViewById(R.id.button_delete_task);
         ImageButton editButton = taskView.findViewById(R.id.button_edit_task);
@@ -329,6 +341,7 @@ public class WorkSpace extends AppCompatActivity {
 
         tasksLayout.addView(taskView);
     }
+
 
 
 

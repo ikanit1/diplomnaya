@@ -39,39 +39,14 @@
         android:inputType="textPassword" />
 
     <Button
-        android:id="@+id/buttonLogin"
-        android:layout_width="133dp"
+        android:id="@+id/buttonRegister"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/editTextPassword"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/rounded_white_background"
-        android:text="Вход"
-        android:textColor="@color/black"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/textViewRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/buttonLogin"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="Первый раз в системе? Зарегистрируйтесь!"
-        android:textColor="@color/black"
-        android:background="@drawable/rounded_white_background"
-        android:textSize="16sp" />
-
-    <Button
-        android:id="@+id/buttonRegister"
-        android:layout_width="133dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/textViewRegister"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/rounded_white_background"
-        android:text="Регистрация"
-        android:textColor="@color/black"
-        android:textSize="16sp" />
+        android:text="Зарегистрироваться"
+        android:textColor="@color/black" />
 
 </RelativeLayout>

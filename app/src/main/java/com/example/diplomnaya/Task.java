@@ -8,6 +8,8 @@ public class Task {
     private String timeCreated;
     private boolean notify;
     private boolean is_repeating;
+
+    private String creationTime;
     private boolean important;
 
     public Task() {
@@ -77,4 +79,12 @@ public class Task {
     public void setTimeCreated(String timeCreated) {
         this.timeCreated = timeCreated;
     }
+    public String getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(String creationTime) {
+        this.creationTime = creationTime;
+    }
 }
+

@@ -57,24 +57,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <!-- Кнопка добавить задачу -->
+
         <ImageButton
-            android:id="@+id/button_add_task"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:id="@+id/button_goto"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
             android:contentDescription="Добавить задачу"
             android:padding="16dp"
             android:rotationX="4"
+            android:scaleType="fitCenter"
+            android:src="@drawable/user">
+        </ImageButton> <!-- Подгоняет изображение по размеру кнопки, сохраняя пропорции -->
+
+
+        <ImageButton
+            android:id="@+id/button_add_task"
+            android:layout_width="69dp"
+            android:layout_height="55dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="100sp"
+            android:contentDescription="Добавить задачу"
+            android:padding="12dp"
+            android:rotationX="4"
+            android:scaleType="fitCenter"
             android:src="@drawable/add_button" />
 
         <!-- Дополнительные кнопки или элементы управления могут быть добавлены здесь -->
 
     </LinearLayout>
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
