@@ -1,7 +1,9 @@
 package com.example.diplomnaya;
 import android.app.Notification;
 import android.app.NotificationChannel;
-import android.graphics.Paint;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DatabaseError;
 import android.app.NotificationManager;
 import android.os.Build;
 import android.app.AlertDialog;
@@ -46,10 +48,12 @@ public class WorkSpace extends AppCompatActivity {
     private TaskDatabaseHelper dbHelper;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.workspace_main);
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!isNotificationChannelCreated("channel_name")) {
@@ -59,7 +63,10 @@ public class WorkSpace extends AppCompatActivity {
 
         tasksLayout = findViewById(R.id.tasks_layout);
         dbHelper = new TaskDatabaseHelper(this);
+        dbHelper.loadDataFromFirebaseToLocalDatabase();
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+
+        // Вызов метода синхронизации при создании активности
 
         loadTasks();
 
@@ -208,12 +215,15 @@ public class WorkSpace extends AppCompatActivity {
 
                     newTask.setImportant(isImportant);
                     dbHelper.addTask(newTask);
+                    dbHelper.sendTaskToFirebase(newTask);
                     addTaskToLayout(newTask);
                     scheduleNotification(newTask); // Вызовите метод планирования уведомления после добавления задачи
+
                 } else {
                     Toast.makeText(WorkSpace.this, "Пожалуйста, введите текст задачи", Toast.LENGTH_SHORT).show();
                 }
                 loadTasks();
+
             }
         });
 
@@ -227,6 +237,9 @@ public class WorkSpace extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+
+
 
     private boolean isDateTimePassed(String date, String time) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
@@ -263,6 +276,8 @@ public class WorkSpace extends AppCompatActivity {
     }
 
 
+
+
     private void addTaskToLayout(Task task) {
         LayoutInflater inflater = getLayoutInflater();
         final View taskView = inflater.inflate(R.layout.task_item, null);
@@ -293,6 +308,7 @@ public class WorkSpace extends AppCompatActivity {
             task.setCreationTime(dateTimeCreated);
             // Обновляем базу данных с новым временем создания задачи
             dbHelper.updateTask(task);
+            dbHelper.loadDataFromFirebaseToLocalDatabase();
         }
 
         ImageButton deleteButton = taskView.findViewById(R.id.button_delete_task);
@@ -317,6 +333,7 @@ public class WorkSpace extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dbHelper.deleteTask(task);
+                        dbHelper.deleteTaskFromFirebase(task);
                         tasksLayout.removeView(taskView);
                         dialog.dismiss();
                         loadTasks();
@@ -342,11 +359,9 @@ public class WorkSpace extends AppCompatActivity {
         tasksLayout.addView(taskView);
     }
 
-
-
-
     private void loadTasks() {
         List<Task> tasks = dbHelper.getAllTasks();
+        //сделать загрузку избранных
         tasksLayout.removeAllViews(); // Очистите макет перед загрузкой задач
 
         // Сортировка: сначала важные задачи, затем остальные
@@ -369,7 +384,6 @@ public class WorkSpace extends AppCompatActivity {
             addTaskToLayout(task);
         }
     }
-
 
     private void showEditTaskDialog(View taskView, Task task) {
         AlertDialog.Builder editDialogBuilder = new AlertDialog.Builder(WorkSpace.this);
@@ -485,6 +499,7 @@ public class WorkSpace extends AppCompatActivity {
                 task.setImportant(switchPriority.isChecked());
                 task.setRepeating(radioButtonRepeating.isChecked());
                 dbHelper.updateTask(task);
+                dbHelper.sendTaskToFirebase(task);
                 task.setNotify(switchNotify.isChecked());
                 updateTaskView(taskView, task);
 

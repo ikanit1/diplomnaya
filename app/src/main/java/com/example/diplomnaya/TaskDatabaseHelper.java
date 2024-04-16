@@ -1,11 +1,15 @@
 package com.example.diplomnaya;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import androidx.annotation.NonNull;
 
@@ -27,9 +31,11 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_IMPORTANT = "important";
     private static final String COLUMN_NOTIFY = "notify";
     private static final String COLUMN_IS_REPEATING = "is_repeating";
+    private DatabaseReference databaseReference;
 
     public TaskDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        databaseReference = FirebaseDatabase.getInstance().getReference("tasks"); // Ссылка на узел "tasks" в базе данных Firebase
     }
 
     @Override
@@ -76,19 +82,24 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
 
 
     public void updateTask(Task task) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TASK_TEXT, task.getText());
-        values.put(COLUMN_TASK_TITLE, task.getTitle());
-        values.put(COLUMN_DATE_CREATED, task.getDateCreated());
-        values.put(COLUMN_TASK_CREATION, task.getCreationTime()); // Обновлено: добавлено время создания задачи
-        values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
-        values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0);
-        values.put(COLUMN_IMPORTANT, task.isImportant() ? 1 : 0);
-        values.put(COLUMN_IS_REPEATING, task.isRepeating() ? 1 : 0);
+        String taskId = String.valueOf(task.getId());
+        // Проверяем, что задача существует в базе данных Firebase
+        databaseReference.child("tasks").child(taskId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Задача существует, обновляем ее данные
+                    databaseReference.child("tasks").child(taskId).setValue(task);
+                } else {
+                    // Задача не существует, можно создать новую или обработать эту ситуацию по вашему усмотрению
+                }
+            }
 
-        db.update(TABLE_TASKS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
-        db.close();
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Обработка ошибки
+            }
+        });
     }
 
     public List<Task> getAllTasks() {
@@ -116,42 +127,73 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         return taskList;
     }
 
-//    @SuppressLint("Range")
-//    public Task getTaskById(int id) {
-//        SQLiteDatabase db = this.getReadableDatabase();
-//
-//        Cursor cursor = db.query(TABLE_TASKS,
-//                new String[]{COLUMN_ID, COLUMN_TASK_TEXT, COLUMN_TASK_TITLE, COLUMN_DATE_CREATED, COLUMN_TIME_CREATED, COLUMN_IMPORTANT, COLUMN_NOTIFY, COLUMN_TASK_CREATION},
-//                COLUMN_ID + "=?",
-//                new String[]{String.valueOf(id)},
-//                null,
-//                null,
-//                null,
-//                null);
-//
-//        if (cursor != null && cursor.moveToFirst()) {
-//            Task task = new Task();
-//            task.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
-//            task.setText(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_TEXT)));
-//            task.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_TITLE)));
-//            task.setCreationTime(cursor.getString(cursor.getColumnIndex(COLUMN_TASK_CREATION))); // Исправлено
-//            task.setDateCreated(cursor.getString(cursor.getColumnIndex(COLUMN_DATE_CREATED)));
-//            task.setTimeCreated(cursor.getString(cursor.getColumnIndex(COLUMN_TIME_CREATED)));
-//            task.setImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
-//            task.setNotify(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTIFY)) == 1);
-//            task.setRepeating(cursor.getInt(cursor.getColumnIndex(COLUMN_IS_REPEATING)) == 1);
-//
-//            cursor.close();
-//
-//            return task;
-//        } else {
-//            return null;
-//        }
-//    }
-
     public void deleteTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_TASKS, COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
+        db.close();
+    }
+
+    // Метод для отправки задачи в Firebase Realtime Database
+    public void sendTaskToFirebase(Task task) {
+        // Генерируем уникальный ключ для новой задачи в Firebase
+        String key = databaseReference.child("tasks").push().getKey();
+        if (key != null) {
+            // Устанавливаем значение задачи по ключу в Firebase
+            databaseReference.child("tasks").child(key).setValue(task);
+        }
+    }
+
+    public void loadDataFromFirebaseToLocalDatabase() {
+        // Получаем ссылку на узел с задачами в базе данных Firebase
+        DatabaseReference tasksRef = databaseReference.child("tasks");
+
+        // Слушаем изменения в узле с задачами
+        tasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Очищаем локальную базу данных SQLite перед загрузкой новых данных
+                clearLocalDatabase();
+
+                // Проходим по всем задачам в базе данных Firebase
+                for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
+                    // Получаем задачу из снимка данных
+                    Task task = taskSnapshot.getValue(Task.class);
+                    // Добавляем задачу в локальную базу данных SQLite
+                    addTaskToLocalDatabase(task);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Обработка ошибки
+            }
+        });
+    }
+
+    public void deleteTaskFromFirebase(Task task) {
+        String taskId = String.valueOf(task.getId());
+        databaseReference.child("tasks").child(taskId).removeValue();
+    }
+
+    private void addTaskToLocalDatabase(Task task) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TASK_TEXT, task.getText());
+        values.put(COLUMN_TASK_TITLE, task.getTitle());
+        values.put(COLUMN_DATE_CREATED, task.getDateCreated());
+        values.put(COLUMN_TASK_CREATION, task.getCreationTime());
+        values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
+        values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0);
+        values.put(COLUMN_IMPORTANT, task.isImportant() ? 1 : 0);
+        values.put(COLUMN_IS_REPEATING, task.isRepeating() ? 1 : 0);
+
+        db.insert(TABLE_TASKS, null, values);
+        db.close();
+    }
+
+    private void clearLocalDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_TASKS, null, null);
         db.close();
     }
 }

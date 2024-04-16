@@ -8,7 +8,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,8 +43,8 @@ public class Login extends AppCompatActivity {
         // Проверяем, вошел ли уже пользователь
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // Пользователь уже вошел в систему, перенаправляем его в личный кабинет
-            startActivity(new Intent(Login.this, WorkSpace.class));
+            // Пользователь уже вошел в систему, перенаправляем его на свой макет
+            startActivity(new Intent(Login.this, OwnRoom.class));
             finish(); // Закрываем текущую активити, чтобы пользователь не мог вернуться назад
         }
 
@@ -65,9 +64,16 @@ public class Login extends AppCompatActivity {
         });
     }
 
+
     private void loginUser() {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
+
+        // Проверка на пустые поля
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(Login.this, "Введите электронную почту и пароль", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Вход пользователя
         mAuth.signInWithEmailAndPassword(email, password)
@@ -85,13 +91,14 @@ public class Login extends AppCompatActivity {
                             // Пользователь с такой электронной почтой не существует
                             Toast.makeText(Login.this, "Пользователь с такой электронной почтой не существует", Toast.LENGTH_SHORT).show();
                         } else if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                            // Неверный пароль
-                            Toast.makeText(Login.this, "Неверный пароль", Toast.LENGTH_SHORT).show();
+                            // Неправильный пароль
+                            Toast.makeText(Login.this, "Неправильный пароль", Toast.LENGTH_SHORT).show();
                         } else {
                             // Общая ошибка входа
-                            Toast.makeText(Login.this, "Ошибка входа", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Login.this, "Ошибка входа. Проверьте правильность данных", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 }
+

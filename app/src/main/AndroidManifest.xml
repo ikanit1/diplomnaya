@@ -25,6 +25,7 @@
         <activity android:name=".Login">
             <!-- Можно добавить дополнительные атрибуты, если необходимо -->
         </activity>
+        <activity android:name=".OwnRoom" />
         <activity android:name=".Register">
             <!-- Можно добавить дополнительные атрибуты, если необходимо -->
         </activity>
@@ -40,8 +41,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-
-
         <service android:name=".NotificationService" />
         <activity
             android:name=".MainActivity"
@@ -51,8 +50,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-
     </application>
 </manifest>
