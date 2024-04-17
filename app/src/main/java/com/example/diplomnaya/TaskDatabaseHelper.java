@@ -1,6 +1,8 @@
 package com.example.diplomnaya;
 
 import android.content.ContentValues;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,6 +12,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import android.util.Log;
+import android.widget.Toast;
+
 
 import androidx.annotation.NonNull;
 
@@ -32,11 +37,28 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NOTIFY = "notify";
     private static final String COLUMN_IS_REPEATING = "is_repeating";
     private DatabaseReference databaseReference;
+    private FirebaseAuth mAuth;
+    private Context mContext;
 
     public TaskDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        databaseReference = FirebaseDatabase.getInstance().getReference("tasks"); // Ссылка на узел "tasks" в базе данных Firebase
+        mAuth = FirebaseAuth.getInstance();
+        mContext = context; // Инициализация mContext
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // Пользователь вошел в систему, создаем базу данных Firebase для него
+            databaseReference = FirebaseDatabase.getInstance().getReference("users")
+                    .child(currentUser.getUid())
+                    .child("tasks"); // Создаем узел "tasks" в базе данных Firebase для текущего пользователя
+        } else {
+            // Пользователь не вошел в систему, отображаем предупреждение
+            Toast.makeText(context, "Пожалуйста, войдите в систему", Toast.LENGTH_SHORT).show();
+            // Или использовать другие методы для предупреждения пользователя
+        }
     }
+
+
+
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -77,6 +99,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_IS_REPEATING, task.isRepeating() ? 1 : 0); // Записываем 1 для true и 0 для false
 
         db.insert(TABLE_TASKS, null, values);
+
         db.close();
     }
 
@@ -140,34 +163,54 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         if (key != null) {
             // Устанавливаем значение задачи по ключу в Firebase
             databaseReference.child("tasks").child(key).setValue(task);
+
         }
     }
 
+
     public void loadDataFromFirebaseToLocalDatabase() {
-        // Получаем ссылку на узел с задачами в базе данных Firebase
-        DatabaseReference tasksRef = databaseReference.child("tasks");
+        if (NetworkUtils.isNetworkAvailable(mContext)) {
+            if (databaseReference != null) {
+                // Если доступен интернет и databaseReference не равен null, загружаем данные из Firebase
+                DatabaseReference tasksRef = databaseReference.child("tasks");
+                tasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        clearLocalDatabase();
+                        for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
+                            Task task = taskSnapshot.getValue(Task.class);
+                            addTaskToLocalDatabase(task);
+                        }
+                    }
 
-        // Слушаем изменения в узле с задачами
-        tasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Очищаем локальную базу данных SQLite перед загрузкой новых данных
-                clearLocalDatabase();
-
-                // Проходим по всем задачам в базе данных Firebase
-                for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
-                    // Получаем задачу из снимка данных
-                    Task task = taskSnapshot.getValue(Task.class);
-                    // Добавляем задачу в локальную базу данных SQLite
-                    addTaskToLocalDatabase(task);
-                }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        handleFirebaseError(databaseError);
+                    }
+                });
+            } else {
+                // Если databaseReference равен null, отображаем сообщение об ошибке пользователю
+                Toast.makeText(mContext, "Ошибка: база данных Firebase не инициализирована", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            // Если интернет недоступен, используем данные из локальной базы данных
+            List<Task> localTasks = getAllTasks();
+            // Далее можно использовать данные из локальной базы данных
+        }
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Обработка ошибки
-            }
-        });
+
+    private void handleFirebaseError(DatabaseError databaseError) {
+        // Получаем текст ошибки
+        String errorMessage = databaseError.getMessage();
+
+        // Выводим сообщение об ошибке в лог
+        Log.e("FirebaseDatabase", "Error: " + errorMessage);
+
+        // Показываем всплывающее сообщение об ошибке пользователю
+        if(mContext != null){
+            Toast.makeText(mContext, "Ошибка загрузки данных: " + errorMessage, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void deleteTaskFromFirebase(Task task) {

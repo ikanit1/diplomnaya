@@ -238,22 +238,6 @@ public class WorkSpace extends AppCompatActivity {
         dialog.show();
     }
 
-
-
-
-    private boolean isDateTimePassed(String date, String time) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        try {
-            Date taskDateTime = sdf.parse(date + " " + time); // Парсим дату и время задачи
-            Date currentDateTime = new Date(); // Получаем текущую дату и время
-            // Сравниваем дату и время задачи с текущей датой и временем
-            return taskDateTime != null && currentDateTime.after(taskDateTime);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     private void updateTaskView(View taskView, Task task) {
         TextView taskTextView = taskView.findViewById(R.id.task_text);
         taskTextView.setText(task.getText());
@@ -296,13 +280,13 @@ public class WorkSpace extends AppCompatActivity {
 
         // Проверяем, установлено ли время создания в объекте задачи
         if (task.getCreationTime() != null && !task.getCreationTime().isEmpty()) {
-            taskCreationTimeView.setText("Дата создания: " + task.getCreationTime());
+            taskCreationTimeView.setText("Создано: " + task.getCreationTime());
         } else {
             // Если время создания не установлено, берем текущее системное время
             Calendar currentDateTime = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             String dateTimeCreated = sdf.format(currentDateTime.getTime());
-            taskCreationTimeView.setText("Дата создания: " + dateTimeCreated);
+            taskCreationTimeView.setText("Создано: " + dateTimeCreated);
 
             // Сохраняем время создания в объекте задачи
             task.setCreationTime(dateTimeCreated);
@@ -313,6 +297,23 @@ public class WorkSpace extends AppCompatActivity {
 
         ImageButton deleteButton = taskView.findViewById(R.id.button_delete_task);
         ImageButton editButton = taskView.findViewById(R.id.button_edit_task);
+        ImageButton shareButton = taskView.findViewById(R.id.btnShare);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Создайте Intent для перехода на активность ShareTaskActivity
+                        Intent intent = new Intent(WorkSpace.this, ShareTask.class);
+                        // Добавьте данные задачи в Intent (например, идентификатор задачи или саму задачу)
+                        intent.putExtra("TASK_ID", task.getId());
+                        // Запустите активность ShareTaskActivity
+                        startActivity(intent);
+                    }
+                });
+            }
+        });
 
         ImageView starImageView = taskView.findViewById(R.id.image_star);
         if (starImageView != null) {
@@ -579,9 +580,8 @@ public class WorkSpace extends AppCompatActivity {
                 // Установка уведомления с использованием AlarmManager
                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-                // Используем разные методы для планирования повторяющегося и одноразового уведомлений
                 if (task.isRepeating()) {
-                    // Планируем повторяющееся уведомление с интервалом в сутки
+                    // Планируем периодические уведомления
                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, triggerAtMillis, AlarmManager.INTERVAL_DAY, pendingIntent);
                 } else {
                     // Устанавливаем одноразовое уведомление
@@ -598,6 +598,7 @@ public class WorkSpace extends AppCompatActivity {
             }
         }
     }
+
 
 
 
