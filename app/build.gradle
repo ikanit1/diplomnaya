@@ -5,6 +5,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+
 android {
     namespace 'com.example.diplomnaya'
     compileSdk 34
@@ -51,7 +52,6 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
-
     implementation platform('com.google.firebase:firebase-bom:32.8.1')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.android.material:material:1.11.0'
@@ -81,4 +81,5 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 }
+
 apply plugin: 'com.google.gms.google-services'

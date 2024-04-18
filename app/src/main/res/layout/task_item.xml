@@ -5,90 +5,92 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <LinearLayout
+    <!-- Контейнер CardView для каждой задачи -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/background"
+        android:padding="16dp"
+        android:backgroundTint="@color/white"> <!-- Добавляем атрибут cardCornerRadius для скругления углов -->
 
-        <!-- Виджет TextView для отображения заголовка задачи -->
-        <TextView
-            android:id="@+id/task_title"
-            android:layout_width="0dp"
+        <!-- Внутренний линейный макет для элементов задачи -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@android:color/black"
-            android:textSize="25sp" />
+            android:orientation="vertical">
 
-        <!-- Виджет TextView для отображения времени создания задачи -->
-        <TextView
-            android:id="@+id/task_creation_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@android:color/black"
-            android:gravity="end" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/task_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:textSize="25sp"
+                android:text="Заголовок" />
 
-    <!-- Виджет TextView для отображения текста задачи -->
-    <TextView
-        android:id="@+id/task_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@android:color/black" />
+            <TextView
+                android:id="@+id/task_creation_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@android:color/black"
+                android:gravity="end"
+                android:text="Создано" />
 
-    <!-- Линейный макет для кнопок удаления и редактирования задачи -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <TextView
+                android:id="@+id/task_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:text="Текст" />
 
-        <!-- Виджет TextView для отображения даты и времени создания задачи -->
-        <TextView
-            android:id="@+id/task_date_time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="14sp"
-            android:textColor="@android:color/black" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <!-- Виджет ImageView для отображения важности задачи -->
-        <ImageView
-            android:id="@+id/image_star"
-            android:layout_width="16sp"
-            android:layout_height="16sp"
-            android:layout_gravity="end"
-            android:layout_marginStart="8dp"
-            android:src="@android:drawable/btn_star_big_on"
-            android:visibility="gone" /> <!-- Устанавливаем по умолчанию невидимой -->
+                <TextView
+                    android:id="@+id/task_date_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:text="Время уведомления" />
 
-        <!-- Кнопка редактирования задачи -->
-        <ImageButton
-            android:id="@+id/button_edit_task"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:contentDescription="Edit"
-            android:src="@android:drawable/ic_menu_edit" />
+                <ImageView
+                    android:id="@+id/image_star"
+                    android:layout_width="16sp"
+                    android:layout_height="16sp"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="8dp"
+                    android:src="@android:drawable/btn_star_big_on"
+                    android:visibility="gone" />
 
+                <ImageButton
+                    android:id="@+id/button_edit_task"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Edit"
+                    android:src="@android:drawable/ic_menu_edit" />
 
-        <!-- Кнопка удаления задачи -->
+                <ImageButton
+                    android:id="@+id/btnShare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="shareTask"
+                    android:src="@android:drawable/ic_menu_share"
+                    android:text="Поделиться" />
 
-        <ImageButton
-            android:id="@+id/btnShare"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="shareTask"
-            android:src="@android:drawable/ic_menu_share"
-            android:text="Поделиться" />
-
-        <ImageButton
-            android:id="@+id/button_delete_task"
-            android:layout_width="41dp"
-            android:layout_height="match_parent"
-            android:contentDescription="Delete"
-            android:src="@android:drawable/ic_menu_delete"
-            tools:src="@android:drawable/ic_menu_delete" />
-
-
-    </LinearLayout>
+                <ImageButton
+                    android:id="@+id/button_delete_task"
+                    android:layout_width="41dp"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Delete"
+                    android:src="@android:drawable/ic_menu_delete"
+                    tools:src="@android:drawable/ic_menu_delete" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>

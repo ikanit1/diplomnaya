@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "428014765321",
+    "firebase_url": "https://diplomnaya-e24de-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "diplomnaya-e24de",
     "storage_bucket": "diplomnaya-e24de.appspot.com"
   },
@@ -12,7 +13,12 @@
           "package_name": "com.example.diplomnaya"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "428014765321-9e319i0u0t0li7n28b4p03eglqa5nfpj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCjBx_zmskxxGjjUOI2ureq6HEjdtRBBCs"
@@ -20,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "428014765321-9e319i0u0t0li7n28b4p03eglqa5nfpj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

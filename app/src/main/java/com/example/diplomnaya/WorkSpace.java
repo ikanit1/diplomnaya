@@ -54,7 +54,6 @@ public class WorkSpace extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.workspace_main);
 
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!isNotificationChannelCreated("channel_name")) {
                 createNotificationChannel();
@@ -63,11 +62,13 @@ public class WorkSpace extends AppCompatActivity {
 
         tasksLayout = findViewById(R.id.tasks_layout);
         dbHelper = new TaskDatabaseHelper(this);
+
+        // Загрузка данных с Firebase в локальную базу данных SQLite
         dbHelper.loadDataFromFirebaseToLocalDatabase();
+
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
 
         // Вызов метода синхронизации при создании активности
-
         loadTasks();
 
         ImageButton buttonGoto = findViewById(R.id.button_goto);
@@ -81,6 +82,7 @@ public class WorkSpace extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
         findViewById(R.id.button_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -500,10 +502,9 @@ public class WorkSpace extends AppCompatActivity {
                 task.setImportant(switchPriority.isChecked());
                 task.setRepeating(radioButtonRepeating.isChecked());
                 dbHelper.updateTask(task);
-                dbHelper.sendTaskToFirebase(task);
+                dbHelper.updateTaskOnFirebase(task);
                 task.setNotify(switchNotify.isChecked());
                 updateTaskView(taskView, task);
-
                 // Отменяем предыдущее уведомление перед планированием нового
                 cancelNotification(task);
                 task.setNotify(switchNotify.isChecked());
@@ -613,7 +614,3 @@ public class WorkSpace extends AppCompatActivity {
         return true;
     }
 }
-
-
-
-

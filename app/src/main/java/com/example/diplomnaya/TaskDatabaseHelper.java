@@ -2,6 +2,8 @@ package com.example.diplomnaya;
 
 import android.content.ContentValues;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseUser;
 import android.content.Context;
 import android.database.Cursor;
@@ -106,13 +108,13 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
 
     public void updateTask(Task task) {
         String taskId = String.valueOf(task.getId());
-        // Проверяем, что задача существует в базе данных Firebase
-        databaseReference.child("tasks").child(taskId).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference taskRef = databaseReference.child("tasks").child(taskId);
+        taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    // Задача существует, обновляем ее данные
-                    databaseReference.child("tasks").child(taskId).setValue(task);
+                    // Задача существует, обновляем ее значения
+                    taskRef.setValue(task);
                 } else {
                     // Задача не существует, можно создать новую или обработать эту ситуацию по вашему усмотрению
                 }
@@ -124,6 +126,7 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
             }
         });
     }
+
 
     public List<Task> getAllTasks() {
         List<Task> taskList = new ArrayList<>();
@@ -233,6 +236,31 @@ public class TaskDatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_TASKS, null, values);
         db.close();
     }
+    public void updateTaskOnFirebase(String taskKey, Task updatedTask) {
+        if (taskKey != null && updatedTask != null) {
+            DatabaseReference taskRef = databaseReference.child("tasks").child(taskKey); // Получаем ссылку на узел задачи по ключу
+            taskRef.setValue(updatedTask) // Устанавливаем новые значения задачи по ссылке
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("TaskDatabaseHelper", "Task successfully updated in Firebase");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("TaskDatabaseHelper", "Error updating task in Firebase", e);
+                        }
+                    });
+        } else {
+            Log.e("TaskDatabaseHelper", "Error: Task key or updated task is null");
+        }
+    }
+
+
+
+
+
 
     private void clearLocalDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();
