@@ -1,270 +1,104 @@
 package com.example.diplomnaya;
 
-import android.content.ContentValues;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.firebase.auth.FirebaseUser;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import android.util.Log;
 import android.widget.Toast;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 
-import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+public class TaskDatabaseHelper {
 
-public class TaskDatabaseHelper extends SQLiteOpenHelper {
-
-    private static final int DATABASE_VERSION = 3;
-    private static final String DATABASE_NAME = "TaskManager";
-    private static final String TABLE_TASKS = "tasks";
-    private static final String COLUMN_ID = "id";
-    private static final String COLUMN_TASK_TEXT = "task_text";
-    private static final String COLUMN_TASK_TITLE = "task_title";
-    private static final String COLUMN_TASK_CREATION = "task_creation"; // Обновлено: добавлено поле для времени создания задачи
-    private static final String COLUMN_DATE_CREATED = "date_created";
-    private static final String COLUMN_TIME_CREATED = "time_created";
-
-    private static final String COLUMN_IMPORTANT = "important";
-    private static final String COLUMN_NOTIFY = "notify";
-    private static final String COLUMN_IS_REPEATING = "is_repeating";
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
     private Context mContext;
 
     public TaskDatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
         mAuth = FirebaseAuth.getInstance();
-        mContext = context; // Инициализация mContext
+        mContext = context;
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // Пользователь вошел в систему, создаем базу данных Firebase для него
+            // Пользователь вошел в систему, создаем ссылку на базу данных Firebase для пользователя
             databaseReference = FirebaseDatabase.getInstance().getReference("users")
                     .child(currentUser.getUid())
-                    .child("tasks"); // Создаем узел "tasks" в базе данных Firebase для текущего пользователя
+                    .child("tasks");
+            if (databaseReference == null) {
+                Log.e("TaskDatabaseHelper", "databaseReference is null");
+            }
         } else {
-            // Пользователь не вошел в систему, отображаем предупреждение
+            // Пользователь не вошел в систему, показываем предупреждение
             Toast.makeText(context, "Пожалуйста, войдите в систему", Toast.LENGTH_SHORT).show();
-            // Или использовать другие методы для предупреждения пользователя
+            databaseReference = null;
         }
     }
 
 
-
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE_TASKS = "CREATE TABLE " + TABLE_TASKS + "("
-                + COLUMN_ID + " INTEGER PRIMARY KEY,"
-                + COLUMN_TASK_TEXT + " TEXT,"
-                + COLUMN_TASK_TITLE + " TEXT,"
-                + COLUMN_TASK_CREATION + " TEXT,"
-                + COLUMN_DATE_CREATED + " TEXT,"
-                + COLUMN_TIME_CREATED + " TEXT,"
-                + COLUMN_IMPORTANT + " INTEGER,"
-                + COLUMN_NOTIFY + " INTEGER,"
-                + COLUMN_IS_REPEATING + " INTEGER"
-                + ")";
-
-        db.execSQL(CREATE_TABLE_TASKS);
-    }
-
-
-    @Override
-    public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASKS);
-        onCreate(db);
-    }
-
-
-
+    // Метод для добавления задачи в Firebase Realtime Database
+    // Метод для добавления задачи в Firebase Realtime Database
     public void addTask(Task task) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TASK_TEXT, task.getText());
-        values.put(COLUMN_TASK_TITLE, task.getTitle());
-        values.put(COLUMN_DATE_CREATED, task.getDateCreated());
-        values.put(COLUMN_TASK_CREATION, task.getCreationTime()); // Обновлено: добавлено время создания задачи
-        values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
-        values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0);
-        values.put(COLUMN_IMPORTANT, task.isImportant() ? 1 : 0);
-        values.put(COLUMN_IS_REPEATING, task.isRepeating() ? 1 : 0); // Записываем 1 для true и 0 для false
-
-        db.insert(TABLE_TASKS, null, values);
-
-        db.close();
-    }
-
-
-    public void updateTask(Task task) {
-        String taskId = String.valueOf(task.getId());
-        DatabaseReference taskRef = databaseReference.child("tasks").child(taskId);
-        taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // Задача существует, обновляем ее значения
-                    taskRef.setValue(task);
-                } else {
-                    // Задача не существует, можно создать новую или обработать эту ситуацию по вашему усмотрению
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Обработка ошибки
-            }
-        });
-    }
-
-
-    public List<Task> getAllTasks() {
-        List<Task> taskList = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_TASKS;
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                Task task = new Task();
-                task.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
-                task.setText(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TASK_TEXT)));
-                task.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TASK_TITLE)));
-                task.setDateCreated(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE_CREATED)));
-                task.setNotify(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NOTIFY)) == 1);
-                task.setTimeCreated(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME_CREATED)));
-                task.setRepeating(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_REPEATING)) == 1);
-                task.setImportant(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IMPORTANT)) == 1);
-                task.setCreationTime(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TASK_CREATION)));
-                taskList.add(task);
-            } while (cursor.moveToNext());
-            cursor.close();
+        if (databaseReference == null) {
+            Log.e("TaskDatabaseHelper", "databaseReference is null. Cannot add task.");
+            return;
         }
-        db.close();
-        return taskList;
-    }
-
-    public void deleteTask(Task task) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TASKS, COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
-        db.close();
-    }
-
-    // Метод для отправки задачи в Firebase Realtime Database
-    public void sendTaskToFirebase(Task task) {
         // Генерируем уникальный ключ для новой задачи в Firebase
-        String key = databaseReference.child("tasks").push().getKey();
+        String key = databaseReference.push().getKey();
         if (key != null) {
-            // Устанавливаем значение задачи по ключу в Firebase
-            databaseReference.child("tasks").child(key).setValue(task);
-
+            // Устанавливаем id задачи в объекте задачи
+            task.setId(key);
+            // Устанавливаем задачу по ключу в Firebase
+            databaseReference.child(key).setValue(task)
+                    .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно добавлена"))
+                    .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка добавления задачи", e));
         }
     }
 
-
-    public void loadDataFromFirebaseToLocalDatabase() {
-        if (NetworkUtils.isNetworkAvailable(mContext)) {
-            if (databaseReference != null) {
-                // Если доступен интернет и databaseReference не равен null, загружаем данные из Firebase
-                DatabaseReference tasksRef = databaseReference.child("tasks");
-                tasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        clearLocalDatabase();
-                        for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
-                            Task task = taskSnapshot.getValue(Task.class);
-                            addTaskToLocalDatabase(task);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        handleFirebaseError(databaseError);
-                    }
-                });
-            } else {
-                // Если databaseReference равен null, отображаем сообщение об ошибке пользователю
-                Toast.makeText(mContext, "Ошибка: база данных Firebase не инициализирована", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            // Если интернет недоступен, используем данные из локальной базы данных
-            List<Task> localTasks = getAllTasks();
-            // Далее можно использовать данные из локальной базы данных
+    // Метод для обновления задачи в Firebase Realtime Database
+    // Метод для обновления задачи в Firebase Realtime Database
+    public void updateTask(Task task) {
+        if (databaseReference == null) {
+            Log.e("TaskDatabaseHelper", "databaseReference is null. Cannot update task.");
+            return;
         }
+        // Используем id задачи для обновления соответствующей записи в Firebase
+        String taskId = task.getId();
+        DatabaseReference taskRef = databaseReference.child(taskId);
+        taskRef.setValue(task)
+                .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно обновлена в Firebase"))
+                .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка обновления задачи в Firebase", e));
     }
 
+    // Метод для удаления задачи из Firebase Realtime Database
+    // Метод для удаления задачи из Firebase Realtime Database
+    public void deleteTask(Task task) {
+        if (databaseReference == null) {
+            Log.e("TaskDatabaseHelper", "databaseReference is null. Cannot delete task.");
+            return;
+        }
+        // Используем id задачи для удаления соответствующей записи из Firebase
+        String taskId = task.getId();
+        databaseReference.child(taskId).removeValue()
+                .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно удалена из Firebase"))
+                .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка удаления задачи из Firebase", e));
+    }
 
+    // Метод для получения всех задач из Firebase Realtime Database
+    public void getAllTasks(ValueEventListener valueEventListener) {
+        if (databaseReference == null) {
+            Log.e("TaskDatabaseHelper", "databaseReference is null. Cannot get tasks.");
+            return;
+        }
+        databaseReference.addListenerForSingleValueEvent(valueEventListener);
+    }
+
+    // Обработка ошибок базы данных Firebase
     private void handleFirebaseError(DatabaseError databaseError) {
-        // Получаем текст ошибки
         String errorMessage = databaseError.getMessage();
-
-        // Выводим сообщение об ошибке в лог
-        Log.e("FirebaseDatabase", "Error: " + errorMessage);
-
-        // Показываем всплывающее сообщение об ошибке пользователю
-        if(mContext != null){
-            Toast.makeText(mContext, "Ошибка загрузки данных: " + errorMessage, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void deleteTaskFromFirebase(Task task) {
-        String taskId = String.valueOf(task.getId());
-        databaseReference.child("tasks").child(taskId).removeValue();
-    }
-
-    private void addTaskToLocalDatabase(Task task) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TASK_TEXT, task.getText());
-        values.put(COLUMN_TASK_TITLE, task.getTitle());
-        values.put(COLUMN_DATE_CREATED, task.getDateCreated());
-        values.put(COLUMN_TASK_CREATION, task.getCreationTime());
-        values.put(COLUMN_TIME_CREATED, task.getTimeCreated());
-        values.put(COLUMN_NOTIFY, task.isNotify() ? 1 : 0);
-        values.put(COLUMN_IMPORTANT, task.isImportant() ? 1 : 0);
-        values.put(COLUMN_IS_REPEATING, task.isRepeating() ? 1 : 0);
-
-        db.insert(TABLE_TASKS, null, values);
-        db.close();
-    }
-    public void updateTaskOnFirebase(String taskKey, Task updatedTask) {
-        if (taskKey != null && updatedTask != null) {
-            DatabaseReference taskRef = databaseReference.child("tasks").child(taskKey); // Получаем ссылку на узел задачи по ключу
-            taskRef.setValue(updatedTask) // Устанавливаем новые значения задачи по ссылке
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("TaskDatabaseHelper", "Task successfully updated in Firebase");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e("TaskDatabaseHelper", "Error updating task in Firebase", e);
-                        }
-                    });
-        } else {
-            Log.e("TaskDatabaseHelper", "Error: Task key or updated task is null");
-        }
-    }
-
-
-
-
-
-
-    private void clearLocalDatabase() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TASKS, null, null);
-        db.close();
+        Log.e("FirebaseDatabase", "Ошибка: " + errorMessage);
+        Toast.makeText(mContext, "Ошибка загрузки данных: " + errorMessage, Toast.LENGTH_SHORT).show();
     }
 }

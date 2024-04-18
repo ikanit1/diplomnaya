@@ -1,50 +1,25 @@
 package com.example.diplomnaya;
 
 public class Task {
-    private int id;
+    private String id;
     private String text;
     private String title;
     private String dateCreated;
     private String timeCreated;
     private boolean notify;
-    private boolean is_repeating;
-
-    private String creationTime;
+    private boolean isRepeating;
     private boolean important;
+    private String creationTime;
 
     public Task() {
         // Пустой конструктор
     }
 
-    public boolean isNotify() {
-        return notify;
-    }
-
-    public void setNotify(boolean notify) {
-        this.notify = notify;
-    }
-
-    public boolean isRepeating() {
-        return is_repeating;
-    }
-
-    public void setRepeating(boolean is_repeating) {
-        this.is_repeating = is_repeating;
-    }
-
-    public boolean isImportant() {
-        return important;
-    }
-
-    public void setImportant(boolean important) {
-        this.important = important;
-    }
-
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -79,6 +54,31 @@ public class Task {
     public void setTimeCreated(String timeCreated) {
         this.timeCreated = timeCreated;
     }
+
+    public boolean isNotify() {
+        return notify;
+    }
+
+    public void setNotify(boolean notify) {
+        this.notify = notify;
+    }
+
+    public boolean isRepeating() {
+        return isRepeating;
+    }
+
+    public void setRepeating(boolean isRepeating) {
+        this.isRepeating = isRepeating;
+    }
+
+    public boolean isImportant() {
+        return important;
+    }
+
+    public void setImportant(boolean important) {
+        this.important = important;
+    }
+
     public String getCreationTime() {
         return creationTime;
     }

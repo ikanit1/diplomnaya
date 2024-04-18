@@ -9,12 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,9 +26,13 @@ import java.util.Locale;
 
 public class NotificationService extends Service {
 
+    private TaskDatabaseHelper dbHelper;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        // Инициализация базы данных
+        dbHelper = new TaskDatabaseHelper(this);
         // Создание канала уведомлений
         createNotificationChannel();
     }
@@ -35,23 +42,20 @@ public class NotificationService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
     private void createNotificationChannel() {
         // Проверка версии SDK, так как создание каналов уведомлений требуется только для API 26 и выше
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
-            String description = "Как будут появляться заметки";
-            int importance = NotificationManager.IMPORTANCE_HIGH; // Используем IMPORTANCE_HIGH для важных уведомлений
-
-            // Установка вибрации
-            long[] vibrationPattern = {1000, 500, 1000}; // Паттерн вибрации (пауза, вибрация, пауза, вибрация)
+            String description = "Как будут появляться уведомления";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
 
             // Создание канала уведомлений
             NotificationChannel channel = new NotificationChannel("channel_name", name, importance);
             channel.setDescription(description);
             channel.enableVibration(true);
+            long[] vibrationPattern = {1000, 500, 1000};
             channel.setVibrationPattern(vibrationPattern);
-
-            // Установка настройки, чтобы уведомления показывались на экране блокировки
             channel.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
             // Получение менеджера уведомлений и создание канала
@@ -59,67 +63,80 @@ public class NotificationService extends Service {
             notificationManager.createNotificationChannel(channel);
         }
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // Планирование уведомления с использованием AlarmManager
+        // Запуск планирования уведомлений
         scheduleNotification();
 
         // Возвращаем START_NOT_STICKY, так как служба не должна быть перезапущена автоматически,
-        // если она будет остановлена системой после завершения выполнения
+        // если она будет остановлена системой
         return START_NOT_STICKY;
     }
 
     private void scheduleNotification() {
-        // Получаем список задач из базы данных
-        TaskDatabaseHelper dbHelper = new TaskDatabaseHelper(this);
-        for (Task task : dbHelper.getAllTasks()) {
-            // Планируем уведомление только для задач, которые требуют уведомления
-            if (task.isNotify()) {
-                // Получение даты и времени задачи
-                String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
+        dbHelper.getAllTasks(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
+                    Task task = taskSnapshot.getValue(Task.class);
+                    if (task != null && task.isNotify()) {
+                        // Combine date and time
+                        String dateTime = task.getDateCreated() + " " + task.getTimeCreated();
 
-                // Проверка наличия времени
-                if (task.getTimeCreated().equals("Время не установлено")) {
-                    Toast.makeText(this, "Пожалуйста, укажите время для задачи", Toast.LENGTH_SHORT).show();
-                    continue; // Если время не указано, переходим к следующей задаче
-                }
+                        // Check if time is specified
+                        if (task.getTimeCreated() == null || task.getTimeCreated().isEmpty()) {
+                            Toast.makeText(NotificationService.this, "Please specify the time for the task", Toast.LENGTH_SHORT).show();
+                            continue; // Skip the current task if time is not specified
+                        }
 
-                // Преобразование строки даты и времени в объект Date
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-                try {
-                    Date date = sdf.parse(dateTime);
-                    long triggerAtMillis = date.getTime();
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                        try {
+                            Date date = sdf.parse(dateTime);
+                            long triggerAtMillis = date.getTime();
 
-                    // Создание намерения для вызова BroadcastReceiver, который обрабатывает уведомление
-                    Intent notificationIntent = new Intent(this, NotificationHelper.class);
-                    notificationIntent.putExtra("TASK_TEXT", task.getText());
-                    notificationIntent.putExtra("TASK_ID", task.getId());
+                            // Create intent for NotificationHelper
+                            Intent notificationIntent = new Intent(NotificationService.this, NotificationHelper.class);
+                            notificationIntent.putExtra("TASK_TEXT", task.getText());
+                            notificationIntent.putExtra("TASK_ID", task.getId());
 
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(this, task.getId(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                            // Convert task ID to an integer request code
+                            int requestCode = task.getId().hashCode();
 
-                    // Установка уведомления с использованием AlarmManager
-                    AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                            // Create PendingIntent
+                            PendingIntent pendingIntent = PendingIntent.getBroadcast(NotificationService.this, requestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                    // Проверка, создан ли канал уведомлений
-                    if (!isNotificationChannelCreated("channel_name")) {
-                        createNotificationChannel();
+                            // Set the alarm using AlarmManager
+                            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+
+                            // Ensure the notification channel is created
+                            if (!isNotificationChannelCreated("channel_name")) {
+                                createNotificationChannel();
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (ParseException e) {
-                    e.printStackTrace();
                 }
             }
-        }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(NotificationService.this, "Error fetching data from Firebase: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
+
     private boolean isNotificationChannelCreated(String channelId) {
-        // Проверяем, создан ли канал уведомлений с заданным идентификатором
+        // Проверяем, создан ли канал уведомлений с данным идентификатором
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
             return channel != null;
         }
-        // Если SDK меньше версии 26, возвращаем true, так как каналы уведомлений не требуются
+        // Если версия SDK ниже 26, считаем, что каналы уведомлений не требуются
         return true;
     }
 }
