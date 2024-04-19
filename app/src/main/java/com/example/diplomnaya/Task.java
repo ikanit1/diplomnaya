@@ -1,5 +1,7 @@
 package com.example.diplomnaya;
 
+import java.util.List;
+
 public class Task {
     private String id;
     private String text;
@@ -10,9 +12,29 @@ public class Task {
     private boolean isRepeating;
     private boolean important;
     private String creationTime;
+    private List<Integer> repeatingDays;
+    private String repeatingTime;
 
     public Task() {
         // Пустой конструктор
+    }
+
+    public List<Integer> getRepeatingDays() {
+        return repeatingDays;
+    }
+
+    // Геттер для времени повторения (в формате HH:mm)
+    public String getRepeatingTime() {
+        return repeatingTime;
+    }
+    // Сеттер для установки списка повторяющихся дней недели
+    public void setRepeatingDays(List<Integer> days) {
+        this.repeatingDays = days;
+    }
+
+    // Сеттер для установки времени повторения (в формате HH:mm)
+    public void setRepeatingTime(String time) {
+        this.repeatingTime = time;
     }
 
     public String getId() {
@@ -86,4 +108,5 @@ public class Task {
     public void setCreationTime(String creationTime) {
         this.creationTime = creationTime;
     }
+
 }

@@ -10,6 +10,8 @@ import android.os.Build;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.app.TimePickerDialog;
@@ -24,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -105,8 +108,16 @@ public class WorkSpace extends AppCompatActivity {
         ImageButton buttonPickDateTime = dialogView.findViewById(R.id.buttonPickDateTime);
 
         Task newTask = new Task();
+
+        // Обработчик для выбора опции повторения
         radioGroupTaskType.setOnCheckedChangeListener((group, checkedId) -> {
-            newTask.setRepeating(checkedId == R.id.radioButtonRepeating);
+            if (checkedId == R.id.radioButtonRepeating) {
+                // Показ диалогового окна с настройками повторения задачи
+                showRepeatingTaskSettingsDialog(newTask);
+            } else {
+                // Обычная задача без повторения
+                newTask.setRepeating(false);
+            }
         });
 
         buttonPickDateTime.setOnClickListener(v -> showDateTimePickerDialog(textViewDateTime, newTask));
@@ -144,6 +155,77 @@ public class WorkSpace extends AppCompatActivity {
 
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
         builder.create().show();
+    }
+
+    private void showRepeatingTaskSettingsDialog(Task task) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Настройки повторения задачи");
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_repeating_task_settings, null);
+        builder.setView(dialogView);
+
+        CheckBox[] dayCheckboxes = new CheckBox[7];
+        dayCheckboxes[0] = dialogView.findViewById(R.id.checkbox_monday);
+        dayCheckboxes[1] = dialogView.findViewById(R.id.checkbox_tuesday);
+        dayCheckboxes[2] = dialogView.findViewById(R.id.checkbox_wednesday);
+        dayCheckboxes[3] = dialogView.findViewById(R.id.checkbox_thursday);
+        dayCheckboxes[4] = dialogView.findViewById(R.id.checkbox_friday);
+        dayCheckboxes[5] = dialogView.findViewById(R.id.checkbox_saturday);
+        dayCheckboxes[6] = dialogView.findViewById(R.id.checkbox_sunday);
+
+        TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
+        timePicker.setIs24HourView(true); // Установите формат времени в 24-часовой
+
+        // Установите начальные значения для CheckBox и TimePicker, если они уже сохранены в задаче
+        if (task.getRepeatingDays() != null) {
+            for (int i = 0; i < 7; i++) {
+                dayCheckboxes[i].setChecked(task.getRepeatingDays().contains(i));
+            }
+        }
+        if (task.getRepeatingTime() != null) {
+            // Разделите время на часы и минуты
+            String[] timeParts = task.getRepeatingTime().split(":");
+            int hour = Integer.parseInt(timeParts[0]);
+            int minute = Integer.parseInt(timeParts[1]);
+            timePicker.setHour(hour);
+            timePicker.setMinute(minute);
+        }
+
+        // Создание диалогового окна
+        AlertDialog dialog = builder.create();
+
+        // Обработчик для кнопки "Применить"
+        Button applyButton = dialogView.findViewById(R.id.btn_apply);
+        applyButton.setOnClickListener(v -> {
+            // Сохраните выбранные дни недели
+            List<Integer> repeatingDays = new ArrayList<>();
+            for (int i = 0; i < 7; i++) {
+                if (dayCheckboxes[i].isChecked()) {
+                    repeatingDays.add(i);
+                }
+            }
+            task.setRepeatingDays(repeatingDays);
+
+            // Сохраните выбранное время
+            int selectedHour = timePicker.getHour();
+            int selectedMinute = timePicker.getMinute();
+            String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
+            task.setRepeatingTime(selectedTime);
+
+            // Обновите объект задачи
+            dbHelper.updateTask(task);
+
+            // Перенастройте уведомление
+            scheduleNotification(task);
+
+            // Закройте диалоговое окно
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("Отмена", (dialogInterface, which) -> dialogInterface.dismiss());
+
+        // Покажите диалоговое окно
+        dialog.show();
     }
 
     private void showDateTimePickerDialog(TextView textViewDateTime, Task task) {
@@ -325,31 +407,56 @@ public class WorkSpace extends AppCompatActivity {
 
     private void scheduleNotification(Task task) {
         if (task.isNotify()) {
-            String timeCreated = task.getTimeCreated();
-            String dateCreated = task.getDateCreated();
+            String dateTimeString = task.getDateCreated() + " " + task.getTimeCreated();
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             try {
-                String dateTimeString = dateCreated + " " + timeCreated;
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
                 Date date = sdf.parse(dateTimeString);
-                long triggerAtMillis = date.getTime();
 
+                // Создайте Intent для уведомления
                 Intent notificationIntent = new Intent(this, NotificationHelper.class);
                 notificationIntent.putExtra("TASK_TEXT", task.getText());
                 notificationIntent.putExtra("TASK_ID", task.getId());
                 notificationIntent.putExtra("IS_REPEATING", task.isRepeating());
 
-                // Convert the task ID to an integer for use as the request code
-                int requestCode = task.getId().hashCode(); // Using hashCode() to generate a unique integer
-
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                        this, requestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+                // Получите экземпляр AlarmManager
                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
                 if (task.isRepeating()) {
-                    alarmManager.setRepeating(
-                            AlarmManager.RTC_WAKEUP, triggerAtMillis, AlarmManager.INTERVAL_DAY, pendingIntent);
+                    // Если задача повторяется, установите будильники для выбранных дней недели
+                    long intervalWeek = 7 * 24 * 60 * 60 * 1000L; // Неделя в миллисекундах
+
+                    for (int dayOfWeek : task.getRepeatingDays()) {
+                        // Установите календарь для указанного дня недели
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(date);
+                        calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek + 1); // Calendar.DAY_OF_WEEK: 1 - воскресенье, 7 - суббота
+
+                        // Установите время повторения
+                        String[] timeParts = task.getRepeatingTime().split(":");
+                        int hour = Integer.parseInt(timeParts[0]);
+                        int minute = Integer.parseInt(timeParts[1]);
+                        calendar.set(Calendar.HOUR_OF_DAY, hour);
+                        calendar.set(Calendar.MINUTE, minute);
+
+                        // Создайте PendingIntent для данного дня недели и времени повторения
+                        int requestCode = task.getId().hashCode() + dayOfWeek; // Используйте hashCode() задачи и дня недели для уникальности
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                                this, requestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        // Установите повторяющийся будильник для выбранного дня недели и времени
+                        alarmManager.setRepeating(
+                                AlarmManager.RTC_WAKEUP,
+                                calendar.getTimeInMillis(),
+                                intervalWeek, // Интервал повторения - неделя
+                                pendingIntent);
+                    }
                 } else {
+                    // Если задача не повторяется, используйте setExact
+                    long triggerAtMillis = date.getTime();
+                    int requestCode = task.getId().hashCode();
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                            this, requestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                     alarmManager.setExact(
                             AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
                 }
@@ -357,15 +464,5 @@ public class WorkSpace extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-    }
-
-
-    private boolean isNotificationChannelCreated(String channelId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
-            return channel != null;
-        }
-        return true; // Каналы уведомлений не требуются для более старых версий SDK
     }
 }

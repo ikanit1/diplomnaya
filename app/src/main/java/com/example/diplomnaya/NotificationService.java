@@ -21,6 +21,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -75,6 +77,9 @@ public class NotificationService extends Service {
     }
 
     private void scheduleNotification() {
+
+        long intervalWeek = 7 * 24 * 60 * 60 * 1000L; // неделя в миллисекундах
+
         dbHelper.getAllTasks(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -99,6 +104,11 @@ public class NotificationService extends Service {
                             Intent notificationIntent = new Intent(NotificationService.this, NotificationHelper.class);
                             notificationIntent.putExtra("TASK_TEXT", task.getText());
                             notificationIntent.putExtra("TASK_ID", task.getId());
+                            notificationIntent.putExtra("IS_REPEATING", task.isRepeating());
+                            notificationIntent.putExtra("REPEATING_TIME", task.getRepeatingTime());
+                            ArrayList<Integer> repeatingDays = new ArrayList<>(task.getRepeatingDays());
+                            notificationIntent.putExtra("REPEATING_DAYS", repeatingDays);
+
 
                             // Convert task ID to an integer request code
                             int requestCode = task.getId().hashCode();
@@ -106,9 +116,43 @@ public class NotificationService extends Service {
                             // Create PendingIntent
                             PendingIntent pendingIntent = PendingIntent.getBroadcast(NotificationService.this, requestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                            // Set the alarm using AlarmManager
+                            // Get AlarmManager
                             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+
+                            if (task.isRepeating()) {
+                                // Plan repeating tasks
+                                for (int dayOfWeek : task.getRepeatingDays()) {
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTime(date);
+                                    calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek + 1); // Sunday is 1, Saturday is 7
+
+                                    // Split time into hour and minute
+                                    String[] timeParts = task.getRepeatingTime().split(":");
+                                    int hour = Integer.parseInt(timeParts[0]);
+                                    int minute = Integer.parseInt(timeParts[1]);
+                                    calendar.set(Calendar.HOUR_OF_DAY, hour);
+                                    calendar.set(Calendar.MINUTE, minute);
+
+                                    // Create a unique request code for each day of the week
+                                    int requestCodeForDay = requestCode + dayOfWeek;
+
+                                    // Create a new PendingIntent for each day of the week
+                                    PendingIntent repeatingPendingIntent = PendingIntent.getBroadcast(
+                                            NotificationService.this, requestCodeForDay, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                                    // Set the repeating alarm using AlarmManager
+                                    alarmManager.setRepeating(
+                                            AlarmManager.RTC_WAKEUP,
+                                            calendar.getTimeInMillis(),
+                                            intervalWeek,
+                                            repeatingPendingIntent
+                                    );
+
+                                }
+                            } else {
+                                // Plan non-repeating tasks
+                                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                            }
 
                             // Ensure the notification channel is created
                             if (!isNotificationChannelCreated("channel_name")) {
@@ -127,6 +171,7 @@ public class NotificationService extends Service {
             }
         });
     }
+
 
 
     private boolean isNotificationChannelCreated(String channelId) {

@@ -2,8 +2,6 @@ package com.example.diplomnaya;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Button;
@@ -13,8 +11,6 @@ import android.content.SharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button settingsButton;
-    private final Handler handler = new Handler(Looper.getMainLooper());
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -31,17 +27,29 @@ public class MainActivity extends AppCompatActivity {
             // Если нет, то показываем страницу приветствия
             setContentView(R.layout.activity_main);
 
+            // Найдите кнопку "Приступить" в макете
+            Button startButton = findViewById(R.id.button_start); // Убедитесь, что `R.id.start_button` — это идентификатор вашей кнопки в макете
+
+            // Установите обработчик события для кнопки "Приступить"
+            startButton.setOnClickListener(v -> {
+                // Создайте Intent для перехода на активность `Login`
+                Intent intent = new Intent(MainActivity.this, Login.class);
+                startActivity(intent);
+
+                // Завершаем текущую активность
+                finish();
+            });
         }
     }
 
-    // Метод для перехода на следующую активити
+    // Метод для перехода на следующую активность
     public void startNextActivity(View view) {
-        // Создаем Intent для перехода на следующую активити
+        // Создаём Intent для перехода на следующую активность
         Intent intent = new Intent(this, WorkSpace.class);
-        // Запускаем следующую активити
+        // Запускаем следующую активность
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        // Завершаем текущую активити
+        // Завершаем текущую активность
         finish();
 
         // Сохраняем информацию о том, что страница приветствия была показана
