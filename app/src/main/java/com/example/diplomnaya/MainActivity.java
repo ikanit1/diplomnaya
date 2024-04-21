@@ -21,14 +21,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Проверяем, была ли страница приветствия уже показана
         if (sharedPreferences.getBoolean("isWelcomeShown", false)) {
-            // Если да, то переходим сразу на страницу workspace_main
-            startNextActivity(null);
+            // Если да, то переходим на страницу Login
+            startNextActivity();
         } else {
             // Если нет, то показываем страницу приветствия
             setContentView(R.layout.activity_main);
 
             // Найдите кнопку "Приступить" в макете
-            Button startButton = findViewById(R.id.button_start); // Убедитесь, что `R.id.start_button` — это идентификатор вашей кнопки в макете
+            Button startButton = findViewById(R.id.button_start);
 
             // Установите обработчик события для кнопки "Приступить"
             startButton.setOnClickListener(v -> {
@@ -38,23 +38,23 @@ public class MainActivity extends AppCompatActivity {
 
                 // Завершаем текущую активность
                 finish();
+
+                // Сохраняем информацию о том, что страница приветствия была показана
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("isWelcomeShown", true);
+                editor.apply();
             });
         }
     }
 
-    // Метод для перехода на следующую активность
-    public void startNextActivity(View view) {
-        // Создаём Intent для перехода на следующую активность
-        Intent intent = new Intent(this, WorkSpace.class);
-        // Запускаем следующую активность
+    // Метод для перехода на активность Login
+    public void startNextActivity() {
+        Intent intent = new Intent(this, Login.class);
+        // Добавляем флаги для очистки стека активностей и запуска новой активности
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         // Завершаем текущую активность
         finish();
-
-        // Сохраняем информацию о том, что страница приветствия была показана
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("isWelcomeShown", true);
-        editor.apply();
     }
+
 }

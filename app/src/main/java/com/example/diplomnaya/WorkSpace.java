@@ -62,7 +62,7 @@ public class WorkSpace extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Создаем Intent для перехода на activity_login.xml
-                Intent intent = new Intent(WorkSpace.this, Login.class);
+                Intent intent = new Intent(WorkSpace.this, OwnRoom.class);
 
                 // Запускаем активность
                 startActivity(intent);

@@ -1,6 +1,7 @@
 package com.example.diplomnaya;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,10 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 public class Login extends AppCompatActivity {
 
@@ -43,27 +42,16 @@ public class Login extends AppCompatActivity {
         // Проверяем, вошел ли уже пользователь
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // Пользователь уже вошел в систему, перенаправляем его на свой макет
-            startActivity(new Intent(Login.this, OwnRoom.class));
-            finish(); // Закрываем текущую активити, чтобы пользователь не мог вернуться назад
+            // Пользователь уже вошел в систему, перенаправляем его на нужный экран
+            redirectUser();
+            finish(); // Завершаем текущую активность
+            return;
         }
 
         // Установка слушателей для кнопок
-        buttonLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginUser();
-            }
-        });
-
-        buttonRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(Login.this, Register.class));
-            }
-        });
+        buttonLogin.setOnClickListener(v -> loginUser());
+        buttonRegister.setOnClickListener(v -> startActivity(new Intent(Login.this, Register.class)));
     }
-
 
     private void loginUser() {
         String email = editTextEmail.getText().toString().trim();
@@ -80,25 +68,45 @@ public class Login extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Вход успешен
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        // Дополнительные действия после успешного входа, если нужны
                         Toast.makeText(Login.this, "Вход успешен", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(Login.this, WorkSpace.class));
-                        finish();
+                        redirectUser();
+                        finish(); // Завершаем текущую активность
                     } else {
                         // Вход не удался
-                        if (task.getException() instanceof FirebaseAuthInvalidUserException) {
-                            // Пользователь с такой электронной почтой не существует
-                            Toast.makeText(Login.this, "Пользователь с такой электронной почтой не существует", Toast.LENGTH_SHORT).show();
-                        } else if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                            // Неправильный пароль
-                            Toast.makeText(Login.this, "Неправильный пароль", Toast.LENGTH_SHORT).show();
-                        } else {
-                            // Общая ошибка входа
-                            Toast.makeText(Login.this, "Ошибка входа. Проверьте правильность данных", Toast.LENGTH_SHORT).show();
-                        }
+                        handleLoginError(task.getException());
                     }
                 });
     }
+
+    private void redirectUser() {
+        // Получаем настройки пользователя из SharedPreferences или из Firebase, если необходимо
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", MODE_PRIVATE);
+        boolean goToOwnRoom = sharedPreferences.getBoolean("goToOwnRoom", false);
+
+        Intent intent;
+        if (goToOwnRoom) {
+            intent = new Intent(Login.this, OwnRoom.class);
+        } else {
+            intent = new Intent(Login.this, WorkSpace.class);
+        }
+
+        // Запускаем соответствующую активность
+        startActivity(intent);
+    }
+
+    private void handleLoginError(Exception exception) {
+        // Вход не удался, обработайте ошибку
+        if (exception instanceof FirebaseAuthInvalidUserException) {
+            // Пользователь с такой электронной почтой не существует
+            Toast.makeText(Login.this, "Пользователь с такой электронной почтой не существует", Toast.LENGTH_SHORT).show();
+        } else if (exception instanceof FirebaseAuthInvalidCredentialsException) {
+            // Неправильный пароль
+            Toast.makeText(Login.this, "Неправильный пароль", Toast.LENGTH_SHORT).show();
+        } else {
+            // Общая ошибка входа
+            Toast.makeText(Login.this, "Ошибка входа. Проверьте правильность данных", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }
 
