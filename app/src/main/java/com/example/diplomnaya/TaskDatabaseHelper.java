@@ -95,6 +95,7 @@ public class TaskDatabaseHelper {
     }
 
 
+
     // Метод для удаления задачи из Firebase Realtime Database
     public void deleteTask(Task task) {
         if (databaseReference == null) {

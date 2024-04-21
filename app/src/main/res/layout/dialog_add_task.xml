@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Одноразовая"
-                android:checked="true"
+                android:checked="false"
                 android:textColor="@android:color/black"/>
 
             <RadioButton
@@ -77,27 +77,6 @@
             android:layout_weight="1"
             android:textColor="@android:color/black"
             android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/textSelectDateTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_weight="1"
-            android:text="Выбрать время для уведомления"
-            android:textColor="@android:color/black"
-            android:textSize="12sp"
-            android:visibility="visible" />
-
-        <ImageButton
-            android:id="@+id/buttonPickDateTime"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginTop="8dp"
-            android:layout_weight="1"
-            android:src="@drawable/baseline_access_time_24"
-            android:text="@string/Selectdate"
-            android:textColor="@android:color/black" />
 
         <Switch
             android:id="@+id/switchPriority"
