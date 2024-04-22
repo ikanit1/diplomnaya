@@ -64,47 +64,44 @@
 
         <!-- Кнопка добавить задачу -->
 
+        <!-- Подгоняет изображение по размеру кнопки, сохраняя пропорции -->
+
+
         <ImageButton
             android:id="@+id/button_goto"
-            android:layout_width="62dp"
-            android:layout_height="match_parent"
+            android:layout_width="70dp"
+            android:layout_height="65dp"
             android:layout_gravity="start"
             android:contentDescription="Добавить задачу"
             android:padding="16dp"
             android:rotationX="4"
             android:scaleType="fitCenter"
-            android:src="@drawable/user">
-        </ImageButton> <!-- Подгоняет изображение по размеру кнопки, сохраняя пропорции -->
-
+            android:src="@drawable/user"></ImageButton>
 
         <ImageButton
             android:id="@+id/button_add_task"
-            android:layout_width="69dp"
-            android:layout_height="55dp"
+            android:layout_width="70dp"
+            android:layout_height="65dp"
             android:layout_gravity="center"
             android:layout_marginLeft="90sp"
             android:contentDescription="Добавить задачу"
-            android:padding="12dp"
+            android:padding="16dp"
             android:rotationX="4"
             android:scaleType="fitCenter"
             android:src="@drawable/add_button" />
 
         <ImageButton
-            android:id="@+id/button_view_tasks"
-            android:layout_width="62dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginLeft="120sp"
-            android:contentDescription="Просмотреть задачи"
+            android:id="@+id/btnShare"
+            android:layout_width="73dp"
+            android:layout_height="65dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="90sp"
+            android:contentDescription="Создать группу"
             android:padding="16dp"
-            android:src="@android:drawable/ic_menu_send" />
+            android:scaleType="fitCenter"
+            android:src="@android:drawable/ic_menu_agenda" />
 
 
         <!-- Дополнительные кнопки или элементы управления могут быть добавлены здесь -->
-
     </LinearLayout>
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

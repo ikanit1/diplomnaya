@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <!-- Название группы -->
+    <TextView
+        android:id="@+id/textGroupName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Название группы"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Имя пользователя, который отправил приглашение -->
+    <TextView
+        android:id="@+id/textInvitingUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Пригласивший пользователь"
+        app:layout_constraintTop_toBottomOf="@id/textGroupName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <!-- Кнопки принятия и отклонения приглашения -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/textInvitingUser"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        >
+
+        <!-- Кнопка принятия приглашения -->
+        <Button
+            android:id="@+id/btnAcceptInvitation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Принять"
+            android:layout_weight="1" />
+
+        <!-- Кнопка отклонения приглашения -->
+        <Button
+            android:id="@+id/btnRejectInvitation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Отклонить"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
