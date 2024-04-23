@@ -70,6 +70,21 @@ public class WorkSpace extends AppCompatActivity {
         });
 
         findViewById(R.id.button_add_task).setOnClickListener(v -> showAddTaskDialog());
+        findViewById(R.id.btnShare).setOnClickListener(v -> showAddTaskDialog());
+
+            // Добавьте обработчик нажатия для кнопки btnShare
+        findViewById(R.id.btnShare).setOnClickListener(v -> {
+            // Создайте Intent для перехода на класс ShareTask
+            Intent intent = new Intent(WorkSpace.this, ShareTask.class);
+
+            // Передайте дополнительные данные, если это необходимо
+            // Например, можно передать текущий идентификатор пользователя или другие данные
+            // intent.putExtra("key", "value");
+
+            // Запустите активность ShareTask
+            startActivity(intent);
+        });
+
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             loadTasks();

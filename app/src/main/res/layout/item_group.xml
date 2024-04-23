@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Элемент TextView для отображения имени группы -->
+    <TextView
+        android:id="@+id/textGroupName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Элемент TextView для отображения описания группы -->
+    <TextView
+        android:id="@+id/textGroupDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp" />
+
+    <!-- Другие элементы интерфейса (например, кнопки) можно добавить здесь -->
+
+</LinearLayout>

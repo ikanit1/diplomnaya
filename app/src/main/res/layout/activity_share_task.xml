@@ -1,71 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ShareTask">
+    android:padding="16dp">
 
-    <!-- Поле для ввода названия группы -->
+    <!-- Элементы для редактирования названия, описания и списка электронной почты группы -->
     <EditText
         android:id="@+id/editGroupName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Название группы"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp"
-         />
+        android:layout_marginBottom="8dp" />
 
-    <!-- Поле для ввода описания группы -->
     <EditText
         android:id="@+id/editGroupDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Описание группы (необязательно)"
-        app:layout_constraintTop_toBottomOf="@id/editGroupName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp"
-         />
+        android:hint="Описание группы"
+        android:layout_below="@id/editGroupName"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
 
-    <!-- Поле для ввода адресов электронной почты приглашенных пользователей -->
     <EditText
         android:id="@+id/editEmails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Адреса электронной почты приглашенных (через запятую)"
-        app:layout_constraintTop_toBottomOf="@id/editGroupDescription"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp"
-         />
+        android:hint="Электронная почта участников (разделенные запятыми)"
+        android:layout_below="@id/editGroupDescription"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp" />
 
     <!-- Кнопка для создания группы -->
     <Button
         android:id="@+id/btnCreateGroup"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Создать группу"
-        app:layout_constraintTop_toBottomOf="@id/editEmails"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-         />
+        android:layout_below="@id/editEmails"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
 
-    <!-- Список приглашений, полученных текущим пользователем -->
+    <!-- ListView для отображения приглашений -->
+
+    <!-- ListView для отображения групп -->
+
     <ListView
         android:id="@+id/listViewInvitations"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btnCreateGroup"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_invitation" />
+        android:layout_height="200dp"
+        android:layout_below="@id/btnCreateGroup"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="16dp" />
 
+    <ListView
+        android:id="@+id/listViewGroups"
+        android:layout_width="348dp"
+        android:layout_height="96dp"
+        android:layout_below="@id/listViewInvitations"
+        android:layout_marginTop="14dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
