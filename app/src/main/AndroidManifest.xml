@@ -3,15 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.diplomnaya">
 
+    <!-- Разрешения -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 
     <application
         android:allowBackup="true"
@@ -24,35 +26,46 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
 
-        <activity android:name=".Login">
-            <!-- Можно добавить дополнительные атрибуты, если необходимо -->
+        <!-- Активности -->
+        <activity android:name=".Login" android:exported="true">
+            <!-- Атрибуты активности -->
         </activity>
-        <activity android:name=".ShareTask">
+        <activity android:name=".ShareTask" android:exported="true">
+            <!-- Атрибуты активности -->
         </activity>
-        <activity android:name=".OwnRoom" />
-        <activity android:name=".Register">
-            <!-- Можно добавить дополнительные атрибуты, если необходимо -->
+        <activity android:name=".OwnRoom" android:exported="true">
+            <!-- Атрибуты активности -->
         </activity>
-        <activity
-            android:name=".WorkSpace"
-            android:exported="false"
-            android:label="@string/title_activity_work_space"
-            android:theme="@style/Theme.Diplomnaya" />
-        <receiver android:name=".NotificationHelper"
-            android:exported="true">
+        <activity android:name=".Register" android:exported="true">
+            <!-- Атрибуты активности -->
+        </activity>
+        <activity android:name=".WorkSpace" android:exported="false" android:label="@string/title_activity_work_space" android:theme="@style/Theme.Diplomnaya" />
+
+        <!-- Сервисы -->
+        <service android:name=".NotificationService" android:exported="true" />
+
+        <!-- Ресиверы -->
+        <receiver android:name=".NotificationHelper" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-        <service android:name=".NotificationService" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+
+        <!-- BootReceiver -->
+        <receiver android:name=".BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Главная активность -->
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 </manifest>

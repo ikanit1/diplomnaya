@@ -1,4 +1,5 @@
 package com.example.diplomnaya;
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import androidx.annotation.NonNull;
 import com.google.firebase.database.DataSnapshot;
@@ -474,44 +475,77 @@ public class WorkSpace extends AppCompatActivity {
 
 
 
+    @SuppressLint("ScheduleExactAlarm")
     private void scheduleNotification(Task task) {
         if (task.isNotify()) {
-            // Получите текущий день недели и время
+            // Разделите время на часы и минуты
+            String[] timeParts = task.getRepeatingTime().split(":");
+            int hour = Integer.parseInt(timeParts[0]);
+            int minute = Integer.parseInt(timeParts[1]);
+
+            // Создайте Calendar для установки времени
             Calendar calendar = Calendar.getInstance();
-            int currentDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-            int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-            int currentMinute = calendar.get(Calendar.MINUTE);
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, minute);
+            calendar.set(Calendar.SECOND, 0);
 
-            // Получите список повторяющихся дней недели и время повторения
-            List<Integer> repeatingDays = task.getRepeatingDays();
-            String repeatingTime = task.getRepeatingTime();
+            // Если время уже прошло, добавьте один день для одноразовой задачи
+            if (!task.isRepeating() && calendar.getTimeInMillis() < System.currentTimeMillis()) {
+                calendar.add(Calendar.DATE, 1);
+            }
 
-            // Проверьте, совпадает ли текущий день недели с повторяющимися днями
-            if (repeatingDays != null && repeatingTime != null && repeatingDays.contains(currentDayOfWeek - 1)) {
-                // Разделите время повторения на часы и минуты
-                String[] timeParts = repeatingTime.split(":");
-                int repeatingHour = Integer.parseInt(timeParts[0]);
-                int repeatingMinute = Integer.parseInt(timeParts[1]);
+            // Если задача повторяется, установите повторяющийся будильник на каждый день повторения
+            if (task.isRepeating()) {
+                List<Integer> repeatingDays = task.getRepeatingDays();
+                for (Integer day : repeatingDays) {
+                    Calendar repeatingCalendar = (Calendar) calendar.clone();
+                    repeatingCalendar.set(Calendar.DAY_OF_WEEK, day + 1);
 
-                // Проверьте, совпадает ли текущее время с временем повторения
-                if (currentHour == repeatingHour && currentMinute == repeatingMinute) {
-                    // Создайте Intent для уведомления
+                    // Если день уже прошел, добавьте неделю для следующего раза
+                    if (repeatingCalendar.getTimeInMillis() <= System.currentTimeMillis()) {
+                        repeatingCalendar.add(Calendar.DATE, 7);
+                    }
+
+                    // Создайте Intent и PendingIntent для повторяющихся уведомлений
                     Intent notificationIntent = new Intent(this, NotificationHelper.class);
                     notificationIntent.putExtra("TASK_TEXT", task.getText());
                     notificationIntent.putExtra("TASK_ID", task.getId());
                     notificationIntent.putExtra("IS_REPEATING", task.isRepeating());
 
-                    // Создайте PendingIntent для уведомления
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                            this, task.getId().hashCode(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                            this, task.getId().hashCode() + day, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                    // Отправьте уведомление с помощью AlarmManager
+                    // Установите повторяющийся будильник
                     AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                    alarmManager.setExactAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            repeatingCalendar.getTimeInMillis(),
+                            pendingIntent
+                    );
                 }
+            } else {
+                // Для одноразовых задач установите будильник только один раз
+                Intent notificationIntent = new Intent(this, NotificationHelper.class);
+                notificationIntent.putExtra("TASK_TEXT", task.getText());
+                notificationIntent.putExtra("TASK_ID", task.getId());
+                notificationIntent.putExtra("IS_REPEATING", task.isRepeating());
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                        this, task.getId().hashCode(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                // Установите одноразовый будильник
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.getTimeInMillis(),
+                        pendingIntent
+                );
             }
         }
     }
+
+
 
 
 }
