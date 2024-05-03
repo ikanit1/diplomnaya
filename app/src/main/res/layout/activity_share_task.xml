@@ -1,62 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <!-- Элементы для редактирования названия, описания и списка электронной почты группы -->
+    <!-- Поле для ввода названия группы -->
     <EditText
         android:id="@+id/editGroupName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Название группы"
-        android:layout_marginBottom="8dp" />
+        android:layout_margin="8dp" />
 
+    <!-- Поле для ввода описания группы -->
     <EditText
         android:id="@+id/editGroupDescription"
+        android:layout_below="@id/editGroupName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Описание группы"
-        android:layout_below="@id/editGroupName"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp" />
+        android:layout_margin="8dp" />
 
+    <!-- Поле для ввода кода группы -->
     <EditText
-        android:id="@+id/editEmails"
+        android:id="@+id/editGroupCode"
+        android:layout_below="@id/editGroupDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Электронная почта участников (разделенные запятыми)"
-        android:layout_below="@id/editGroupDescription"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp" />
+        android:hint="Код группы"
+        android:layout_margin="8dp" />
 
     <!-- Кнопка для создания группы -->
     <Button
         android:id="@+id/btnCreateGroup"
+        android:layout_below="@id/editGroupCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Создать группу"
-        android:layout_below="@id/editEmails"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_margin="8dp" />
 
-    <!-- ListView для отображения приглашений -->
-
-    <!-- ListView для отображения групп -->
-
-    <ListView
-        android:id="@+id/listViewInvitations"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
+    <!-- Кнопка для присоединения к группе по коду -->
+    <Button
+        android:id="@+id/btnJoinGroup"
         android:layout_below="@id/btnCreateGroup"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Присоединиться к группе по коду"
+        android:layout_margin="8dp" />
 
+    <!-- Список групп -->
     <ListView
         android:id="@+id/listViewGroups"
-        android:layout_width="348dp"
-        android:layout_height="96dp"
-        android:layout_below="@id/listViewInvitations"
-        android:layout_marginTop="14dp" />
+        android:layout_below="@id/btnJoinGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp" />
 
 </RelativeLayout>

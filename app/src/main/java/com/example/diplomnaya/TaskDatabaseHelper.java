@@ -31,12 +31,17 @@ public class TaskDatabaseHelper {
 
             if (databaseReference == null) {
                 Log.e("TaskDatabaseHelper", "databaseReference is null");
+                showToast("Ошибка инициализации базы данных");
             }
         } else {
             // Пользователь не вошел в систему
-            Toast.makeText(context, "Пожалуйста, войдите в систему", Toast.LENGTH_SHORT).show();
-            databaseReference = null;
+            showToast("Пожалуйста, войдите в систему");
+            return; // Завершаем конструктор, чтобы избежать работы с пустой databaseReference
         }
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
     // Метод для добавления задачи в Firebase Realtime Database
