@@ -16,7 +16,7 @@ public class ShareTask extends AppCompatActivity {
 
     private EditText editGroupName, editGroupDescription, editGroupCode;
     private Button btnCreateGroup, btnJoinGroup;
-    private ListView listViewGroups;
+    private ListView listViewCreatedGroups, listViewJoinedGroups;
 
     private DatabaseReference databaseReference;
     private String currentUserId;
@@ -32,7 +32,8 @@ public class ShareTask extends AppCompatActivity {
         editGroupCode = findViewById(R.id.editGroupCode);
         btnCreateGroup = findViewById(R.id.btnCreateGroup);
         btnJoinGroup = findViewById(R.id.btnJoinGroup);
-        listViewGroups = findViewById(R.id.listViewGroups);
+        listViewCreatedGroups = findViewById(R.id.listViewCreatedGroups);
+        listViewJoinedGroups = findViewById(R.id.listViewJoinedGroups);
 
         // Инициализация базы данных
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -43,7 +44,7 @@ public class ShareTask extends AppCompatActivity {
             currentUserId = currentUser.getUid();
             loadGroups(); // Загрузка групп пользователя
         } else {
-            Toast.makeText(this, "Пожалуйста, войдите в систему", Toast.LENGTH_SHORT).show();
+            showToast("Пожалуйста, войдите в систему");
             finish(); // Закрытие активности
         }
 
@@ -52,9 +53,76 @@ public class ShareTask extends AppCompatActivity {
         btnJoinGroup.setOnClickListener(this::joinGroup);
     }
 
-    // Метод для генерации уникального кода группы
-    private String generateUniqueGroupCode() {
-        return UUID.randomUUID().toString().substring(0, 8); // Короткий UUID
+    // Метод для загрузки групп пользователя
+    private void loadGroups() {
+        List<Group> createdGroups = new ArrayList<>();
+        List<Group> joinedGroups = new ArrayList<>();
+
+        DatabaseReference userGroupsRef = databaseReference.child("users").child(currentUserId).child("groups");
+
+        userGroupsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                createdGroups.clear(); // Очищаем списки перед загрузкой новых данных
+                joinedGroups.clear();
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String groupCode = snapshot.getKey();
+                    loadGroup(groupCode, createdGroups, joinedGroups);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                showToast("Ошибка загрузки групп: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    // В методе loadGroup загружаем информацию о участниках группы
+    private void loadGroup(String groupCode, List<Group> createdGroups, List<Group> joinedGroups) {
+        databaseReference.child("groups").child(groupCode).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Group group = dataSnapshot.getValue(Group.class);
+                if (group != null) {
+                    group.setGroupCode(groupCode);
+                    String creatorId = group.getCreatorId();
+                    if (creatorId != null && creatorId.equals(currentUserId)) {
+                        createdGroups.add(group);
+                    } else if (group.getMembers() != null && group.getMembers().containsKey(currentUserId)) {
+                        joinedGroups.add(group);
+                    }
+                    updateGroupsList(createdGroups, joinedGroups);
+                } else {
+                    showToast("Группа не найдена для кода: " + groupCode);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                showToast("Ошибка загрузки группы: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    // Обновление списка групп
+    private void updateGroupsList(List<Group> createdGroups, List<Group> joinedGroups) {
+        GroupAdapter createdGroupsAdapter = new GroupAdapter(ShareTask.this, createdGroups);
+        listViewCreatedGroups.setAdapter(createdGroupsAdapter);
+
+        listViewCreatedGroups.setOnItemClickListener((parent, view, position, id) -> {
+            Group selectedGroup = createdGroups.get(position);
+            handleGroupClick(selectedGroup);
+        });
+
+        GroupAdapter joinedGroupsAdapter = new GroupAdapter(ShareTask.this, joinedGroups);
+        listViewJoinedGroups.setAdapter(joinedGroupsAdapter);
+
+        listViewJoinedGroups.setOnItemClickListener((parent, view, position, id) -> {
+            Group selectedGroup = joinedGroups.get(position);
+            handleGroupClick(selectedGroup);
+        });
     }
 
     // Метод для создания новой группы
@@ -71,12 +139,16 @@ public class ShareTask extends AppCompatActivity {
         String groupCode = generateUniqueGroupCode();
 
         // Создание новой группы
-        Group newGroup = new Group(groupCode, groupName, groupDescription);
+        Group newGroup = new Group(groupCode, groupName, groupDescription, currentUserId);
         newGroup.addMember(currentUserId);
 
         // Сохранение группы в базе данных
         databaseReference.child("groups").child(groupCode).setValue(newGroup)
-                .addOnSuccessListener(aVoid -> showToast("Группа создана с кодом: " + groupCode))
+                .addOnSuccessListener(aVoid -> {
+                    showToast("Группа создана с кодом: " + groupCode);
+                    // Обновление списка групп после создания новой группы
+                    databaseReference.child("users").child(currentUserId).child("groups").child(groupCode).setValue(true);
+                })
                 .addOnFailureListener(e -> showToast("Ошибка при создании группы: " + e.getMessage()));
     }
 
@@ -89,83 +161,56 @@ public class ShareTask extends AppCompatActivity {
             return;
         }
 
-        // Добавляем текущего пользователя в члены группы
-        databaseReference.child("groups").child(groupCode).child("members").child(currentUserId).setValue(true)
-                .addOnSuccessListener(aVoid -> showToast("Успешно присоединились к группе с кодом: " + groupCode))
-                .addOnFailureListener(e -> showToast("Ошибка при присоединении к группе: " + e.getMessage()));
-    }
-
-    // Метод для загрузки групп пользователя
-    private void loadGroups() {
-        DatabaseReference userGroupsRef = databaseReference.child("users").child(currentUserId).child("groups");
-
-        userGroupsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                List<Group> groups = new ArrayList<>();
-
-                // Получение списка групп, в которых состоит пользователь
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String groupCode = snapshot.getKey();
-                    loadGroup(groupCode, groups);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                showToast("Ошибка загрузки групп: " + databaseError.getMessage());
-            }
-        });
-    }
-
-    // Загрузка данных группы
-    private void loadGroup(String groupCode, List<Group> groups) {
         databaseReference.child("groups").child(groupCode).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Group group = dataSnapshot.getValue(Group.class);
-                if (group != null) {
-                    groups.add(group);
-                    updateGroupsList(groups);
+                if (dataSnapshot.exists()) {
+                    databaseReference.child("groups").child(groupCode).child("members").child(currentUserId).setValue(true)
+                            .addOnSuccessListener(aVoid -> {
+                                showToast("Успешно присоединились к группе с кодом: " + groupCode);
+                                // Обновление списка групп после присоединения к группе
+                                databaseReference.child("users").child(currentUserId).child("groups").child(groupCode).setValue(true);
+                            })
+                            .addOnFailureListener(e -> showToast("Ошибка при присоединении к группе: " + e.getMessage()));
+                } else {
+                    showToast("Группа с таким кодом не найдена");
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                showToast("Ошибка загрузки группы: " + databaseError.getMessage());
+                showToast("Ошибка при присоединении к группе: " + databaseError.getMessage());
             }
         });
-    }
-
-    // Обновление списка групп
-    private void updateGroupsList(List<Group> groups) {
-        GroupAdapter adapter = new GroupAdapter(ShareTask.this, groups);
-        listViewGroups.setAdapter(adapter);
-        listViewGroups.setOnItemClickListener((parent, view, position, id) -> {
-            Group selectedGroup = groups.get(position);
-            handleGroupClick(selectedGroup);
-        });
-    }
-
-    // Метод для обработки нажатия на группу
-    private void handleGroupClick(Group group) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Удаление группы")
-                .setMessage("Вы уверены, что хотите удалить группу: " + group.getGroupName() + "?")
-                .setPositiveButton("Удалить", (dialog, which) -> deleteGroup(group.getGroupId()))
-                .setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss())
-                .create()
-                .show();
     }
 
     // Метод для удаления группы
     private void deleteGroup(String groupId) {
         databaseReference.child("groups").child(groupId).removeValue()
-                .addOnSuccessListener(aVoid -> showToast("Группа успешно удалена"))
+                .addOnSuccessListener(aVoid -> {
+                    showToast("Группа успешно удалена");
+                    // Обновление списка групп после удаления группы
+                    loadGroups();
+                })
                 .addOnFailureListener(e -> showToast("Ошибка при удалении группы: " + e.getMessage()));
     }
 
-    // Метод для вывода сообщения
+    // Метод для генерации уникального кода группы
+    private String generateUniqueGroupCode() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    // Метод для обработки нажатия на элемент списка групп
+    private void handleGroupClick(Group group) {
+        new AlertDialog.Builder(this)
+                .setTitle(group.getGroupName())
+                .setMessage("Описание группы: " + group.getGroupDescription())
+                .setPositiveButton("ОК", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("Удалить", (dialog, which) -> deleteGroup(group.getGroupCode()))
+                .show();
+    }
+
+    // Метод для отображения всплывающего сообщения
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }

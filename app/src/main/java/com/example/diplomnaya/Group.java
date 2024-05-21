@@ -1,38 +1,32 @@
 package com.example.diplomnaya;
 
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Group {
-    private String groupId;
+    private String groupCode;
     private String groupName;
     private String groupDescription;
-    private List<String> members;
-    private List<String> invitations;
+    private String creatorId;
+    private Map<String, Boolean> members = new HashMap<>();
 
-    // Публичный конструктор по умолчанию
     public Group() {
-        this.members = new ArrayList<>();
-        this.invitations = new ArrayList<>();
+        // Default constructor required for calls to DataSnapshot.getValue(Group.class)
     }
 
-    // Конструктор с параметрами
-    public Group(String groupId, String groupName, String groupDescription) {
-        this();
-        this.groupId = groupId;
+    public Group(String groupCode, String groupName, String groupDescription, String creatorId) {
+        this.groupCode = groupCode;
         this.groupName = groupName;
         this.groupDescription = groupDescription;
+        this.creatorId = creatorId;
     }
 
-    // Геттеры и сеттеры
-    public String getGroupId() {
-        return groupId;
+    public String getGroupCode() {
+        return groupCode;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
     }
 
     public String getGroupName() {
@@ -51,36 +45,23 @@ public class Group {
         this.groupDescription = groupDescription;
     }
 
-    public List<String> getMembers() {
+    public String getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public Map<String, Boolean> getMembers() {
         return members;
     }
 
-    public void setMembers(List<String> members) {
+    public void setMembers(Map<String, Boolean> members) {
         this.members = members;
     }
 
-    public List<String> getInvitations() {
-        return invitations;
-    }
-
-    public void setInvitations(List<String> invitations) {
-        this.invitations = invitations;
-    }
-
-    // Методы для добавления членов и приглашений
-    public void addMember(String member) {
-        // Проверка, есть ли уже такой член в списке
-        if (!members.contains(member)) {
-            members.add(member);
-        } else {
-            // Опционально: Вы можете добавить логирование или вывод сообщения,
-            // если член уже существует в списке
-            Log.d("Group", "Член с именем " + member + " уже существует в группе.");
-        }
-    }
-
-
-    public void addInvitation(String invitation) {
-        invitations.add(invitation);
+    public void addMember(String memberId) {
+        this.members.put(memberId, true);
     }
 }

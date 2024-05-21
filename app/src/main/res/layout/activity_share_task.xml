@@ -1,58 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
-    <!-- Поле для ввода названия группы -->
     <EditText
         android:id="@+id/editGroupName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Название группы"
-        android:layout_margin="8dp" />
+        android:inputType="text" />
 
-    <!-- Поле для ввода описания группы -->
     <EditText
         android:id="@+id/editGroupDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/editGroupName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:hint="Описание группы"
-        android:layout_margin="8dp" />
+        android:inputType="text" />
 
-    <!-- Поле для ввода кода группы -->
-    <EditText
-        android:id="@+id/editGroupCode"
-        android:layout_below="@id/editGroupDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Код группы"
-        android:layout_margin="8dp" />
-
-    <!-- Кнопка для создания группы -->
     <Button
         android:id="@+id/btnCreateGroup"
-        android:layout_below="@id/editGroupCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editGroupDescription"
+        android:text="Создать группу" />
+
+    <EditText
+        android:id="@+id/editGroupCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Создать группу"
-        android:layout_margin="8dp" />
+        android:layout_below="@id/btnCreateGroup"
+        android:hint="Код группы"
+        android:inputType="text" />
 
-    <!-- Кнопка для присоединения к группе по коду -->
     <Button
         android:id="@+id/btnJoinGroup"
-        android:layout_below="@id/btnCreateGroup"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Присоединиться к группе по коду"
-        android:layout_margin="8dp" />
+        android:layout_below="@id/editGroupCode"
+        android:text="Присоединиться к группе" />
 
-    <!-- Список групп -->
     <ListView
-        android:id="@+id/listViewGroups"
+        android:id="@+id/listViewCreatedGroups"
+        android:layout_width="wrap_content"
+        android:layout_height="146dp"
         android:layout_below="@id/btnJoinGroup"
+        android:layout_marginTop="16dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
+
+    <ListView
+        android:id="@+id/listViewJoinedGroups"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp" />
+        android:layout_below="@id/listViewCreatedGroups"
+        android:layout_marginTop="16dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
 
 </RelativeLayout>

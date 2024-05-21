@@ -3,6 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- ImageView для отображения изображения пользователя -->
+    <ImageView
+        android:id="@+id/imageViewUser"
+        android:layout_width="81dp"
+        android:layout_height="62dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/user" />
+
     <!-- TextView для отображения адреса электронной почты пользователя -->
     <TextView
         android:id="@+id/textViewEmail"
@@ -10,8 +20,9 @@
         android:layout_height="wrap_content"
         android:text="Адрес электронной почты:"
         android:textSize="18sp"
-        android:layout_marginTop="50dp"
-        android:layout_centerHorizontal="true"/>
+        android:layout_below="@id/imageViewUser"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"/>
 
     <!-- TextView для отображения адреса электронной почты пользователя -->
     <TextView

@@ -1,7 +1,6 @@
 package com.example.diplomnaya;
 
 import android.content.Context;
-import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -20,14 +19,9 @@ public class Task {
     private String creationTime;
     private List<Integer> repeatingDays;
     private String repeatingTime;
-    // Поле для создателя задачи
-    private String creator;
-
-    // Поле для времени создания задачи
-    private long createdAt;
-
-    // Ссылка на Firebase Database
     private DatabaseReference databaseReference;
+    private String description;
+    private String userId;
 
     // Конструктор
     public Task(Context context) {
@@ -39,29 +33,16 @@ public class Task {
         // Пустой конструктор
     }
 
+    public Task(String title, String description, String currentUserId) {
+        this.title = title;
+        this.description = description;
+        this.userId = currentUserId;
+    }
+
     public List<Integer> getRepeatingDays() {
         return repeatingDays;
     }
 
-    // Сеттер для установки создателя задачи
-    public void setCreator(String creator) {
-        this.creator = creator;
-    }
-
-    // Геттер для получения создателя задачи
-    public String getCreator() {
-        return creator;
-    }
-
-    // Сеттер для установки времени создания задачи
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    // Геттер для получения времени создания задачи
-    public long getCreatedAt() {
-        return createdAt;
-    }
 
     // Геттер для времени повторения (в формате HH:mm)
     public String getRepeatingTime() {
@@ -149,15 +130,11 @@ public class Task {
         this.creationTime = creationTime;
     }
 
-    // Функция для добавления задачи в группу
-    // Метод для добавления задачи в группу
-    public void addTaskToGroup(Context context, String groupId, Task task) {
-        DatabaseReference groupTasksRef = databaseReference.child("groups").child(groupId).child("tasks");
-        String taskId = groupTasksRef.push().getKey(); // Генерация уникального идентификатора задачи
+    public String getUserId() {
+        return userId;
+    }
 
-        task.setId(taskId); // Установите идентификатор задачи в объекте задачи
-        groupTasksRef.child(taskId).setValue(task)
-                .addOnSuccessListener(aVoid -> Toast.makeText(context, "Задача добавлена", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(context, "Ошибка при добавлении задачи: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    public String getDescription() {
+        return description;
     }
 }

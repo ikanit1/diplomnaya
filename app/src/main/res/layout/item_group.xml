@@ -2,24 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="8dp">
 
-    <!-- Элемент TextView для отображения имени группы -->
     <TextView
-        android:id="@+id/textGroupName"
-        android:layout_width="match_parent"
+        android:id="@+id/groupName"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_weight="1"
+        android:text="Group Name"
+        android:textSize="18sp" />
 
-    <!-- Элемент TextView для отображения описания группы -->
-    <TextView
-        android:id="@+id/textGroupDescription"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/viewMembersButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp" />
-
-    <!-- Другие элементы интерфейса (например, кнопки) можно добавить здесь -->
-
+        android:text="View Members" />
 </LinearLayout>

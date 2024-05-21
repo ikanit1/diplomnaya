@@ -56,9 +56,6 @@ public class TaskDatabaseHelper {
 
         if (key != null) {
             task.setId(key);
-            // Установите значение repeatingDays перед добавлением задачи
-            List<Integer> repeatingDays = task.getRepeatingDays();
-            task.setRepeatingDays(repeatingDays);
 
             // Добавление задачи в базу данных
             databaseReference.child(key).setValue(task)
@@ -71,6 +68,17 @@ public class TaskDatabaseHelper {
             Log.e("TaskDatabaseHelper", "Ошибка создания уникального ключа для задачи");
         }
     }
+
+    // Добавьте метод для получения задач по идентификатору пользователя
+    public void getUserTasks(String userId, ValueEventListener valueEventListener) {
+        if (databaseReference == null) {
+            Log.e("TaskDatabaseHelper", "databaseReference is null. Cannot get tasks.");
+            return;
+        }
+
+        databaseReference.child(userId).addListenerForSingleValueEvent(valueEventListener);
+    }
+
 
 
     // Метод для обновления задачи в Firebase Realtime Database
@@ -130,13 +138,6 @@ public class TaskDatabaseHelper {
         }
 
         databaseReference.addListenerForSingleValueEvent(valueEventListener);
-    }
-
-    // Метод обработки ошибок базы данных Firebase
-    private void handleFirebaseError(DatabaseError error) {
-        String errorMessage = error.getMessage();
-        Log.e("TaskDatabaseHelper", "Ошибка: " + errorMessage);
-        Toast.makeText(mContext, "Ошибка загрузки данных: " + errorMessage, Toast.LENGTH_SHORT).show();
     }
 
     // Метод для обработки исключений (Exception) в addOnFailureListener
