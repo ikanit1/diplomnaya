@@ -335,6 +335,7 @@ public class WorkSpace extends AppCompatActivity {
         });
     }
 
+
     private void addTaskToLayout(Task task) {
         // Создание представления задачи из макета task_item
         View taskView = getLayoutInflater().inflate(R.layout.task_item, null);

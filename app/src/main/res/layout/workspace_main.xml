@@ -8,10 +8,10 @@
     <!-- SwipeRefreshLayout для обновления задач -->
     <TextView
         android:id="@+id/text_add_task_notification"
-        android:layout_width="236dp"
-        android:layout_height="72dp"
+        android:layout_width="137dp"
+        android:layout_height="44dp"
         android:layout_gravity="center"
-        android:text="Добавьте свою первую задачу"
+        android:text="Список задач пуст :/"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
