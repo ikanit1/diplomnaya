@@ -3,6 +3,8 @@ import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import androidx.annotation.NonNull;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import com.google.firebase.database.DatabaseError;
@@ -43,6 +45,7 @@ public class WorkSpace extends AppCompatActivity {
     private LinearLayout tasksLayout;
     private final String[] dayNames = {"Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"};
     private TaskDatabaseHelper dbHelper;
+    private String currentUserId;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
@@ -90,6 +93,10 @@ public class WorkSpace extends AppCompatActivity {
             loadTasks();
             swipeRefreshLayout.setRefreshing(false);
         });
+    }
+    // Метод для установки значения currentUserId
+    public void setCurrentUserId(String userId) {
+        this.currentUserId = userId;
     }
 
     private void createNotificationChannel() {
@@ -173,8 +180,6 @@ public class WorkSpace extends AppCompatActivity {
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
-
-
 
     private void showRepeatingTaskSettingsDialog(Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -387,9 +392,109 @@ public class WorkSpace extends AppCompatActivity {
         // Обработчик для кнопки редактирования задачи
         buttonEditTask.setOnClickListener(v -> showEditTaskDialog(taskView, task));
 
-
         // Перенастройка уведомлений для задачи после добавления ее в макет
         scheduleNotification(task);
+    }
+
+    // Метод для деления задачи с группой
+    private void shareTaskWithGroup(String groupId, Task task) {
+        task.setShared(true);
+        task.setGroupId(groupId);
+        DatabaseReference groupTasksRef = FirebaseDatabase.getInstance().getReference().child("groups").child(groupId).child("tasks");
+        String taskId = groupTasksRef.push().getKey();
+        if (taskId != null) {
+            task.setId(taskId); // Установите новый ID задачи
+            groupTasksRef.child(taskId).setValue(task)
+                    .addOnSuccessListener(aVoid -> showToast("Задача поделена с группой"))
+                    .addOnFailureListener(e -> showToast("Ошибка при делении задачи: " + e.getMessage()));
+        }
+    }
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+
+    // Метод для показа диалога выбора группы
+    private void showGroupSelectionDialog(String currentUserId, Task task) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Выберите группу");
+
+        // Получение списка групп пользователя из Firebase
+        DatabaseReference userGroupsRef = FirebaseDatabase.getInstance().getReference()
+                .child("users")
+                .child(currentUserId)
+                .child("groups");
+
+        userGroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Group> userGroups = new ArrayList<>();
+                for (DataSnapshot groupSnapshot : dataSnapshot.getChildren()) {
+                    Group group = groupSnapshot.getValue(Group.class);
+                    if (group != null) {
+                        userGroups.add(group);
+                    }
+                }
+
+                // Создание массива имен групп для диалога
+                String[] groupNames = new String[userGroups.size()];
+                for (int i = 0; i < userGroups.size(); i++) {
+                    groupNames[i] = userGroups.get(i).getGroupName();
+                }
+
+                // Установка элементов списка групп в диалог и добавление обработчика нажатия
+                builder.setItems(groupNames, (dialog, which) -> {
+                    String selectedGroupId = userGroups.get(which).getGroupId();
+                    shareTaskWithGroup(selectedGroupId, task);
+                });
+
+                // Добавление кнопки отмены
+                builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
+                // Показ диалога после подготовки данных
+                builder.show();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Обработка ошибок при чтении данных из базы данных
+                showToast("Ошибка при получении списка групп: " + databaseError.getMessage());
+            }
+        });
+    }
+
+
+    // Метод для получения списка групп пользователя
+    private List<Group> getUserGroups() {
+        List<Group> userGroups = new ArrayList<>();
+
+        // Получение ссылки на узел в базе данных, где хранятся группы пользователя
+        DatabaseReference userGroupsRef = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserId).child("groups");
+
+        // Добавление слушателя для получения данных о группах пользователя из базы данных
+        userGroupsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                userGroups.clear(); // Очистка списка перед загрузкой новых данных
+
+                // Обход всех дочерних узлов (групп) в базе данных
+                for (DataSnapshot groupSnapshot : dataSnapshot.getChildren()) {
+                    // Преобразование данных из снимка в объект Group
+                    Group group = groupSnapshot.getValue(Group.class);
+                    if (group != null) {
+                        // Добавление группы в список
+                        userGroups.add(group);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Обработка ошибок при чтении данных из базы данных
+                showToast("Ошибка при получении списка групп: " + databaseError.getMessage());
+            }
+        });
+
+        return userGroups;
     }
 
     private void updateTaskView(View taskView, Task task) {
@@ -562,9 +667,4 @@ public class WorkSpace extends AppCompatActivity {
             }
         }
     }
-
-
-
-
-
 }

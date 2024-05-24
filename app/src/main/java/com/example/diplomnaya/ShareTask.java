@@ -183,6 +183,17 @@ public class ShareTask extends AppCompatActivity {
             }
         });
     }
+    // Метод для создания новой задачи в группе
+    private void createTaskForGroup(String groupCode, Task task) {
+        DatabaseReference groupTasksRef = databaseReference.child("groups").child(groupCode).child("tasks");
+        String taskId = groupTasksRef.push().getKey();
+        if (taskId != null) {
+            groupTasksRef.child(taskId).setValue(task)
+                    .addOnSuccessListener(aVoid -> showToast("Задача создана"))
+                    .addOnFailureListener(e -> showToast("Ошибка при создании задачи: " + e.getMessage()));
+        }
+    }
+
 
     // Метод для удаления группы
     private void deleteGroup(String groupId) {

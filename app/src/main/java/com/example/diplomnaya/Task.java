@@ -1,10 +1,6 @@
 package com.example.diplomnaya;
 
 import android.content.Context;
-
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
 import java.util.List;
 
 public class Task {
@@ -19,14 +15,14 @@ public class Task {
     private String creationTime;
     private List<Integer> repeatingDays;
     private String repeatingTime;
-    private DatabaseReference databaseReference;
     private String description;
     private String userId;
+    private boolean isShared; // Новое поле для отметки, что задача поделена
+    private String groupId; // Новое поле для хранения идентификатора группы
 
     // Конструктор
     public Task(Context context) {
         // Инициализация Firebase Database
-        databaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
     public Task() {
@@ -39,21 +35,19 @@ public class Task {
         this.userId = currentUserId;
     }
 
+    // Геттеры и сеттеры
     public List<Integer> getRepeatingDays() {
         return repeatingDays;
     }
 
-
-    // Геттер для времени повторения (в формате HH:mm)
     public String getRepeatingTime() {
         return repeatingTime;
     }
-    // Сеттер для установки списка повторяющихся дней недели
+
     public void setRepeatingDays(List<Integer> days) {
         this.repeatingDays = days;
     }
 
-    // Сеттер для установки времени повторения (в формате HH:mm)
     public void setRepeatingTime(String time) {
         this.repeatingTime = time;
     }
@@ -134,7 +128,31 @@ public class Task {
         return userId;
     }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isShared() {
+        return isShared;
+    }
+
+    public void setShared(boolean isShared) {
+        this.isShared = isShared;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 }

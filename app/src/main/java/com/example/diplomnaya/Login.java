@@ -50,6 +50,15 @@ public class Login extends AppCompatActivity {
         // Установка слушателей для кнопок
         buttonLogin.setOnClickListener(v -> loginUser());
         buttonRegister.setOnClickListener(v -> startActivity(new Intent(Login.this, Register.class)));
+
+        // Получение текущего пользователя Firebase и установка его идентификатора
+        currentUser = FirebaseAuth.getInstance().getCurrentUser(); // Remove redundant declaration
+        if (currentUser != null) {
+            String currentUserId = currentUser.getUid();
+            // Создание объекта WorkSpace и установка текущего идентификатора пользователя
+            WorkSpace workSpace = new WorkSpace();
+            workSpace.setCurrentUserId(currentUserId);
+        }
     }
 
     private void loginUser() {
@@ -106,6 +115,4 @@ public class Login extends AppCompatActivity {
             Toast.makeText(Login.this, "Ошибка входа. Проверьте правильность данных", Toast.LENGTH_SHORT).show();
         }
     }
-
 }
-

@@ -14,6 +14,8 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +38,11 @@ public class GroupAdapter extends ArrayAdapter<Group> {
 
         Group group = groups.get(position);
         TextView groupName = convertView.findViewById(R.id.groupName);
+        TextView groupCode = convertView.findViewById(R.id.groupCode);
         Button viewMembersButton = convertView.findViewById(R.id.viewMembersButton);
 
         groupName.setText(group.getGroupName());
+        groupCode.setText("Код: " + group.getGroupCode());
         viewMembersButton.setOnClickListener(v -> viewMembers(group));
 
         return convertView;
@@ -54,21 +58,32 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, memberList);
         listViewMembers.setAdapter(adapter);
 
-        listViewMembers.setOnItemClickListener((parent, view1, position, id) -> {
-            String memberId = memberList.get(position);
-            new AlertDialog.Builder(context)
-                    .setTitle("Удалить участника")
-                    .setMessage("Вы уверены, что хотите удалить этого участника?")
-                    .setPositiveButton("Да", (dialog, which) -> removeMember(group.getGroupCode(), memberId))
-                    .setNegativeButton("Нет", null)
-                    .show();
-        });
+        // Проверяем, является ли текущий пользователь создателем группы
+        if (currentUserIsCreator(group)) {
+            listViewMembers.setOnItemClickListener((parent, view1, position, id) -> {
+                String memberId = memberList.get(position);
+                new AlertDialog.Builder(context)
+                        .setTitle("Удалить участника")
+                        .setMessage("Вы уверены, что хотите удалить этого участника?")
+                        .setPositiveButton("Да", (dialog, which) -> removeMember(group.getGroupCode(), memberId))
+                        .setNegativeButton("Нет", null)
+                        .show();
+            });
+        }
 
         builder.setView(view);
         builder.setPositiveButton("ОК", null);
         builder.show();
     }
 
+    // Метод для проверки, является ли текущий пользователь создателем группы
+    private boolean currentUserIsCreator(Group group) {
+        // Получаем текущего пользователя из FirebaseAuth
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        // Проверяем, не пуст ли текущий пользователь и совпадает ли его UID с UID создателя группы
+        return currentUser != null && currentUser.getUid().equals(group.getCreatorId());
+    }
 
     private void removeMember(String groupCode, String memberId) {
         DatabaseReference memberRef = FirebaseDatabase.getInstance().getReference()

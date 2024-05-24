@@ -58,7 +58,6 @@
                     android:textSize="14sp"
                     android:textColor="@android:color/black"
                     android:text="Время уведомления" />
-
                 <ImageView
                     android:id="@+id/image_star"
                     android:layout_width="16sp"
@@ -74,8 +73,6 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="Edit"
                     android:src="@android:drawable/ic_menu_edit" />
-
-
 
                 <ImageButton
                     android:id="@+id/button_delete_task"

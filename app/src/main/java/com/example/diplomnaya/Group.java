@@ -6,6 +6,7 @@ import java.util.Map;
 public class Group {
     private String groupCode;
     private String groupName;
+    private String groupId;
     private String groupDescription;
     private String creatorId;
     private Map<String, Boolean> members = new HashMap<>();
@@ -63,5 +64,9 @@ public class Group {
 
     public void addMember(String memberId) {
         this.members.put(memberId, true);
+    }
+
+    public String getGroupId() {
+        return groupId;
     }
 }
