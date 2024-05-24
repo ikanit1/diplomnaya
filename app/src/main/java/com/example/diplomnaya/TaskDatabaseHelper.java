@@ -5,12 +5,9 @@ import android.util.Log;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
+import com.google.firebase.database.*;
 import java.util.List;
+
 
 public class TaskDatabaseHelper {
 
@@ -59,7 +56,10 @@ public class TaskDatabaseHelper {
 
             // Добавление задачи в базу данных
             databaseReference.child(key).setValue(task)
-                    .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно добавлена"))
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("TaskDatabaseHelper", "Задача успешно добавлена");
+                        distributeTaskToGroupMembers(task);
+                    })
                     .addOnFailureListener(e -> {
                         handleException(e);
                         Log.e("TaskDatabaseHelper", "Ошибка добавления задачи", e);
@@ -69,17 +69,39 @@ public class TaskDatabaseHelper {
         }
     }
 
-    // Добавьте метод для получения задач по идентификатору пользователя
-    public void getUserTasks(String userId, ValueEventListener valueEventListener) {
-        if (databaseReference == null) {
-            Log.e("TaskDatabaseHelper", "databaseReference is null. Cannot get tasks.");
-            return;
-        }
+    // Метод для распределения задачи между участниками группы
+    private void distributeTaskToGroupMembers(Task task) {
+        DatabaseReference groupsReference = FirebaseDatabase.getInstance().getReference("groups");
 
-        databaseReference.child(userId).addListenerForSingleValueEvent(valueEventListener);
+        groupsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot groupSnapshot : dataSnapshot.getChildren()) {
+                    if (groupSnapshot.child("creatorId").getValue(String.class).equals(mAuth.getCurrentUser().getUid())) {
+                        for (DataSnapshot memberSnapshot : groupSnapshot.child("members").getChildren()) {
+                            String memberId = memberSnapshot.getKey();
+                            DatabaseReference memberTasksRef = FirebaseDatabase.getInstance()
+                                    .getReference("users")
+                                    .child(memberId)
+                                    .child("tasks");
+
+                            String memberTaskKey = memberTasksRef.push().getKey();
+                            if (memberTaskKey != null) {
+                                memberTasksRef.child(memberTaskKey).setValue(task)
+                                        .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно распределена участнику: " + memberId))
+                                        .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка распределения задачи участнику: " + memberId, e));
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("TaskDatabaseHelper", "Ошибка получения данных о группах", databaseError.toException());
+            }
+        });
     }
-
-
 
     // Метод для обновления задачи в Firebase Realtime Database
     public void updateTask(Task task) {
@@ -106,8 +128,6 @@ public class TaskDatabaseHelper {
                     Log.e("TaskDatabaseHelper", "Ошибка обновления задачи в Firebase", e);
                 });
     }
-
-
 
     // Метод для удаления задачи из Firebase Realtime Database
     public void deleteTask(Task task) {

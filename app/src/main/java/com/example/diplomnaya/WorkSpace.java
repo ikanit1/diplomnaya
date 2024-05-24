@@ -636,7 +636,7 @@ public class WorkSpace extends AppCompatActivity {
                         notificationIntent.putExtra("IS_REPEATING", task.isRepeating());
 
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                                this, task.getId().hashCode() + day, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                this, task.getId().hashCode() + day, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
                         // Установите повторяющийся будильник
                         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -654,7 +654,7 @@ public class WorkSpace extends AppCompatActivity {
                     notificationIntent.putExtra("IS_REPEATING", task.isRepeating());
 
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                            this, task.getId().hashCode(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                            this, task.getId().hashCode(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
                     // Установите одноразовый будильник
                     AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -667,4 +667,5 @@ public class WorkSpace extends AppCompatActivity {
             }
         }
     }
+
 }
