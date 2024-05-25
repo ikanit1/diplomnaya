@@ -40,10 +40,25 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         TextView groupName = convertView.findViewById(R.id.groupName);
         TextView groupCode = convertView.findViewById(R.id.groupCode);
         Button viewMembersButton = convertView.findViewById(R.id.viewMembersButton);
+        Button deleteGroupButton = convertView.findViewById(R.id.deleteGroupButton);
 
         groupName.setText(group.getGroupName());
         groupCode.setText("Код: " + group.getGroupCode());
         viewMembersButton.setOnClickListener(v -> viewMembers(group));
+
+        // Обработчик кнопки удаления группы
+        deleteGroupButton.setOnClickListener(v -> {
+            if (currentUserIsCreator(group)) {
+                new AlertDialog.Builder(context)
+                        .setTitle("Удалить группу")
+                        .setMessage("Вы уверены, что хотите удалить эту группу?")
+                        .setPositiveButton("Да", (dialog, which) -> deleteGroup(group))
+                        .setNegativeButton("Нет", null)
+                        .show();
+            } else {
+                Toast.makeText(context, "У вас нет прав для удаления этой группы", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return convertView;
     }
@@ -85,12 +100,27 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         return currentUser != null && currentUser.getUid().equals(group.getCreatorId());
     }
 
+    // В методе deleteGroup после успешного удаления группы
+    private void deleteGroup(Group group) {
+        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference()
+                .child("groups").child(group.getGroupCode());
+        groupRef.removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(context, "Группа удалена", Toast.LENGTH_SHORT).show();
+                notifyDataSetChanged(); // Обновить список после удаления
+            } else {
+                Toast.makeText(context, "Ошибка удаления группы", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void removeMember(String groupCode, String memberId) {
         DatabaseReference memberRef = FirebaseDatabase.getInstance().getReference()
                 .child("groups").child(groupCode).child("members").child(memberId);
         memberRef.removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(context, "Участник удален", Toast.LENGTH_SHORT).show();
+                notifyDataSetChanged(); // Обновить список после удаления
             } else {
                 Toast.makeText(context, "Ошибка удаления участника", Toast.LENGTH_SHORT).show();
             }

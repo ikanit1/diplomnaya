@@ -7,7 +7,6 @@ public class Group {
     private String groupCode;
     private String groupName;
     private String groupId;
-    private String groupDescription;
     private String creatorId;
     private Map<String, Boolean> members = new HashMap<>();
 
@@ -15,10 +14,9 @@ public class Group {
         // Default constructor required for calls to DataSnapshot.getValue(Group.class)
     }
 
-    public Group(String groupCode, String groupName, String groupDescription, String creatorId) {
+    public Group(String groupCode, String groupName,  String creatorId) {
         this.groupCode = groupCode;
         this.groupName = groupName;
-        this.groupDescription = groupDescription;
         this.creatorId = creatorId;
     }
 
@@ -36,14 +34,6 @@ public class Group {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
-    }
-
-    public String getGroupDescription() {
-        return groupDescription;
-    }
-
-    public void setGroupDescription(String groupDescription) {
-        this.groupDescription = groupDescription;
     }
 
     public String getCreatorId() {

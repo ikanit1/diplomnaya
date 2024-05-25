@@ -14,12 +14,13 @@ import java.util.UUID;
 
 public class ShareTask extends AppCompatActivity {
 
-    private EditText editGroupName, editGroupDescription, editGroupCode;
+    private EditText editGroupName,  editGroupCode;
     private Button btnCreateGroup, btnJoinGroup;
     private ListView listViewCreatedGroups, listViewJoinedGroups;
 
     private DatabaseReference databaseReference;
     private String currentUserId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,6 @@ public class ShareTask extends AppCompatActivity {
 
         // Инициализация компонентов
         editGroupName = findViewById(R.id.editGroupName);
-        editGroupDescription = findViewById(R.id.editGroupDescription);
         editGroupCode = findViewById(R.id.editGroupCode);
         btnCreateGroup = findViewById(R.id.btnCreateGroup);
         btnJoinGroup = findViewById(R.id.btnJoinGroup);
@@ -128,7 +128,6 @@ public class ShareTask extends AppCompatActivity {
     // Метод для создания новой группы
     private void createGroup(View view) {
         String groupName = editGroupName.getText().toString().trim();
-        String groupDescription = editGroupDescription.getText().toString().trim();
 
         if (groupName.isEmpty()) {
             showToast("Введите название группы");
@@ -139,7 +138,7 @@ public class ShareTask extends AppCompatActivity {
         String groupCode = generateUniqueGroupCode();
 
         // Создание новой группы
-        Group newGroup = new Group(groupCode, groupName, groupDescription, currentUserId);
+        Group newGroup = new Group(groupCode, groupName, currentUserId);
         newGroup.addMember(currentUserId);
 
         // Сохранение группы в базе данных
@@ -151,6 +150,7 @@ public class ShareTask extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> showToast("Ошибка при создании группы: " + e.getMessage()));
     }
+
 
     // Метод для присоединения к группе по уникальному коду
     private void joinGroup(View view) {
@@ -215,7 +215,6 @@ public class ShareTask extends AppCompatActivity {
     private void handleGroupClick(Group group) {
         new AlertDialog.Builder(this)
                 .setTitle(group.getGroupName())
-                .setMessage("Описание группы: " + group.getGroupDescription())
                 .setPositiveButton("ОК", (dialog, which) -> dialog.dismiss())
                 .setNegativeButton("Удалить", (dialog, which) -> deleteGroup(group.getGroupCode()))
                 .show();
