@@ -10,18 +10,29 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class Login extends AppCompatActivity {
 
+    private static final int RC_SIGN_IN = 9001;
+
     private EditText editTextEmail, editTextPassword;
-    private Button buttonLogin, buttonRegister;
+    private Button buttonLogin, buttonRegister, buttonGoogleSignIn;
     private TextView textViewRegister;
 
     private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +47,7 @@ public class Login extends AppCompatActivity {
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonLogin = findViewById(R.id.buttonLogin);
         buttonRegister = findViewById(R.id.buttonRegister);
+        buttonGoogleSignIn = findViewById(R.id.buttonGoogleSignIn);
         textViewRegister = findViewById(R.id.textViewRegister);
 
         // Проверяем, вошел ли уже пользователь
@@ -50,15 +62,15 @@ public class Login extends AppCompatActivity {
         // Установка слушателей для кнопок
         buttonLogin.setOnClickListener(v -> loginUser());
         buttonRegister.setOnClickListener(v -> startActivity(new Intent(Login.this, Register.class)));
+        buttonGoogleSignIn.setOnClickListener(v -> signInWithGoogle());
 
-        // Получение текущего пользователя Firebase и установка его идентификатора
-        currentUser = FirebaseAuth.getInstance().getCurrentUser(); // Remove redundant declaration
-        if (currentUser != null) {
-            String currentUserId = currentUser.getUid();
-            // Создание объекта WorkSpace и установка текущего идентификатора пользователя
-            WorkSpace workSpace = new WorkSpace();
-            workSpace.setCurrentUserId(currentUserId);
-        }
+        // Настройка Google Sign-In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("428014765321-9e319i0u0t0li7n28b4p03eglqa5nfpj.apps.googleusercontent.com")
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     private void loginUser() {
@@ -81,6 +93,45 @@ public class Login extends AppCompatActivity {
                         finish(); // Завершаем текущую активность
                     } else {
                         // Вход не удался
+                        handleLoginError(task.getException());
+                    }
+                });
+    }
+
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Результат, возвращаемый запуском Intent из GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In успешен, аутентифицируем с Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account.getIdToken());
+            } catch (ApiException e) {
+                // Google Sign In не удался, обновляем UI
+                Toast.makeText(Login.this, "Google Sign In не удался", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Вход успешен
+                        Toast.makeText(Login.this, "Вход через Google успешен", Toast.LENGTH_SHORT).show();
+                        redirectUser();
+                        finish(); // Завершаем текущую активность
+                    } else {
+                        // Если вход не удался, отображаем сообщение пользователю.
                         handleLoginError(task.getException());
                     }
                 });

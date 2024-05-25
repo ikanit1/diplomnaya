@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,55 +15,81 @@
 
     <EditText
         android:id="@+id/editTextEmail"
-        android:layout_width="350sp"
-        android:layout_height="40sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/imageViewLogo"
         android:layout_marginTop="32dp"
         android:textColor="@color/black"
         android:layout_centerHorizontal="true"
         android:background="@drawable/rounded_white_background"
         android:hint="Электронная почта"
-        android:inputType="textEmailAddress" />
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
 
     <EditText
         android:id="@+id/editTextPassword"
-        android:layout_width="350sp"
-        android:layout_height="40sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/editTextEmail"
         android:layout_marginTop="16dp"
         android:textColor="@color/black"
         android:layout_centerHorizontal="true"
         android:background="@drawable/rounded_white_background"
         android:hint="Пароль"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
 
     <Button
         android:id="@+id/buttonLogin"
-        android:layout_width="133dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/editTextPassword"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/rounded_white_background"
         android:text="Вход"
         android:textColor="@color/black"
-        android:textSize="20sp" />
+        android:textSize="18sp"
+        android:padding="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+
+    <Button
+        android:id="@+id/buttonGoogleSignIn"
+        android:layout_width="243dp"
+        android:layout_height="66dp"
+        android:layout_below="@id/buttonLogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/rounded_white_background"
+        android:drawableLeft="@drawable/google_icon"
+        android:drawablePadding="10dp"
+        android:padding="12dp"
+        android:paddingLeft="10dp"
+        android:text="Войти через Google"
+        android:textColor="@color/black"
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/textViewRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/buttonLogin"
+        android:layout_below="@id/buttonGoogleSignIn"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="Первый раз в системе? Зарегистрируйтесь!"
-        android:textColor="@color/black"
-        android:background="@drawable/rounded_white_background"
+        android:textColor="@color/white"
         android:textSize="16sp" />
 
     <Button
         android:id="@+id/buttonRegister"
-        android:layout_width="133dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/textViewRegister"
         android:layout_centerHorizontal="true"
@@ -72,6 +97,9 @@
         android:background="@drawable/rounded_white_background"
         android:text="Регистрация"
         android:textColor="@color/black"
-        android:textSize="16sp" />
+        android:textSize="18sp"
+        android:padding="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
 
 </RelativeLayout>

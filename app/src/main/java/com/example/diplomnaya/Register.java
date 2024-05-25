@@ -7,20 +7,27 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class Register extends AppCompatActivity {
 
     private EditText editTextEmail, editTextPassword;
-    private Button buttonRegister;
+    private Button buttonRegister, buttonGoogleSignIn;
 
     private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+    private static final int RC_SIGN_IN = 9001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +41,29 @@ public class Register extends AppCompatActivity {
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonRegister = findViewById(R.id.buttonRegister);
+        buttonGoogleSignIn = findViewById(R.id.buttonGoogleSignIn);
 
         // Установка слушателя для кнопки регистрации
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 registerUser();
+            }
+        });
+
+        // Настройка Google Sign-In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("428014765321-9e319i0u0t0li7n28b4p03eglqa5nfpj.apps.googleusercontent.com")
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        // Установка слушателя для кнопки входа через Google
+        buttonGoogleSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signInWithGoogle();
             }
         });
     }
@@ -65,6 +89,45 @@ public class Register extends AppCompatActivity {
                             // Общая ошибка регистрации
                             Toast.makeText(Register.this, "Ошибка регистрации", Toast.LENGTH_SHORT).show();
                         }
+                    }
+                });
+    }
+
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Обработка результата аутентификации с помощью Google
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In успешен, аутентифицируем с Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account.getIdToken());
+            } catch (ApiException e) {
+                // Google Sign In не удался, обновляем UI
+                Toast.makeText(Register.this, "Google Sign In не удался", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Вход успешен
+                        Toast.makeText(Register.this, "Вход через Google успешен", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(Register.this, WorkSpace.class));
+                        finish(); // Завершаем текущую активность
+                    } else {
+                        // Если вход не удался, отображаем сообщение пользователю.
+                        Toast.makeText(Register.this, "Ошибка входа через Google", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

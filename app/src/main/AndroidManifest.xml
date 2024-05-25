@@ -54,12 +54,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- BootReceiver -->
-        <receiver android:name=".BootReceiver" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+
 
         <!-- Главная активность -->
         <activity android:name=".MainActivity" android:exported="true">
