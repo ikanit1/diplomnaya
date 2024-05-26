@@ -41,7 +41,11 @@ public class Task {
     }
 
     public String getRepeatingTime() {
-        return repeatingTime;
+        if (repeatingTime == null || repeatingTime.isEmpty()) {
+            return "Даты нет"; // Возвращаем "Даты нет", если время не указано
+        } else {
+            return repeatingTime;
+        }
     }
 
     public void setRepeatingDays(List<Integer> days) {
@@ -124,33 +128,10 @@ public class Task {
         this.creationTime = creationTime;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isShared() {
-        return isShared;
-    }
-
     public void setShared(boolean isShared) {
         this.isShared = isShared;
     }
 
-    public String getGroupId() {
-        return groupId;
-    }
 
     public void setGroupId(String groupId) {
         this.groupId = groupId;

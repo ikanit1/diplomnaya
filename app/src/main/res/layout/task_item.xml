@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -11,8 +12,11 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:background="@drawable/background"
-        android:padding="16dp"
-        android:backgroundTint="@color/white"> <!-- Добавляем атрибут cardCornerRadius для скругления углов -->
+        android:backgroundTint="@color/white"
+        android:padding="16px"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="2dp"
+        app:cardPreventCornerOverlap="false"> <!-- Добавляем атрибут cardCornerRadius для скругления углов -->
 
         <!-- Внутренний линейный макет для элементов задачи -->
         <LinearLayout
@@ -24,26 +28,26 @@
                 android:id="@+id/task_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:textSize="25sp"
-                android:text="Заголовок" />
+                android:text="Заголовок"
+                android:textColor="@color/black"
+                android:textSize="25sp" />
 
             <TextView
                 android:id="@+id/task_creation_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@android:color/black"
                 android:gravity="end"
-                android:text="Создано" />
+                android:text="Создано"
+                android:textColor="@android:color/black"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/task_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:text="Текст"
                 android:textColor="@android:color/black"
-                android:text="Текст" />
+                android:textSize="16sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -55,9 +59,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="14sp"
+                    android:text="Время уведомления"
                     android:textColor="@android:color/black"
-                    android:text="Время уведомления" />
+                    android:textSize="14sp" />
+
                 <ImageView
                     android:id="@+id/image_star"
                     android:layout_width="16sp"

@@ -206,8 +206,7 @@ public class WorkSpace extends AppCompatActivity {
                 dayCheckboxes[i].setChecked(task.getRepeatingDays().contains(i));
             }
         }
-        if (task.getRepeatingTime() != null) {
-            // Разделите время на часы и минуты
+        if (task.getRepeatingTime() != null && task.getRepeatingTime().matches("\\d{2}:\\d{2}")) {
             String[] timeParts = task.getRepeatingTime().split(":");
             int hour = Integer.parseInt(timeParts[0]);
             int minute = Integer.parseInt(timeParts[1]);
@@ -263,6 +262,7 @@ public class WorkSpace extends AppCompatActivity {
         // Покажите диалоговое окно
         dialog.show();
     }
+
 
 
     // Метод для получения сокращения дня недели по индексу

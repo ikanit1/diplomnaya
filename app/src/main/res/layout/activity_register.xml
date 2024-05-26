@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,12 +14,24 @@
         android:src="@drawable/logo" />
 
     <EditText
-        android:id="@+id/editTextEmail"
+        android:id="@+id/editTextName"
         android:layout_width="350sp"
         android:layout_height="48dp"
         android:layout_below="@id/imageViewLogo"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="32dp"
+        android:background="@drawable/rounded_white_background"
+        android:hint="Имя пользователя"
+        android:inputType="textPersonName"
+        android:textColor="@color/black" />
+
+    <EditText
+        android:id="@+id/editTextEmail"
+        android:layout_width="350sp"
+        android:layout_height="48dp"
+        android:layout_below="@id/editTextName"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_white_background"
         android:hint="Электронная почта"
         android:inputType="textEmailAddress"
@@ -66,6 +77,18 @@
         android:text="Войти через Google"
         android:textColor="@color/black"
         android:textSize="18sp" />
+
+    <!-- Новый элемент TextView для отображения сообщения о проверке почты -->
+    <TextView
+        android:id="@+id/textViewVerification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonRegister"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Пожалуйста, проверьте свою почту для подтверждения"
+        android:textColor="@android:color/black"
+        android:visibility="gone" />
 
 
 </RelativeLayout>

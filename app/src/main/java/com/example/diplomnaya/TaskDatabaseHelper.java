@@ -48,7 +48,20 @@ public class TaskDatabaseHelper {
         String key = databaseReference.push().getKey();
 
         if (key != null) {
+            String taskTitle = task.getTitle();
+            if (taskTitle == null || taskTitle.isEmpty()) {
+                taskTitle = "Безымянный"; // Установка значения "Безымянный", если заголовок пустой
+            }
+
+            // Проверяем, указано ли время в задаче
+            String taskTime = task.getRepeatingTime();
+            if (taskTime == null || taskTime.isEmpty()) {
+                taskTime = "Срока нет"; // Установка значения "Даты нет", если время не указано
+            }
+
             task.setId(key);
+            task.setTitle(taskTitle);
+            task.setRepeatingTime(taskTime); // Устанавливаем время задачи
 
             databaseReference.child(key).setValue(task)
                     .addOnSuccessListener(aVoid -> {

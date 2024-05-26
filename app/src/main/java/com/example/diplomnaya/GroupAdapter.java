@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,11 +40,26 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         Group group = groups.get(position);
         TextView groupName = convertView.findViewById(R.id.groupName);
         TextView groupCode = convertView.findViewById(R.id.groupCode);
+        TextView creatorName = convertView.findViewById(R.id.creatorName); // Добавляем TextView для отображения имени создателя
         Button viewMembersButton = convertView.findViewById(R.id.viewMembersButton);
         Button deleteGroupButton = convertView.findViewById(R.id.deleteGroupButton);
 
         groupName.setText(group.getGroupName());
         groupCode.setText("Код: " + group.getGroupCode());
+
+        // Получаем имя создателя асинхронно и устанавливаем его после получения
+        group.getUserName(group.getCreatorId(), new Group.UserNameListener() {
+            @Override
+            public void onUserNameReceived(String userName) {
+                creatorName.setText(userName);
+            }
+
+            @Override
+            public void onUserNameError(Exception e) {
+                Toast.makeText(context, "Ошибка получения имени пользователя", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         viewMembersButton.setOnClickListener(v -> viewMembers(group));
 
         // Обработчик кнопки удаления группы
@@ -61,34 +77,6 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         });
 
         return convertView;
-    }
-
-    private void viewMembers(Group group) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Участники группы: " + group.getGroupName());
-
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_view_members, null);
-        ListView listViewMembers = view.findViewById(R.id.listViewMembers);
-        List<String> memberList = new ArrayList<>(group.getMembers().keySet());
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, memberList);
-        listViewMembers.setAdapter(adapter);
-
-        // Проверяем, является ли текущий пользователь создателем группы
-        if (currentUserIsCreator(group)) {
-            listViewMembers.setOnItemClickListener((parent, view1, position, id) -> {
-                String memberId = memberList.get(position);
-                new AlertDialog.Builder(context)
-                        .setTitle("Удалить участника")
-                        .setMessage("Вы уверены, что хотите удалить этого участника?")
-                        .setPositiveButton("Да", (dialog, which) -> removeMember(group.getGroupCode(), memberId))
-                        .setNegativeButton("Нет", null)
-                        .show();
-            });
-        }
-
-        builder.setView(view);
-        builder.setPositiveButton("ОК", null);
-        builder.show();
     }
 
     // Метод для проверки, является ли текущий пользователь создателем группы
@@ -125,5 +113,33 @@ public class GroupAdapter extends ArrayAdapter<Group> {
                 Toast.makeText(context, "Ошибка удаления участника", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void viewMembers(Group group) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Участники группы: " + group.getGroupName());
+
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_view_members, null);
+        ListView listViewMembers = view.findViewById(R.id.listViewMembers);
+        List<String> memberList = new ArrayList<>(group.getMembers().keySet());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, memberList);
+        listViewMembers.setAdapter(adapter);
+
+        // Проверяем, является ли текущий пользователь создателем группы
+        if (currentUserIsCreator(group)) {
+            listViewMembers.setOnItemClickListener((parent, view1, position, id) -> {
+                String memberId = memberList.get(position);
+                new AlertDialog.Builder(context)
+                        .setTitle("Удалить участника")
+                        .setMessage("Вы уверены, что хотите удалить этого участника?")
+                        .setPositiveButton("Да", (dialog, which) -> removeMember(group.getGroupCode(), memberId))
+                        .setNegativeButton("Нет", null)
+                        .show();
+            });
+        }
+
+        builder.setView(view);
+        builder.setPositiveButton("ОК", null);
+        builder.show();
     }
 }
