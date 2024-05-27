@@ -22,15 +22,6 @@
         android:textSize="16sp"
         android:paddingBottom="4dp" />
 
-    <!-- Add the TextView to display the creator's name -->
-    <TextView
-        android:id="@+id/creatorName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Creator Name"
-        android:textSize="16sp"
-        android:paddingBottom="4dp" />
-
     <!-- Добавляем кнопку удаления группы -->
     <Button
         android:id="@+id/viewMembersButton"

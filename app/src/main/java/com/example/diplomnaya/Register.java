@@ -72,16 +72,6 @@ public class Register extends AppCompatActivity {
                 signInWithGoogle();
             }
         });
-
-        // Проверяем, подтвержден ли адрес электронной почты пользователя
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            if (!currentUser.isEmailVerified()) {
-                // Пользователь не подтвердил почту, перенаправляем его на экран подтверждения
-                Toast.makeText(Register.this, "Пожалуйста, подтвердите свой адрес электронной почты", Toast.LENGTH_SHORT).show();
-                finish(); // Закрываем текущую активность
-            }
-        }
     }
 
     private void registerUser() {
@@ -119,6 +109,7 @@ public class Register extends AppCompatActivity {
                                                 }
                                             }
                                         });
+                                sendEmailVerification(); // Отправка письма с подтверждением
                             }
                         } else {
                             // Регистрация не удалась
@@ -132,6 +123,28 @@ public class Register extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void sendEmailVerification() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            user.sendEmailVerification()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                // Письмо с подтверждением успешно отправлено
+                                Toast.makeText(Register.this, "Пожалуйста, проверьте свою почту для подтверждения", Toast.LENGTH_SHORT).show();
+                                // Перенаправляем пользователя на экран входа
+                                startActivity(new Intent(Register.this, Login.class));
+                                finish(); // Завершаем текущую активность
+                            } else {
+                                // Ошибка отправки письма с подтверждением
+                                Toast.makeText(Register.this, "Ошибка отправки письма с подтверждением", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
     }
 
     private void signInWithGoogle() {
@@ -154,25 +167,6 @@ public class Register extends AppCompatActivity {
                 // Google Sign In не удался, обновляем UI
                 Toast.makeText(Register.this, "Google Sign In не удался", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-
-    private void sendEmailVerification() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            user.sendEmailVerification()
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                // Письмо с подтверждением успешно отправлено
-                                Toast.makeText(Register.this, "Пожалуйста, проверьте свою почту для подтверждения", Toast.LENGTH_SHORT).show();
-                            } else {
-                                // Ошибка отправки письма с подтверждением
-                                Toast.makeText(Register.this, "Ошибка отправки письма с подтверждением", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
         }
     }
 

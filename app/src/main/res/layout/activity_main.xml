@@ -23,28 +23,29 @@
 
         <TextView
             android:id="@+id/welcome_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="277dp"
             android:layout_centerInParent="true"
+            android:background="@drawable/rounded_white_background"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
             android:text="Добро пожаловать в наш органайзер дел!\n\nЗдесь вы можете эффективно планировать свои задачи и управлять ими. Наше приложение поможет вам оставаться продуктивным и организованным.\n\nНажмите 'Приступить', чтобы начать работу"
             android:textAlignment="center"
             android:textColor="@android:color/black"
-            android:textSize="14sp"
-            android:fontFamily="@font/roboto_bold"
-            android:background="@drawable/rounded_white_background" />
+            android:textSize="18dp" />
 
 
         <Button
             android:id="@+id/button_start"
-            android:layout_width="117dp"
-            android:layout_height="wrap_content"
+            android:layout_width="165dp"
+            android:layout_height="74dp"
             android:layout_below="@+id/welcome_message"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="24dp"
             android:background="@drawable/rounded_button_background"
-            android:onClick="startNextActivity"
-            android:textColor="@android:color/black"
-            android:text="Приступить"/>
+            android:text="Приступить"
+            android:textSize="20dp"
+            android:textColor="@android:color/black" />
 
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

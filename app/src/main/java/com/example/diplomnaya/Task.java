@@ -41,12 +41,12 @@ public class Task {
     }
 
     public String getRepeatingTime() {
-        if (repeatingTime == null || repeatingTime.isEmpty()) {
-            return "Даты нет"; // Возвращаем "Даты нет", если время не указано
-        } else {
-            return repeatingTime;
-        }
+        return repeatingTime;
     }
+    public String getGroupId() {
+        return groupId;
+    }
+
 
     public void setRepeatingDays(List<Integer> days) {
         this.repeatingDays = days;

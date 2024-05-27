@@ -52,8 +52,8 @@ public class Login extends AppCompatActivity {
 
         // Проверяем, вошел ли уже пользователь
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            // Пользователь уже вошел в систему, перенаправляем его на нужный экран
+        if (currentUser != null && currentUser.isEmailVerified()) {
+            // Пользователь уже вошел в систему и его почта подтверждена, перенаправляем его на нужный экран
             redirectUser();
             finish(); // Завершаем текущую активность
             return;
@@ -87,10 +87,15 @@ public class Login extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Вход успешен
-                        Toast.makeText(Login.this, "Вход успешен", Toast.LENGTH_SHORT).show();
-                        redirectUser();
-                        finish(); // Завершаем текущую активность
+                        // Вход успешен, проверяем подтверждена ли почта
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null && user.isEmailVerified()) {
+                            Toast.makeText(Login.this, "Вход успешен", Toast.LENGTH_SHORT).show();
+                            redirectUser();
+                            finish(); // Завершаем текущую активность
+                        } else {
+                            Toast.makeText(Login.this, "Пожалуйста, подтвердите свою почту", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
                         // Вход не удался
                         handleLoginError(task.getException());

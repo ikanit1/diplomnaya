@@ -6,19 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GroupAdapter extends ArrayAdapter<Group> {
@@ -40,7 +42,6 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         Group group = groups.get(position);
         TextView groupName = convertView.findViewById(R.id.groupName);
         TextView groupCode = convertView.findViewById(R.id.groupCode);
-        TextView creatorName = convertView.findViewById(R.id.creatorName); // Добавляем TextView для отображения имени создателя
         Button viewMembersButton = convertView.findViewById(R.id.viewMembersButton);
         Button deleteGroupButton = convertView.findViewById(R.id.deleteGroupButton);
 
@@ -48,17 +49,7 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         groupCode.setText("Код: " + group.getGroupCode());
 
         // Получаем имя создателя асинхронно и устанавливаем его после получения
-        group.getUserName(group.getCreatorId(), new Group.UserNameListener() {
-            @Override
-            public void onUserNameReceived(String userName) {
-                creatorName.setText(userName);
-            }
 
-            @Override
-            public void onUserNameError(Exception e) {
-                Toast.makeText(context, "Ошибка получения имени пользователя", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         viewMembersButton.setOnClickListener(v -> viewMembers(group));
 
@@ -94,6 +85,17 @@ public class GroupAdapter extends ArrayAdapter<Group> {
                 .child("groups").child(group.getGroupCode());
         groupRef.removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                // Remove the group from the user's groups list
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (currentUser != null) {
+                    DatabaseReference userGroupsRef = FirebaseDatabase.getInstance().getReference()
+                            .child("users").child(currentUser.getUid()).child("groups").child(group.getGroupCode());
+                    userGroupsRef.removeValue();
+                }
+
+                // Удаление участников группы
+                deleteGroupMembers(group);
+
                 Toast.makeText(context, "Группа удалена", Toast.LENGTH_SHORT).show();
                 notifyDataSetChanged(); // Обновить список после удаления
             } else {
@@ -102,17 +104,11 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         });
     }
 
-    private void removeMember(String groupCode, String memberId) {
-        DatabaseReference memberRef = FirebaseDatabase.getInstance().getReference()
-                .child("groups").child(groupCode).child("members").child(memberId);
-        memberRef.removeValue().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Toast.makeText(context, "Участник удален", Toast.LENGTH_SHORT).show();
-                notifyDataSetChanged(); // Обновить список после удаления
-            } else {
-                Toast.makeText(context, "Ошибка удаления участника", Toast.LENGTH_SHORT).show();
-            }
-        });
+    // Метод для удаления участников группы из базы данных Firebase
+    private void deleteGroupMembers(Group group) {
+        DatabaseReference membersRef = FirebaseDatabase.getInstance().getReference()
+                .child("groups").child(group.getGroupCode()).child("members");
+        membersRef.removeValue();
     }
 
     private void viewMembers(Group group) {
@@ -120,23 +116,23 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         builder.setTitle("Участники группы: " + group.getGroupName());
 
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_view_members, null);
-        ListView listViewMembers = view.findViewById(R.id.listViewMembers);
-        List<String> memberList = new ArrayList<>(group.getMembers().keySet());
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, memberList);
-        listViewMembers.setAdapter(adapter);
+        TextView textViewMemberCount = view.findViewById(R.id.textViewMemberCount);
 
-        // Проверяем, является ли текущий пользователь создателем группы
-        if (currentUserIsCreator(group)) {
-            listViewMembers.setOnItemClickListener((parent, view1, position, id) -> {
-                String memberId = memberList.get(position);
-                new AlertDialog.Builder(context)
-                        .setTitle("Удалить участника")
-                        .setMessage("Вы уверены, что хотите удалить этого участника?")
-                        .setPositiveButton("Да", (dialog, which) -> removeMember(group.getGroupCode(), memberId))
-                        .setNegativeButton("Нет", null)
-                        .show();
-            });
-        }
+        // Получаем количество участников из базы данных Firebase
+        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference()
+                .child("groups").child(group.getGroupCode()).child("members");
+        groupRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long memberCount = snapshot.getChildrenCount();
+                textViewMemberCount.setText("Количество участников: " + memberCount);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(context, "Ошибка получения данных", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         builder.setView(view);
         builder.setPositiveButton("ОК", null);

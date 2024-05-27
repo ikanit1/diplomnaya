@@ -3,6 +3,9 @@ package com.example.diplomnaya;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
@@ -10,7 +13,6 @@ import java.util.List;
 
 
 public class TaskDatabaseHelper {
-
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
     private Context mContext;
@@ -45,6 +47,11 @@ public class TaskDatabaseHelper {
             return;
         }
 
+        // Проверяем, существует ли группа, в которой создана задача
+        if (task.getGroupId() != null) {
+            checkGroupExistence(task.getGroupId(), task);
+        }
+
         String key = databaseReference.push().getKey();
 
         if (key != null) {
@@ -55,9 +62,6 @@ public class TaskDatabaseHelper {
 
             // Проверяем, указано ли время в задаче
             String taskTime = task.getRepeatingTime();
-            if (taskTime == null || taskTime.isEmpty()) {
-                taskTime = "Срока нет"; // Установка значения "Даты нет", если время не указано
-            }
 
             task.setId(key);
             task.setTitle(taskTitle);
@@ -77,6 +81,26 @@ public class TaskDatabaseHelper {
         }
     }
 
+    // Метод для проверки существования группы по её идентификатору
+    private void checkGroupExistence(String groupId, Task task) {
+        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId);
+        groupRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    // Группа не существует, удаляем задачу
+                    deleteTask(task);
+                    showToast("Группа, в которой была создана задача, больше не существует. Задача удалена.");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("TaskDatabaseHelper", "Ошибка проверки существования группы", databaseError.toException());
+            }
+        });
+    }
+
     private void distributeTaskToGroupMembers(Task task) {
         DatabaseReference groupsReference = FirebaseDatabase.getInstance().getReference("groups");
 
@@ -85,9 +109,10 @@ public class TaskDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot groupSnapshot : dataSnapshot.getChildren()) {
                     if (groupSnapshot.child("creatorId").getValue(String.class).equals(mAuth.getCurrentUser().getUid())) {
+                        String groupCreatorId = mAuth.getCurrentUser().getUid(); // Идентификатор создателя группы
                         for (DataSnapshot memberSnapshot : groupSnapshot.child("members").getChildren()) {
                             String memberId = memberSnapshot.getKey();
-                            if (!memberId.equals(mAuth.getCurrentUser().getUid())) { // Избегаем дублирования у создателя
+                            if (!memberId.equals(groupCreatorId)) { // Избегаем дублирования у создателя
                                 DatabaseReference memberTasksRef = FirebaseDatabase.getInstance()
                                         .getReference("users")
                                         .child(memberId)
@@ -96,7 +121,10 @@ public class TaskDatabaseHelper {
                                 String memberTaskKey = memberTasksRef.push().getKey();
                                 if (memberTaskKey != null) {
                                     memberTasksRef.child(memberTaskKey).setValue(task)
-                                            .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно распределена участнику: " + memberId))
+                                            .addOnSuccessListener(aVoid -> {
+                                                Log.d("TaskDatabaseHelper", "Задача успешно распределена участнику: " + memberId);
+                                                sendNotificationToUser(mContext, memberId, task, groupCreatorId); // Отправка уведомления всем участникам группы
+                                            })
                                             .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка распределения задачи участнику: " + memberId, e));
                                 }
                             }
@@ -111,6 +139,34 @@ public class TaskDatabaseHelper {
             }
         });
     }
+
+    private void sendNotificationToUser(Context mContext, String groupId, Task task, String groupCreatorId) {
+        DatabaseReference groupMembersRef = FirebaseDatabase.getInstance()
+                .getReference("groups")
+                .child(groupId)
+                .child("members");
+
+        groupMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
+                    String memberId = memberSnapshot.getKey();
+                    // Отправить уведомление каждому участнику группы, кроме создателя задачи
+                    if (!memberId.equals(mAuth.getCurrentUser().getUid())) {
+                        // Вызываем метод sendNotificationToUser из класса NotificationHelper для отправки уведомления
+                        NotificationHelper.sendNotificationToUser(TaskDatabaseHelper.this.mContext, memberId, task);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("TaskDatabaseHelper", "Ошибка получения данных о членах группы", databaseError.toException());
+            }
+        });
+    }
+
+
 
     public void updateTask(Task task) {
         if (databaseReference == null) {

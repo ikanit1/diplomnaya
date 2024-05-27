@@ -15,13 +15,50 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class NotificationHelper extends BroadcastReceiver {
+
+    public static void sendNotificationToUser(Context mContext, String memberId, Task task) {
+        // Проверяем наличие разрешения на отправку уведомлений
+        if (NotificationManagerCompat.from(mContext).areNotificationsEnabled()) {
+            // Проверяем, является ли текущий пользователь создателем задачи
+            if (!memberId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                // Создание PendingIntent для перехода к активности при нажатии на уведомление
+                Intent intent = new Intent(mContext, MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                // Создание уведомления
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channel_id")
+                        .setSmallIcon(R.drawable.notification_icon)
+                        .setContentTitle("Задача обновлена")
+                        .setContentText(task.getTitle())
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+                // Отправка уведомления
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mContext);
+                notificationManager.notify(memberId.hashCode(), builder.build());
+            }
+        } else {
+            // Если разрешение на отправку уведомлений не предоставлено, вы можете предложить пользователю включить уведомления в настройках
+            // или выполнить другое действие в зависимости от вашего приложения.
+        }
+    }
+
+
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String taskText = intent.getStringExtra("TASK_TEXT");
         int taskId = intent.getIntExtra("TASK_ID", 0);
         boolean isRepeating = intent.getBooleanExtra("IS_REPEATING", false);
+        List<String> memberIds = intent.getStringArrayListExtra("MEMBER_IDS");
 
         // Создание намерения для открытия активности WorkSpace
         Intent workspaceIntent = new Intent(context, WorkSpace.class);
@@ -57,6 +94,7 @@ public class NotificationHelper extends BroadcastReceiver {
             nextIntent.putExtra("TASK_TEXT", taskText);
             nextIntent.putExtra("TASK_ID", taskId);
             nextIntent.putExtra("IS_REPEATING", true);
+            nextIntent.putExtra("MEMBER_IDS", (ArrayList<String>) memberIds);
 
             PendingIntent nextPendingIntent = PendingIntent.getBroadcast(context, taskId, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
