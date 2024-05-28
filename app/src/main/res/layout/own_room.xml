@@ -20,8 +20,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
         android:text="Имя пользователя"
-        android:textSize="18sp"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/textViewUserEmail"
@@ -31,8 +31,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
         android:text="Email пользователя"
-        android:textSize="16sp"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/buttonLogout"
