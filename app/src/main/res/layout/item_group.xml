@@ -22,11 +22,10 @@
         android:textSize="16sp"
         android:paddingBottom="4dp" />
 
-    <!-- Добавляем кнопку удаления группы -->
     <Button
         android:id="@+id/viewMembersButton"
         android:layout_width="wrap_content"
-        android:layout_height="33dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/rounded_button_background"
         android:text="Участники" />
 
@@ -34,9 +33,15 @@
         android:id="@+id/deleteGroupButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/viewMembersButton"
-        android:layout_centerHorizontal="true"
         android:background="@drawable/rounded_button_background"
-        android:text="Удалить группу" />
+        android:text="Удалить группу"
+        android:visibility="gone" />
 
+    <Button
+        android:id="@+id/leaveGroupButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_background"
+        android:text="Покинуть группу"
+        android:visibility="gone" />
 </LinearLayout>

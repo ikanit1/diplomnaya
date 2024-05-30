@@ -12,7 +12,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,71 +43,89 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         TextView groupCode = convertView.findViewById(R.id.groupCode);
         Button viewMembersButton = convertView.findViewById(R.id.viewMembersButton);
         Button deleteGroupButton = convertView.findViewById(R.id.deleteGroupButton);
+        Button leaveGroupButton = convertView.findViewById(R.id.leaveGroupButton);
 
         groupName.setText(group.getGroupName());
         groupCode.setText("Код: " + group.getGroupCode());
 
-        // Получаем имя создателя асинхронно и устанавливаем его после получения
+        // Hide all action buttons initially
+        deleteGroupButton.setVisibility(View.GONE);
+        leaveGroupButton.setVisibility(View.GONE);
 
-
-        viewMembersButton.setOnClickListener(v -> viewMembers(group));
-
-        // Обработчик кнопки удаления группы
-        deleteGroupButton.setOnClickListener(v -> {
-            if (currentUserIsCreator(group)) {
+        if (currentUserIsCreator(group)) {
+            deleteGroupButton.setVisibility(View.VISIBLE);
+            deleteGroupButton.setOnClickListener(v -> {
                 new AlertDialog.Builder(context)
                         .setTitle("Удалить группу")
                         .setMessage("Вы уверены, что хотите удалить эту группу?")
                         .setPositiveButton("Да", (dialog, which) -> deleteGroup(group))
                         .setNegativeButton("Нет", null)
                         .show();
-            } else {
-                Toast.makeText(context, "У вас нет прав для удаления этой группы", Toast.LENGTH_SHORT).show();
-            }
-        });
+            });
+        } else {
+            leaveGroupButton.setVisibility(View.VISIBLE);
+            leaveGroupButton.setOnClickListener(v -> leaveGroup(group));
+        }
+
+        viewMembersButton.setOnClickListener(v -> viewMembers(group));
 
         return convertView;
     }
 
-    // Метод для проверки, является ли текущий пользователь создателем группы
     private boolean currentUserIsCreator(Group group) {
-        // Получаем текущего пользователя из FirebaseAuth
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        // Проверяем, не пуст ли текущий пользователь и совпадает ли его UID с UID создателя группы
         return currentUser != null && currentUser.getUid().equals(group.getCreatorId());
     }
 
-    // В методе deleteGroup после успешного удаления группы
     private void deleteGroup(Group group) {
         DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference()
                 .child("groups").child(group.getGroupCode());
-        groupRef.removeValue().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // Remove the group from the user's groups list
-                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                if (currentUser != null) {
-                    DatabaseReference userGroupsRef = FirebaseDatabase.getInstance().getReference()
-                            .child("users").child(currentUser.getUid()).child("groups").child(group.getGroupCode());
-                    userGroupsRef.removeValue();
+
+        groupRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot memberSnapshot : dataSnapshot.child("members").getChildren()) {
+                        String memberId = memberSnapshot.getKey();
+                        DatabaseReference userGroupRef = FirebaseDatabase.getInstance().getReference()
+                                .child("users").child(memberId).child("groups").child(group.getGroupCode());
+                        userGroupRef.removeValue();
+                    }
+                    groupRef.removeValue().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(context, "Группа удалена", Toast.LENGTH_SHORT).show();
+                            notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(context, "Ошибка удаления группы", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
+            }
 
-                // Удаление участников группы
-                deleteGroupMembers(group);
-
-                Toast.makeText(context, "Группа удалена", Toast.LENGTH_SHORT).show();
-                notifyDataSetChanged(); // Обновить список после удаления
-            } else {
-                Toast.makeText(context, "Ошибка удаления группы", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(context, "Ошибка при удалении группы", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Метод для удаления участников группы из базы данных Firebase
-    private void deleteGroupMembers(Group group) {
-        DatabaseReference membersRef = FirebaseDatabase.getInstance().getReference()
-                .child("groups").child(group.getGroupCode()).child("members");
-        membersRef.removeValue();
+    private void leaveGroup(Group group) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            DatabaseReference userGroupRef = FirebaseDatabase.getInstance().getReference()
+                    .child("users").child(currentUser.getUid()).child("groups").child(group.getGroupCode());
+            userGroupRef.removeValue().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DatabaseReference memberRef = FirebaseDatabase.getInstance().getReference()
+                            .child("groups").child(group.getGroupCode()).child("members").child(currentUser.getUid());
+                    memberRef.removeValue();
+                    Toast.makeText(context, "Вы покинули группу", Toast.LENGTH_SHORT).show();
+                    notifyDataSetChanged();
+                } else {
+                    Toast.makeText(context, "Ошибка при выходе из группы", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void viewMembers(Group group) {
@@ -118,7 +135,6 @@ public class GroupAdapter extends ArrayAdapter<Group> {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_view_members, null);
         TextView textViewMemberCount = view.findViewById(R.id.textViewMemberCount);
 
-        // Получаем количество участников из базы данных Firebase
         DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference()
                 .child("groups").child(group.getGroupCode()).child("members");
         groupRef.addListenerForSingleValueEvent(new ValueEventListener() {
