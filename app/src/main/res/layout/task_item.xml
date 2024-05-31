@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/white"
+        android:backgroundTint="#E1DCDC"
         android:padding="16px"
         app:cardBackgroundColor="#FFFFFF"
         app:cardCornerRadius="14dp"
@@ -70,12 +70,15 @@
                     android:layout_marginStart="8dp"
                     android:src="@android:drawable/btn_star_big_on"
                     android:visibility="gone" />
+
                 <CheckBox
                     android:id="@+id/checkbox_completed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Выполнено" />
+                    android:minHeight="48dp"
+                    android:text="Выполнено"
+                    android:textColor="@color/black" />
 
                 <ImageButton
                     android:id="@+id/button_edit_task"
@@ -91,6 +94,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="Delete"
                     android:src="@android:drawable/ic_menu_delete"
+                    tools:ignore="TouchTargetSizeCheck"
                     tools:src="@android:drawable/ic_menu_delete" />
             </LinearLayout>
         </LinearLayout>

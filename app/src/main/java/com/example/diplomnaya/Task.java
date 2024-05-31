@@ -19,7 +19,7 @@ public class Task {
     private String userId;
     private boolean isShared; // Новое поле для отметки, что задача поделена
     private String groupId; // Новое поле для хранения идентификатора группы
-    private boolean completed;
+    private boolean iscompleted;
 
     // Конструктор
     public Task(Context context) {
@@ -48,10 +48,10 @@ public class Task {
         return groupId;
     }
     public boolean isCompleted() {
-        return completed;
+        return iscompleted;
     }
     public void setCompleted(boolean completed) {
-        this.completed = completed;
+        this.iscompleted = completed;
     }
 
 

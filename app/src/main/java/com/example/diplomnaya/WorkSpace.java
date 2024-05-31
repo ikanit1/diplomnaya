@@ -1,4 +1,6 @@
 package com.example.diplomnaya;
+import static android.graphics.Color.WHITE;
+
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import androidx.annotation.NonNull;
@@ -9,6 +11,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import com.google.firebase.database.DatabaseError;
 import android.app.NotificationManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -32,6 +36,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.CompoundButtonCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -117,7 +122,6 @@ public class WorkSpace extends AppCompatActivity {
 
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_task, null);
-        dialogView.setBackgroundResource(R.drawable.background_gradient);
         builder.setView(dialogView);
 
         EditText editTitleTask = dialogView.findViewById(R.id.editTitleTask);
@@ -179,15 +183,23 @@ public class WorkSpace extends AppCompatActivity {
         });
 
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+        positiveButton.setTextColor(getResources().getColor(R.color.white));
+        negativeButton.setTextColor(getResources().getColor(R.color.white));
     }
+
 
     private void showRepeatingTaskSettingsDialog(Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Настройки повторения задачи");
 
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_repeating_task_settings, null);
-        dialogView.setBackgroundResource(R.drawable.background_gradient);
         builder.setView(dialogView);
 
         CheckBox[] dayCheckboxes = new CheckBox[7];
@@ -265,31 +277,6 @@ public class WorkSpace extends AppCompatActivity {
         dialog.show();
     }
 
-
-
-    // Метод для получения сокращения дня недели по индексу
-    private String getDayOfWeekAbbreviation(int dayIndex) {
-        switch (dayIndex) {
-            case 0:
-                return "Mon";
-            case 1:
-                return "Tue";
-            case 2:
-                return "Wed";
-            case 3:
-                return "Thu";
-            case 4:
-                return "Fri";
-            case 5:
-                return "Sat";
-            case 6:
-                return "Sun";
-            default:
-                return "";
-        }
-    }
-
-
     private void showDateTimePickerDialog(TextView textViewDateTime, Task task) {
         final Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, day) -> {
@@ -353,11 +340,19 @@ public class WorkSpace extends AppCompatActivity {
         TextView taskCreationTimeView = taskView.findViewById(R.id.task_creation_time);
         TextView taskDateTimeView = taskView.findViewById(R.id.task_date_time);
         CheckBox checkboxCompleted = taskView.findViewById(R.id.checkbox_completed);
+        checkboxCompleted.setTextColor(getResources().getColor(android.R.color.black));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            checkboxCompleted.setButtonTintList(ColorStateList.valueOf(WHITE));
+        } else {
+            CompoundButtonCompat.setButtonTintList(checkboxCompleted, ColorStateList.valueOf(Color.BLACK));
+        }
+        checkboxCompleted.setChecked(task.isCompleted());
         checkboxCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setCompleted(isChecked);
-            dbHelper.updateTask(task);// Make sure task has groupId and taskId set
-            checkboxCompleted.setChecked(isChecked);
+            dbHelper.updateTask(task); // Update the task in the local database
+            updateTaskCompletionStatusInFirebase(task); // Update the task in Firebase
         });
+
 
 
         // Установка времени создания задачи
@@ -388,7 +383,7 @@ public class WorkSpace extends AppCompatActivity {
 
         // Обработчик для кнопки удаления задачи
         buttonDeleteTask.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(WorkSpace.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Удалить задачу");
             builder.setMessage("Вы уверены, что хотите удалить эту задачу?");
             builder.setPositiveButton("Да", (dialog, which) -> {
@@ -397,8 +392,19 @@ public class WorkSpace extends AppCompatActivity {
                 dialog.dismiss();
             });
             builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
-            builder.show();
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            dialog.setOnShowListener(d -> {
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+                positiveButton.setTextColor(getResources().getColor(R.color.white));
+                negativeButton.setTextColor(getResources().getColor(R.color.white));
+            });
         });
+
 
         // Обработчик для кнопки редактирования задачи
         buttonEditTask.setOnClickListener(v -> showEditTaskDialog(taskView, task));
@@ -406,6 +412,15 @@ public class WorkSpace extends AppCompatActivity {
         // Перенастройка уведомлений для задачи после добавления ее в макет
         scheduleNotification(task);
     }
+    private void updateTaskCompletionStatusInFirebase(Task task) {
+        DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference()
+                .child("tasks")
+                .child(task.getId());
+        taskRef.child("completed").setValue(task.isCompleted())
+                .addOnSuccessListener(aVoid -> showToast("Task completion status updated"))
+                .addOnFailureListener(e -> showToast("Failed to update task completion status: " + e.getMessage()));
+    }
+
 
     // Метод для деления задачи с группой
     private void shareTaskWithGroup(String groupId, Task task) {
@@ -531,9 +546,7 @@ public class WorkSpace extends AppCompatActivity {
         builder.setTitle("Редактировать задачу");
 
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_task, null);
-        dialogView.setBackgroundResource(R.drawable.background_gradient);
         builder.setView(dialogView);
-
 
         // Получение элементов управления из макета диалогового окна
         EditText editTitleTask = dialogView.findViewById(R.id.editTitleTask);
@@ -603,8 +616,17 @@ public class WorkSpace extends AppCompatActivity {
 
         // Обработчик для отмены редактирования
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+        positiveButton.setTextColor(getResources().getColor(R.color.white));
+        negativeButton.setTextColor(getResources().getColor(R.color.white));
     }
+
+
 
 
 

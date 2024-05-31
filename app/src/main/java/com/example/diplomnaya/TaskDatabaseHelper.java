@@ -86,15 +86,6 @@ public class TaskDatabaseHelper {
         }
     }
 
-    public void updateTaskStatusInDatabase(Task task) {
-        if (isValidTask(task)) {
-            DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("groups")
-                    .child(task.getGroupId())
-                    .child("tasks")
-                    .child(task.getId());
-            taskRef.child("completed").setValue(task.isCompleted());
-        }
-    }
 
     private void addTaskToDatabase(Task task) {
         String key = databaseReference.push().getKey();
