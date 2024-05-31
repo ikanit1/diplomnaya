@@ -417,9 +417,10 @@ public class WorkSpace extends AppCompatActivity {
                 .child("tasks")
                 .child(task.getId());
         taskRef.child("completed").setValue(task.isCompleted())
-                .addOnSuccessListener(aVoid -> showToast("Task completion status updated"))
-                .addOnFailureListener(e -> showToast("Failed to update task completion status: " + e.getMessage()));
+                .addOnSuccessListener(aVoid -> showToast("Статус выполнения задачи обновлен"))
+                .addOnFailureListener(e -> showToast("Не удалось обновить статус выполнения задачи: " + e.getMessage()));
     }
+
 
 
     // Метод для деления задачи с группой

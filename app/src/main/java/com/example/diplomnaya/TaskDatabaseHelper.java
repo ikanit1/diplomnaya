@@ -86,7 +86,6 @@ public class TaskDatabaseHelper {
         }
     }
 
-
     private void addTaskToDatabase(Task task) {
         String key = databaseReference.push().getKey();
         if (key != null) {
@@ -152,15 +151,12 @@ public class TaskDatabaseHelper {
                                 .getReference("users")
                                 .child(memberId)
                                 .child("tasks");
-                        String memberTaskKey = memberTasksRef.push().getKey();
-                        if (memberTaskKey != null) {
-                            memberTasksRef.child(memberTaskKey).setValue(task)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("TaskDatabaseHelper", "Task successfully distributed to member: " + memberId);
-                                        NotificationHelper.sendNotificationToUser(mContext, memberId, task);
-                                    })
-                                    .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Error distributing task to member: " + memberId, e));
-                        }
+                        memberTasksRef.child(task.getId()).setValue(task)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("TaskDatabaseHelper", "Task successfully distributed to member: " + memberId);
+                                    NotificationHelper.sendNotificationToUser(mContext, memberId, task);
+                                })
+                                .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Error distributing task to member: " + memberId, e));
                     }
                 }
             }
@@ -189,37 +185,105 @@ public class TaskDatabaseHelper {
                 });
     }
 
-    private void updateTaskForGroupMembers(Task task) {
-        String creatorId = mAuth.getCurrentUser().getUid();
-        DatabaseReference groupsReference = FirebaseDatabase.getInstance().getReference("groups");
+    public void updateTaskCompletionStatus(Task task) {
+        if (databaseReference == null || task.getId() == null) {
+            Log.e("TaskDatabaseHelper", "databaseReference or taskId is null. Cannot update task.");
+            return;
+        }
 
-        groupsReference.orderByChild("creatorId").equalTo(creatorId).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.child(task.getId()).child("completed").setValue(task.isCompleted())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("TaskDatabaseHelper", "Статус выполнения задачи успешно обновлен в Firebase");
+                    updateTaskCompletionStatusForGroupMembers(task);
+                })
+                .addOnFailureListener(e -> {
+                    handleException(e);
+                    Log.e("TaskDatabaseHelper", "Ошибка обновления статуса выполнения задачи в Firebase", e);
+                });
+    }
+
+    private void updateTaskCompletionStatusForGroupMembers(Task task) {
+        String groupId = task.getGroupId();
+        if (groupId == null) {
+            Log.e("TaskDatabaseHelper", "GroupId is null. Cannot update task for group members.");
+            return;
+        }
+
+        DatabaseReference groupMembersRef = FirebaseDatabase.getInstance().getReference("groups")
+                .child(groupId)
+                .child("members");
+
+        groupMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot groupSnapshot : dataSnapshot.getChildren()) {
-                    for (DataSnapshot memberSnapshot : groupSnapshot.child("members").getChildren()) {
-                        String memberId = memberSnapshot.getKey();
-                        DatabaseReference memberTasksRef = FirebaseDatabase.getInstance()
-                                .getReference("users")
-                                .child(memberId)
-                                .child("tasks");
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
+                    String memberId = memberSnapshot.getKey();
+                    DatabaseReference memberTasksRef = FirebaseDatabase.getInstance()
+                            .getReference("users")
+                            .child(memberId)
+                            .child("tasks");
 
-                        memberTasksRef.orderByChild("id").equalTo(task.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
-                                    taskSnapshot.getRef().setValue(task)
-                                            .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно обновлена для участника: " + memberId))
-                                            .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка обновления задачи для участника: " + memberId, e));
-                                }
+                    memberTasksRef.orderByChild("id").equalTo(task.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
+                                taskSnapshot.getRef().child("completed").setValue(task.isCompleted())
+                                        .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Статус выполнения задачи успешно обновлен для участника: " + memberId))
+                                        .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка обновления статуса выполнения задачи для участника: " + memberId, e));
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                Log.e("TaskDatabaseHelper", "Ошибка получения данных о задачах участников", databaseError.toException());
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.e("TaskDatabaseHelper", "Ошибка получения данных о задачах участников", databaseError.toException());
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("TaskDatabaseHelper", "Ошибка получения данных о группах", databaseError.toException());
+            }
+        });
+    }
+
+    private void updateTaskForGroupMembers(Task task) {
+        String groupId = task.getGroupId();
+        if (groupId == null) {
+            Log.e("TaskDatabaseHelper", "GroupId is null. Cannot update task for group members.");
+            return;
+        }
+
+        DatabaseReference groupMembersRef = FirebaseDatabase.getInstance().getReference("groups")
+                .child(groupId)
+                .child("members");
+
+        groupMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
+                    String memberId = memberSnapshot.getKey();
+                    DatabaseReference memberTasksRef = FirebaseDatabase.getInstance()
+                            .getReference("users")
+                            .child(memberId)
+                            .child("tasks");
+
+                    memberTasksRef.orderByChild("id").equalTo(task.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
+                                taskSnapshot.getRef().setValue(task)
+                                        .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно обновлена для участника: " + memberId))
+                                        .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка обновления задачи для участника: " + memberId, e));
                             }
-                        });
-                    }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.e("TaskDatabaseHelper", "Ошибка получения данных о задачах участников", databaseError.toException());
+                        }
+                    });
                 }
             }
 
@@ -248,36 +312,41 @@ public class TaskDatabaseHelper {
     }
 
     private void deleteTaskForGroupMembers(Task task) {
-        String creatorId = mAuth.getCurrentUser().getUid();
-        DatabaseReference groupsReference = FirebaseDatabase.getInstance().getReference("groups");
+        String groupId = task.getGroupId();
+        if (groupId == null) {
+            Log.e("TaskDatabaseHelper", "GroupId is null. Cannot delete task for group members.");
+            return;
+        }
 
-        groupsReference.orderByChild("creatorId").equalTo(creatorId).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference groupMembersRef = FirebaseDatabase.getInstance().getReference("groups")
+                .child(groupId)
+                .child("members");
+
+        groupMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot groupSnapshot : dataSnapshot.getChildren()) {
-                    for (DataSnapshot memberSnapshot : groupSnapshot.child("members").getChildren()) {
-                        String memberId = memberSnapshot.getKey();
-                        DatabaseReference memberTasksRef = FirebaseDatabase.getInstance()
-                                .getReference("users")
-                                .child(memberId)
-                                .child("tasks");
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
+                    String memberId = memberSnapshot.getKey();
+                    DatabaseReference memberTasksRef = FirebaseDatabase.getInstance()
+                            .getReference("users")
+                            .child(memberId)
+                            .child("tasks");
 
-                        memberTasksRef.orderByChild("id").equalTo(task.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
-                                    taskSnapshot.getRef().removeValue()
-                                            .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно удалена для участника: " + memberId))
-                                            .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка удаления задачи для участника: " + memberId, e));
-                                }
+                    memberTasksRef.orderByChild("id").equalTo(task.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
+                                taskSnapshot.getRef().removeValue()
+                                        .addOnSuccessListener(aVoid -> Log.d("TaskDatabaseHelper", "Задача успешно удалена для участника: " + memberId))
+                                        .addOnFailureListener(e -> Log.e("TaskDatabaseHelper", "Ошибка удаления задачи для участника: " + memberId, e));
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                Log.e("TaskDatabaseHelper", "Ошибка получения данных о задачах участников", databaseError.toException());
-                            }
-                        });
-                    }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.e("TaskDatabaseHelper", "Ошибка получения данных о задачах участников", databaseError.toException());
+                        }
+                    });
                 }
             }
 
@@ -303,9 +372,7 @@ public class TaskDatabaseHelper {
         Toast.makeText(mContext, "Ошибка: " + errorMessage, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean isValidTask(Task task) {
-        return task.getGroupId() != null && task.getId() != null;
-    }
+
 
     private interface GroupExistenceCallback {
         void onGroupExists();

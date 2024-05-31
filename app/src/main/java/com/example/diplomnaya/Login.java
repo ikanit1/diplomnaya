@@ -3,6 +3,7 @@ package com.example.diplomnaya;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +24,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class Login extends AppCompatActivity {
 
@@ -91,7 +96,7 @@ public class Login extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null && user.isEmailVerified()) {
                             Toast.makeText(Login.this, "Вход успешен", Toast.LENGTH_SHORT).show();
-                            redirectUser();
+                            getTokenAndRedirect();
                             finish(); // Завершаем текущую активность
                         } else {
                             Toast.makeText(Login.this, "Пожалуйста, подтвердите свою почту", Toast.LENGTH_SHORT).show();
@@ -133,7 +138,7 @@ public class Login extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Вход успешен
                         Toast.makeText(Login.this, "Вход через Google успешен", Toast.LENGTH_SHORT).show();
-                        redirectUser();
+                        getTokenAndRedirect();
                         finish(); // Завершаем текущую активность
                     } else {
                         // Если вход не удался, отображаем сообщение пользователю.
@@ -170,5 +175,28 @@ public class Login extends AppCompatActivity {
             // Общая ошибка входа
             Toast.makeText(Login.this, "Ошибка входа. Проверьте правильность данных", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void getTokenAndRedirect() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("FCM", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Get new FCM registration token
+                    String token = task.getResult();
+
+                    // Save token to Firebase Realtime Database
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    if (user != null) {
+                        DatabaseReference tokenRef = FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("notificationToken");
+                        tokenRef.setValue(token);
+                    }
+
+                    // Redirect user after saving the token
+                    redirectUser();
+                });
     }
 }
