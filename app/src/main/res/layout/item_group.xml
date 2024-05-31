@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="Group Name"
         android:textSize="18sp"
-        android:textStyle="bold"
+        android:textColor="@color/black"
         android:paddingBottom="4dp" />
 
     <TextView
@@ -19,6 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Group Code"
+        android:textColor="@color/black"
         android:textSize="16sp"
         android:paddingBottom="4dp" />
 
@@ -26,6 +27,7 @@
         android:id="@+id/viewMembersButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:background="@drawable/rounded_button_background"
         android:text="Участники" />
 

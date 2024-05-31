@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#333333"> <!-- Задаем темный фон -->
+    android:background="@drawable/background_gradient">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,88 +14,78 @@
             android:id="@+id/editTitleTask"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="none"
+            android:backgroundTint="@color/white"
             android:hint="Введите Заголовок"
             android:minHeight="48dp"
-            android:textColor="#FFFFFF"></EditText> <!-- Задаем белый цвет текста -->
-
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
 
         <EditText
             android:id="@+id/editTextTask"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="none"
+            android:backgroundTint="@color/white"
             android:hint="Введите Текст"
             android:minHeight="48dp"
-            android:textColor="@color/white"></EditText> <!-- Задаем белый цвет текста -->
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
 
-
-        <!-- Добавляем новые элементы для выбора даты и времени -->
-
-        <!-- По умолчанию видимое -->
-
-        <!-- Добавляем новые элементы для выбора типа задачи -->
 
         <TextView
             android:id="@+id/textViewTaskType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="Тип задачи"
-            android:textColor="#FFFFFF">
-        </TextView> <!-- Задаем белый цвет текста -->
+            android:textColor="@color/white"
+            android:textSize="16sp" />
 
         <RadioGroup
             android:id="@+id/radioGroupTaskType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1">
+            android:orientation="horizontal">
 
             <RadioButton
                 android:id="@+id/radioButtonOneTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Одноразовая"
                 android:checked="false"
-                android:textColor="#FFFFFF"/> <!-- Задаем белый цвет текста -->
+                android:text="Одноразовая"
+                android:textColor="@color/white" />
 
             <RadioButton
                 android:id="@+id/radioButtonRepeating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Повторяющаяся"
-                android:textColor="#FFFFFF"/> <!-- Задаем белый цвет текста -->
+                android:textColor="@color/white" />
 
         </RadioGroup>
-
-        <!-- Конец новых элементов для выбора типа задачи -->
 
         <TextView
             android:id="@+id/textViewDateTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF">
-        </TextView> <!-- Задаем белый цвет текста -->
+            android:textColor="@color/white"
+            android:textSize="16sp" />
 
         <Switch
             android:id="@+id/switchPriority"
-            android:layout_width="132dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_weight="1"
-            android:text="@string/important"
-            android:textColor="#FFFFFF" /> <!-- Задаем белый цвет текста -->
+            android:text="Избранное"
+            android:textColor="@color/white" />
 
         <Switch
             android:id="@+id/switch_notify"
-            android:layout_width="132dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:checked="false"
             android:text="Уведомить"
-            android:textColor="#FFFFFF" /> <!-- Задаем белый цвет текста -->
+            android:textColor="@color/white" />
 
     </LinearLayout>
 

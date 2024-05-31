@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/background_gradient"
     android:padding="16dp">
 
     <EditText
@@ -12,21 +13,23 @@
         android:layout_height="wrap_content"
         android:hint="Название группы"
         android:inputType="text"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="16dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnCreateGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Создать группу"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_white_background"
-        app:layout_constraintTop_toBottomOf="@id/editGroupName"
-        android:layout_marginBottom="16dp"/>
+        android:text="Создать группу"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editGroupName" />
 
     <EditText
         android:id="@+id/editGroupCode"
@@ -34,72 +37,100 @@
         android:layout_height="wrap_content"
         android:hint="Код группы"
         android:inputType="text"
-        app:layout_constraintStart_toStartOf="parent"
-
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnCreateGroup"
-        android:layout_marginBottom="16dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnCreateGroup" />
 
     <Button
         android:id="@+id/btnJoinGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Присоединиться к группе"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_white_background"
+        android:text="Присоединиться к группе"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editGroupCode"
-        android:layout_marginBottom="16dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editGroupCode" />
 
     <!-- Заголовок для списка созданных групп -->
+
     <TextView
         android:id="@+id/textViewCreatedGroups"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white"
         android:text="Созданные группы"
-        android:background="@drawable/rounded_white_background"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnJoinGroup"
-        android:layout_marginBottom="8dp"/>
+        app:layout_constraintTop_toBottomOf="@id/btnJoinGroup" />
+
+    <TextView
+        android:id="@+id/noCreatedGroups"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Нет созданных групп"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewCreatedGroups" />
 
     <ListView
         android:id="@+id/listViewCreatedGroups"
         android:layout_width="0dp"
         android:layout_height="179dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textViewCreatedGroups"
+        android:layout_marginTop="12dp"
         android:background="@drawable/rounded_white_background"
-        app:layout_constraintWidth_default="wrap"
         android:divider="@android:color/darker_gray"
         android:dividerHeight="1dp"
-        android:layout_marginBottom="16dp"/>
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/noCreatedGroups"
+        app:layout_constraintWidth_default="wrap" />
 
     <!-- Заголовок для списка присоединенных групп -->
+
     <TextView
         android:id="@+id/textViewJoinedGroups"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white"
         android:text="Присоединенные группы"
-        android:background="@drawable/rounded_white_background"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/listViewCreatedGroups"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"/>
+        app:layout_constraintTop_toBottomOf="@id/listViewCreatedGroups" />
+
+    <TextView
+        android:id="@+id/noJoinedGroups"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Нет присоединенных групп"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewJoinedGroups" />
 
     <ListView
         android:id="@+id/listViewJoinedGroups"
         android:layout_width="0dp"
         android:layout_height="204dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_white_background"
         android:divider="@android:color/darker_gray"
         android:dividerHeight="1dp"
-        android:background="@drawable/rounded_white_background"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textViewJoinedGroups"
+        app:layout_constraintTop_toBottomOf="@id/noJoinedGroups"
         app:layout_constraintWidth_default="wrap" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

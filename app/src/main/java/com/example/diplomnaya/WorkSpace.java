@@ -117,6 +117,7 @@ public class WorkSpace extends AppCompatActivity {
 
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_task, null);
+        dialogView.setBackgroundResource(R.drawable.background_gradient);
         builder.setView(dialogView);
 
         EditText editTitleTask = dialogView.findViewById(R.id.editTitleTask);
@@ -186,6 +187,7 @@ public class WorkSpace extends AppCompatActivity {
         builder.setTitle("Настройки повторения задачи");
 
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_repeating_task_settings, null);
+        dialogView.setBackgroundResource(R.drawable.background_gradient);
         builder.setView(dialogView);
 
         CheckBox[] dayCheckboxes = new CheckBox[7];
@@ -336,6 +338,7 @@ public class WorkSpace extends AppCompatActivity {
     }
 
 
+
     private void addTaskToLayout(Task task) {
         // Создание представления задачи из макета task_item
         View taskView = getLayoutInflater().inflate(R.layout.task_item, null);
@@ -349,6 +352,13 @@ public class WorkSpace extends AppCompatActivity {
         ImageButton buttonEditTask = taskView.findViewById(R.id.button_edit_task);
         TextView taskCreationTimeView = taskView.findViewById(R.id.task_creation_time);
         TextView taskDateTimeView = taskView.findViewById(R.id.task_date_time);
+        CheckBox checkboxCompleted = taskView.findViewById(R.id.checkbox_completed);
+        checkboxCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            task.setCompleted(isChecked);
+            dbHelper.updateTask(task);// Make sure task has groupId and taskId set
+            checkboxCompleted.setChecked(isChecked);
+        });
+
 
         // Установка времени создания задачи
         if (task.getCreationTime() != null) {
@@ -521,7 +531,9 @@ public class WorkSpace extends AppCompatActivity {
         builder.setTitle("Редактировать задачу");
 
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_task, null);
+        dialogView.setBackgroundResource(R.drawable.background_gradient);
         builder.setView(dialogView);
+
 
         // Получение элементов управления из макета диалогового окна
         EditText editTitleTask = dialogView.findViewById(R.id.editTitleTask);

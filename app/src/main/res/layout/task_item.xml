@@ -11,11 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/background"
         android:backgroundTint="@color/white"
         android:padding="16px"
         app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="2dp"
+        app:cardCornerRadius="14dp"
         app:cardPreventCornerOverlap="false"> <!-- Добавляем атрибут cardCornerRadius для скругления углов -->
 
         <!-- Внутренний линейный макет для элементов задачи -->
@@ -71,6 +70,12 @@
                     android:layout_marginStart="8dp"
                     android:src="@android:drawable/btn_star_big_on"
                     android:visibility="gone" />
+                <CheckBox
+                    android:id="@+id/checkbox_completed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Выполнено" />
 
                 <ImageButton
                     android:id="@+id/button_edit_task"
@@ -78,6 +83,7 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="Edit"
                     android:src="@android:drawable/ic_menu_edit" />
+
 
                 <ImageButton
                     android:id="@+id/button_delete_task"

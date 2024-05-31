@@ -14,13 +14,13 @@ import java.util.UUID;
 
 public class ShareTask extends AppCompatActivity {
 
-    private EditText editGroupName,  editGroupCode;
+    private EditText editGroupName, editGroupCode;
     private Button btnCreateGroup, btnJoinGroup;
     private ListView listViewCreatedGroups, listViewJoinedGroups;
+    private TextView noCreatedGroups, noJoinedGroups;
 
     private DatabaseReference databaseReference;
     private String currentUserId;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +34,8 @@ public class ShareTask extends AppCompatActivity {
         btnJoinGroup = findViewById(R.id.btnJoinGroup);
         listViewCreatedGroups = findViewById(R.id.listViewCreatedGroups);
         listViewJoinedGroups = findViewById(R.id.listViewJoinedGroups);
+        noCreatedGroups = findViewById(R.id.noCreatedGroups);
+        noJoinedGroups = findViewById(R.id.noJoinedGroups);
 
         // Инициализация базы данных
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -81,7 +83,7 @@ public class ShareTask extends AppCompatActivity {
 
     // В методе loadGroup загружаем информацию о участниках группы
     private void loadGroup(String groupCode, List<Group> createdGroups, List<Group> joinedGroups) {
-        databaseReference.child("groups").child(groupCode).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.child("groups").child(groupCode).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Group group = dataSnapshot.getValue(Group.class);
@@ -108,21 +110,35 @@ public class ShareTask extends AppCompatActivity {
 
     // Обновление списка групп
     private void updateGroupsList(List<Group> createdGroups, List<Group> joinedGroups) {
-        GroupAdapter createdGroupsAdapter = new GroupAdapter(ShareTask.this, createdGroups);
-        listViewCreatedGroups.setAdapter(createdGroupsAdapter);
+        if (createdGroups.isEmpty()) {
+            listViewCreatedGroups.setVisibility(View.GONE);
+            noCreatedGroups.setVisibility(View.VISIBLE);
+        } else {
+            listViewCreatedGroups.setVisibility(View.VISIBLE);
+            noCreatedGroups.setVisibility(View.GONE);
+            GroupAdapter createdGroupsAdapter = new GroupAdapter(ShareTask.this, createdGroups);
+            listViewCreatedGroups.setAdapter(createdGroupsAdapter);
 
-        listViewCreatedGroups.setOnItemClickListener((parent, view, position, id) -> {
-            Group selectedGroup = createdGroups.get(position);
-            handleGroupClick(selectedGroup);
-        });
+            listViewCreatedGroups.setOnItemClickListener((parent, view, position, id) -> {
+                Group selectedGroup = createdGroups.get(position);
+                handleGroupClick(selectedGroup);
+            });
+        }
 
-        GroupAdapter joinedGroupsAdapter = new GroupAdapter(ShareTask.this, joinedGroups);
-        listViewJoinedGroups.setAdapter(joinedGroupsAdapter);
+        if (joinedGroups.isEmpty()) {
+            listViewJoinedGroups.setVisibility(View.GONE);
+            noJoinedGroups.setVisibility(View.VISIBLE);
+        } else {
+            listViewJoinedGroups.setVisibility(View.VISIBLE);
+            noJoinedGroups.setVisibility(View.GONE);
+            GroupAdapter joinedGroupsAdapter = new GroupAdapter(ShareTask.this, joinedGroups);
+            listViewJoinedGroups.setAdapter(joinedGroupsAdapter);
 
-        listViewJoinedGroups.setOnItemClickListener((parent, view, position, id) -> {
-            Group selectedGroup = joinedGroups.get(position);
-            handleGroupClick(selectedGroup);
-        });
+            listViewJoinedGroups.setOnItemClickListener((parent, view, position, id) -> {
+                Group selectedGroup = joinedGroups.get(position);
+                handleGroupClick(selectedGroup);
+            });
+        }
     }
 
     // Метод для создания новой группы
@@ -150,7 +166,6 @@ public class ShareTask extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> showToast("Ошибка при создании группы: " + e.getMessage()));
     }
-
 
     // Метод для присоединения к группе по уникальному коду
     private void joinGroup(View view) {
@@ -183,7 +198,6 @@ public class ShareTask extends AppCompatActivity {
             }
         });
     }
-    // Метод для создания новой задачи в группе
 
     // Метод для удаления группы
     private void deleteGroup(String groupId) {

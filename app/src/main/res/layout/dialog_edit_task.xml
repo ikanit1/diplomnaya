@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,7 +15,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Введите Заголовок"
-            android:textColor="@android:color/black"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/white"
             android:minHeight="48dp" />
 
         <EditText
@@ -22,7 +25,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Введите Текст"
-            android:textColor="@android:color/black"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/white"
             android:minHeight="48dp" />
 
         <TextView
@@ -30,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Тип задачи"
-            android:textColor="@android:color/black"
+            android:textColor="@color/white"
             android:textSize="16sp"
             android:layout_marginTop="16dp" />
 
@@ -46,14 +51,14 @@
                 android:layout_height="wrap_content"
                 android:text="Одноразовая"
                 android:checked="false"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/white" />
 
             <RadioButton
                 android:id="@+id/radioButtonRepeating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Повторяющаяся"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/white" />
 
         </RadioGroup>
 
@@ -62,6 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
+            android:textColor="@color/white"
             android:layout_marginTop="16dp" />
 
         <Switch
@@ -69,14 +75,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Избранное" />
+            android:text="Избранное"
+            android:textColor="@color/white" />
 
         <Switch
             android:id="@+id/switch_notify"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="Уведомить" />
+            android:text="Уведомить"
+            android:textColor="@color/white" />
 
     </LinearLayout>
 

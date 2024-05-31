@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:background="@drawable/background_gradient"
     android:padding="8dp">
 
     <TextView
@@ -15,50 +16,57 @@
         android:id="@+id/checkbox_monday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Понедельник"
-        android:paddingBottom="4dp" />
+        android:minHeight="48dp"
+        android:paddingBottom="4dp"
+        android:text="Понедельник" />
 
     <CheckBox
         android:id="@+id/checkbox_tuesday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Вторник"
-        android:paddingBottom="4dp" />
+        android:minHeight="48dp"
+        android:paddingBottom="4dp"
+        android:text="Вторник" />
 
     <CheckBox
         android:id="@+id/checkbox_wednesday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Среда"
-        android:paddingBottom="4dp" />
+        android:minHeight="48dp"
+        android:paddingBottom="4dp"
+        android:text="Среда" />
 
     <CheckBox
         android:id="@+id/checkbox_thursday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Четверг"
-        android:paddingBottom="4dp" />
+        android:minHeight="48dp"
+        android:paddingBottom="4dp"
+        android:text="Четверг" />
 
     <CheckBox
         android:id="@+id/checkbox_friday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Пятница"
-        android:paddingBottom="4dp" />
+        android:minHeight="48dp"
+        android:paddingBottom="4dp"
+        android:text="Пятница" />
 
     <CheckBox
         android:id="@+id/checkbox_saturday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Суббота"
-        android:paddingBottom="4dp" />
+        android:minHeight="48dp"
+        android:paddingBottom="4dp"
+        android:text="Суббота" />
 
     <CheckBox
         android:id="@+id/checkbox_sunday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Воскресенье"
-        android:paddingBottom="8dp" />
+        android:minHeight="48dp"
+        android:paddingBottom="8dp"
+        android:text="Воскресенье" />
 
     <TextView
         android:layout_width="wrap_content"
