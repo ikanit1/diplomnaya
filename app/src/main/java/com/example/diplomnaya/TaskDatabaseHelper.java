@@ -71,7 +71,7 @@ public class TaskDatabaseHelper {
             checkGroupExistence(task.getGroupId(), new GroupExistenceCallback() {
                 @Override
                 public void onGroupExists() {
-                    addTaskToDatabase(task);
+                    addTaskToDatabase(task, true);  // Добавляем с флагом для распределения задачи
                 }
 
                 @Override
@@ -82,11 +82,11 @@ public class TaskDatabaseHelper {
         } else {
             // Если GroupId не установлен, использовать текущую группу
             task.setGroupId(currentGroupId);
-            addTaskToDatabase(task);
+            addTaskToDatabase(task, true);  // Добавляем с флагом для распределения задачи
         }
     }
 
-    private void addTaskToDatabase(Task task) {
+    private void addTaskToDatabase(Task task, boolean distributeTask) {
         String key = databaseReference.push().getKey();
         if (key != null) {
             task.setId(key);
@@ -96,7 +96,7 @@ public class TaskDatabaseHelper {
             databaseReference.child(key).setValue(task)
                     .addOnSuccessListener(aVoid -> {
                         Log.d("TaskDatabaseHelper", "Задача успешно добавлена");
-                        if (task.getGroupId() != null) {
+                        if (distributeTask && task.getGroupId() != null) {
                             distributeTaskToGroupMembers(task);
                         } else {
                             Log.e("TaskDatabaseHelper", "GroupId is null. Task not distributed.");

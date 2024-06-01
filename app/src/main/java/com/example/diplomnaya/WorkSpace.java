@@ -80,7 +80,7 @@ public class WorkSpace extends AppCompatActivity {
         findViewById(R.id.button_add_task).setOnClickListener(v -> showAddTaskDialog());
         findViewById(R.id.btnShare).setOnClickListener(v -> showAddTaskDialog());
 
-            // Добавьте обработчик нажатия для кнопки btnShare
+        // Добавьте обработчик нажатия для кнопки btnShare
         findViewById(R.id.btnShare).setOnClickListener(v -> {
             // Создайте Intent для перехода на класс ShareTask
             Intent intent = new Intent(WorkSpace.this, ShareTask.class);
