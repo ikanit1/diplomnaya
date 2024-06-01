@@ -1,5 +1,7 @@
 
 # HomeManage
+![image](https://github.com/ikanit1/diplomnaya/assets/159893419/c22f6bbf-486a-4973-b2ec-690ddd664ab5)
+
 
 ## О проекте
 
