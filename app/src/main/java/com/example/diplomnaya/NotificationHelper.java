@@ -1,6 +1,7 @@
 package com.example.diplomnaya;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -27,27 +28,44 @@ public class NotificationHelper extends BroadcastReceiver {
         if (NotificationManagerCompat.from(mContext).areNotificationsEnabled()) {
             // Проверяем, является ли текущий пользователь создателем задачи
             if (!memberId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                // Создание PendingIntent для перехода к активности при нажатии на уведомление
-                Intent intent = new Intent(mContext, MainActivity.class);
-                PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                // Проверяем, активно ли приложение
+                if (!isAppInForeground(mContext)) {
+                    // Создание PendingIntent для перехода к активности при нажатии на уведомление
+                    Intent intent = new Intent(mContext, MainActivity.class);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                // Создание уведомления
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channel_id")
-                        .setSmallIcon(R.drawable.notification_icon)
-                        .setContentTitle("Задача обновлена")
-                        .setContentText(task.getTitle())
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH);
+                    // Создание уведомления
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channel_name")
+                            .setSmallIcon(R.drawable.notification_icon)
+                            .setContentTitle("Задача обновлена")
+                            .setContentText(task.getTitle())
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-                // Отправка уведомления
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mContext);
-                notificationManager.notify(memberId.hashCode(), builder.build());
+                    // Отправка уведомления
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mContext);
+                    notificationManager.notify(memberId.hashCode(), builder.build());
+                }
             }
         } else {
             // Если разрешение на отправку уведомлений не предоставлено, вы можете предложить пользователю включить уведомления в настройках
             // или выполнить другое действие в зависимости от вашего приложения.
         }
+    }
+
+    // Метод для проверки, активно ли приложение
+    private static boolean isAppInForeground(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> processes = activityManager.getRunningAppProcesses();
+        if (processes != null) {
+            for (ActivityManager.RunningAppProcessInfo processInfo : processes) {
+                if (processInfo.processName.equals(context.getPackageName()) && processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 

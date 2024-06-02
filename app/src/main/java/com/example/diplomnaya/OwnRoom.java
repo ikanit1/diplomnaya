@@ -1,6 +1,7 @@
 package com.example.diplomnaya;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.squareup.picasso.Picasso;
 
 public class OwnRoom extends AppCompatActivity {
@@ -27,6 +29,8 @@ public class OwnRoom extends AppCompatActivity {
     private ImageView imageViewUserProfile;
     private Button buttonLogout;
     private Button buttonDeleteAccount;
+    private Button buttonEditProfile;
+    private Button buttonChangePassword;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -35,104 +39,122 @@ public class OwnRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.own_room);
 
-        // Инициализация FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
 
-        // Получение ссылок на элементы пользовательского интерфейса
         textViewUserEmail = findViewById(R.id.textViewUserEmail);
         textViewUserName = findViewById(R.id.textViewUsername);
         imageViewUserProfile = findViewById(R.id.imageViewUserProfile);
         buttonLogout = findViewById(R.id.buttonLogout);
         buttonDeleteAccount = findViewById(R.id.buttonDeleteAccount);
+        buttonChangePassword = findViewById(R.id.buttonChangePassword);
 
-        // Получение текущего пользователя из Firebase
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            // Получение адреса электронной почты пользователя
             String userEmail = user.getEmail();
             textViewUserEmail.setText(userEmail);
 
-            // Получение отображаемого имени пользователя
             String userName = user.getDisplayName();
-            textViewUserName.setText(userName); // Установка имени пользователя в TextView
+            textViewUserName.setText(userName);
 
-            // Получение информации о провайдере аутентификации
             for (UserInfo profile : user.getProviderData()) {
-                // Если пользователь вошел через Google
                 if (profile.getProviderId().equals("google.com")) {
-                    // Получение URL фото профиля Google
                     String photoUrl = profile.getPhotoUrl().toString();
-                    // Загрузка фото профиля с использованием Picasso (или любой другой библиотеки)
                     Picasso.get().load(photoUrl).into(imageViewUserProfile);
                 }
             }
         }
 
-        // Настройка слушателя для кнопки выхода из аккаунта
+
+
         buttonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Выход из аккаунта
                 mAuth.signOut();
-                // Переход на экран входа в систему
                 startActivity(new Intent(OwnRoom.this, Login.class));
-                finish(); // Закрыть текущую активность
+                finish();
             }
         });
 
-        // Настройка слушателя для кнопки удаления аккаунта
         buttonDeleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Вызов метода для удаления аккаунта
                 deleteAccount();
+            }
+        });
+
+        buttonChangePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(OwnRoom.this, ChangePasswordActivity.class));
             }
         });
     }
 
     private void deleteAccount() {
-        // Получение текущего пользователя
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            // Проверка провайдера аутентификации
             String providerId = user.getProviderId();
             if (providerId.equals("google.com")) {
-                // Выход из учетной записи Google
                 mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            // Удаление аккаунта пользователя
                             deleteFirebaseAccount(user);
                         } else {
-                            // Ошибка при выходе из учетной записи Google
                             Toast.makeText(OwnRoom.this, "Ошибка при выходе из учетной записи Google", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             } else {
-                // Удаление аккаунта пользователя
                 deleteFirebaseAccount(user);
             }
         }
     }
 
     private void deleteFirebaseAccount(FirebaseUser user) {
-        // Удаление аккаунта Firebase
         user.delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            // Успешное удаление аккаунта
-                            // Переход на экран входа в систему
                             startActivity(new Intent(OwnRoom.this, Login.class));
-                            finish(); // Закрыть текущую активность
+                            finish();
                         } else {
-                            // Ошибка при удалении аккаунта Firebase
                             Toast.makeText(OwnRoom.this, "Ошибка при удалении аккаунта", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+
+    private static final int PICK_IMAGE_REQUEST = 1;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            Picasso.get().load(imageUri).into(imageViewUserProfile);
+            updateProfilePhoto(imageUri);
+        }
+    }
+
+    private void updateProfilePhoto(Uri photoUri) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                    .setPhotoUri(photoUri)
+                    .build();
+            user.updateProfile(profileUpdates)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(OwnRoom.this, "Фото профиля обновлено", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(OwnRoom.this, "Ошибка при обновлении фото профиля", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
     }
 }

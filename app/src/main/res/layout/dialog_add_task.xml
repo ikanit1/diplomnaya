@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_gradient">
@@ -29,7 +30,6 @@
             android:minHeight="48dp"
             android:textColor="@color/white"
             android:textColorHint="@color/white" />
-
 
         <TextView
             android:id="@+id/textViewTaskType"
@@ -77,7 +77,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Избранное"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <Switch
             android:id="@+id/switch_notify"
@@ -85,7 +86,17 @@
             android:layout_height="wrap_content"
             android:checked="false"
             android:text="Уведомить"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+<!--        <Button-->
+<!--            android:id="@+id/button_generate_ai"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:backgroundTint="@color/white"-->
+<!--            android:text="Сгенерировать Запрос"-->
+<!--            android:textColor="@color/black" />-->
 
     </LinearLayout>
 

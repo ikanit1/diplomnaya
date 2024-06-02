@@ -1,14 +1,17 @@
 package com.example.diplomnaya;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -34,7 +37,7 @@ public class Login extends AppCompatActivity {
 
     private EditText editTextEmail, editTextPassword;
     private Button buttonLogin, buttonRegister, buttonGoogleSignIn;
-    private TextView textViewRegister;
+    private TextView textViewRegister, textViewForgotPassword;
 
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
@@ -54,6 +57,7 @@ public class Login extends AppCompatActivity {
         buttonRegister = findViewById(R.id.buttonRegister);
         buttonGoogleSignIn = findViewById(R.id.buttonGoogleSignIn);
         textViewRegister = findViewById(R.id.textViewRegister);
+        textViewForgotPassword = findViewById(R.id.textViewForgotPassword);
 
         // Проверяем, вошел ли уже пользователь
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -68,6 +72,7 @@ public class Login extends AppCompatActivity {
         buttonLogin.setOnClickListener(v -> loginUser());
         buttonRegister.setOnClickListener(v -> startActivity(new Intent(Login.this, Register.class)));
         buttonGoogleSignIn.setOnClickListener(v -> signInWithGoogle());
+        textViewForgotPassword.setOnClickListener(v -> resetPassword());
 
         // Настройка Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -195,8 +200,56 @@ public class Login extends AppCompatActivity {
                         tokenRef.setValue(token);
                     }
 
+
+
                     // Redirect user after saving the token
                     redirectUser();
                 });
     }
+
+
+    private void resetPassword() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Введите Электронную Почту");
+
+        // Установка EditText для ввода электронной почты
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        builder.setView(input);
+
+        // Установка кнопок "Отправить" и "Отмена"
+        builder.setPositiveButton("Отправить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String email = input.getText().toString().trim();
+                if (email.isEmpty()) {
+                    Toast.makeText(Login.this, "Введите электронную почту для восстановления пароля", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                mAuth.sendPasswordResetEmail(email)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(Login.this, "Инструкция по восстановлению пароля отправлена на вашу почту", Toast.LENGTH_SHORT).show();
+                            } else {
+                                if (task.getException() instanceof FirebaseAuthInvalidUserException) {
+                                    Toast.makeText(Login.this, "Пользователь с такой электронной почтой не существует", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(Login.this, "Ошибка при отправке инструкции по восстановлению пароля", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
+        });
+
+        builder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
 }

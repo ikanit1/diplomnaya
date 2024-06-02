@@ -35,11 +35,25 @@
         android:textSize="16sp" />
 
     <Button
-        android:id="@+id/buttonLogout"
-        android:layout_width="154dp"
+        android:id="@+id/buttonChangePassword"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/textViewUserEmail"
-        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/rounded_button_background"
+        android:text="Сменить пароль"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/buttonLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonChangePassword"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/rounded_button_background"
         android:text="Выйти"
@@ -48,10 +62,11 @@
 
     <Button
         android:id="@+id/buttonDeleteAccount"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/buttonLogout"
-        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/rounded_button_background"
         android:text="Удалить Аккаунт"

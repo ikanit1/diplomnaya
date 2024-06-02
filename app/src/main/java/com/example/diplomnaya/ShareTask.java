@@ -143,29 +143,55 @@ public class ShareTask extends AppCompatActivity {
 
     // Метод для создания новой группы
     private void createGroup(View view) {
-        String groupName = editGroupName.getText().toString().trim();
+        // Проверка количества созданных групп для текущего пользователя
+        DatabaseReference userGroupCountRef = databaseReference.child("users").child(currentUserId).child("groupCount");
+        userGroupCountRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long groupCount;
+                if (dataSnapshot.exists()) {
+                    groupCount = (long) dataSnapshot.getValue();
+                } else {
+                    groupCount = 0;
+                }
 
-        if (groupName.isEmpty()) {
-            showToast("Введите название группы");
-            return;
-        }
+                if (groupCount >= 5) {
+                    showToast("Вы уже создали максимальное количество групп (5)");
+                } else {
+                    // Продолжайте процесс создания группы
+                    String groupName = editGroupName.getText().toString().trim();
+                    if (groupName.isEmpty()) {
+                        showToast("Введите название группы");
+                        return;
+                    }
 
-        // Генерация уникального кода группы
-        String groupCode = generateUniqueGroupCode();
+                    // Генерация уникального кода группы
+                    String groupCode = generateUniqueGroupCode();
 
-        // Создание новой группы
-        Group newGroup = new Group(groupCode, groupName, currentUserId);
-        newGroup.addMember(currentUserId);
+                    // Создание новой группы
+                    Group newGroup = new Group(groupCode, groupName, currentUserId);
+                    newGroup.addMember(currentUserId);
 
-        // Сохранение группы в базе данных
-        databaseReference.child("groups").child(groupCode).setValue(newGroup)
-                .addOnSuccessListener(aVoid -> {
-                    showToast("Группа создана с кодом: " + groupCode);
-                    // Обновление списка групп после создания новой группы
-                    databaseReference.child("users").child(currentUserId).child("groups").child(groupCode).setValue(true);
-                })
-                .addOnFailureListener(e -> showToast("Ошибка при создании группы: " + e.getMessage()));
+                    // Сохранение группы в базе данных
+                    databaseReference.child("groups").child(groupCode).setValue(newGroup)
+                            .addOnSuccessListener(aVoid -> {
+                                showToast("Группа создана с кодом: " + groupCode);
+                                // Обновление списка групп после создания новой группы
+                                databaseReference.child("users").child(currentUserId).child("groups").child(groupCode).setValue(true);
+                                // Увеличение счетчика созданных групп для текущего пользователя
+                                userGroupCountRef.setValue(groupCount + 1);
+                            })
+                            .addOnFailureListener(e -> showToast("Ошибка при создании группы: " + e.getMessage()));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                showToast("Ошибка при проверке количества групп: " + databaseError.getMessage());
+            }
+        });
     }
+
 
     // Метод для присоединения к группе по уникальному коду
     private void joinGroup(View view) {

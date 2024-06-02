@@ -91,6 +91,8 @@ public class GroupAdapter extends ArrayAdapter<Group> {
                                 .child("users").child(memberId).child("groups").child(group.getGroupCode());
                         userGroupRef.removeValue();
                     }
+                    // Уменьшение счетчика групп для текущего пользователя
+                    decreaseGroupCount();
                     groupRef.removeValue().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(context, "Группа удалена", Toast.LENGTH_SHORT).show();
@@ -108,6 +110,28 @@ public class GroupAdapter extends ArrayAdapter<Group> {
             }
         });
     }
+
+    private void decreaseGroupCount() {
+        DatabaseReference userGroupCountRef = FirebaseDatabase.getInstance().getReference()
+                .child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("groupCount");
+        userGroupCountRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    long groupCount = (long) dataSnapshot.getValue();
+                    if (groupCount > 0) {
+                        userGroupCountRef.setValue(groupCount - 1);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(context, "Ошибка при обновлении счетчика групп", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     private void leaveGroup(Group group) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();

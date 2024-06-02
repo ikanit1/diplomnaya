@@ -1,49 +1,61 @@
 package com.example.diplomnaya;
+
 import static android.graphics.Color.WHITE;
 
 import android.annotation.SuppressLint;
-import android.app.NotificationChannel;
-import androidx.annotation.NonNull;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import java.util.ArrayList;
-import com.google.firebase.database.DatabaseError;
-import android.app.NotificationManager;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.os.Build;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+//import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.CompoundButtonCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+//import org.json.JSONException;
+//import org.json.JSONObject;
+//
+//import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import android.app.AlarmManager;
 
+//import okhttp3.Call;
+//import okhttp3.Callback;
+//import okhttp3.Response;
 
 
 public class WorkSpace extends AppCompatActivity {
@@ -52,6 +64,7 @@ public class WorkSpace extends AppCompatActivity {
     private TaskDatabaseHelper dbHelper;
     private String currentUserId;
     private SwipeRefreshLayout swipeRefreshLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +93,7 @@ public class WorkSpace extends AppCompatActivity {
         findViewById(R.id.button_add_task).setOnClickListener(v -> showAddTaskDialog());
         findViewById(R.id.btnShare).setOnClickListener(v -> showAddTaskDialog());
 
-        // Добавьте обработчик нажатия для кнопки btnShare
+            // Добавьте обработчик нажатия для кнопки btnShare
         findViewById(R.id.btnShare).setOnClickListener(v -> {
             // Создайте Intent для перехода на класс ShareTask
             Intent intent = new Intent(WorkSpace.this, ShareTask.class);
@@ -133,19 +146,16 @@ public class WorkSpace extends AppCompatActivity {
         RadioButton radioButtonOneTime = dialogView.findViewById(R.id.radioButtonOneTime);
         RadioButton radioButtonRepeating = dialogView.findViewById(R.id.radioButtonRepeating);
 
+//        Button buttonGenerateAI = dialogView.findViewById(R.id.button_generate_ai);
+
         Task newTask = new Task();
 
-        // Обработчик для выбора опции повторения
         radioGroupTaskType.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.radioButtonRepeating) {
-                // Установите, что задача повторяется
                 newTask.setRepeating(true);
-                // Показ диалогового окна с настройками повторения задачи
                 showRepeatingTaskSettingsDialog(newTask);
             } else if (checkedId == R.id.radioButtonOneTime) {
-                // Установите, что задача не повторяется
                 newTask.setRepeating(false);
-                // Показ диалогового окна выбора даты и времени
                 showDateTimePickerDialog(textViewDateTime, newTask);
             }
         });
@@ -170,16 +180,17 @@ public class WorkSpace extends AppCompatActivity {
                 newTask.setDateCreated(dateTimeParts[0]);
                 newTask.setTimeCreated(dateTimeParts[1]);
             } else {
-                // Если дата и время не были указаны, установите их как null
                 newTask.setDateCreated(null);
                 newTask.setTimeCreated(null);
             }
 
-            // После выбора повторения или одноразовой задачи обработчик должен установить повторяющиеся дни и время повторения в диалоговом окне настроек повторения.
             dbHelper.addTask(newTask);
             addTaskToLayout(newTask);
             scheduleNotification(newTask);
             loadTasks();
+
+            // Предполагается, что токен FCM уже известен. Например, он может быть получен и сохранен при авторизации пользователя.
+
         });
 
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
@@ -187,13 +198,79 @@ public class WorkSpace extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-        positiveButton.setTextColor(getResources().getColor(R.color.white));
-        negativeButton.setTextColor(getResources().getColor(R.color.white));
+//        buttonGenerateAI.setOnClickListener(v -> showAIInputDialog(editTitleTask, editTextTask));
     }
 
+
+//    private void showAIInputDialog(EditText editTitleTask, EditText editTextTask) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle("Сгенерировать задачу");
+//
+//        LayoutInflater inflater = getLayoutInflater();
+//        View dialogView = inflater.inflate(R.layout.dialog_ai_input, null);
+//        builder.setView(dialogView);
+//
+//        EditText editPrompt = dialogView.findViewById(R.id.editPrompt);
+//        Button buttonSubmit = dialogView.findViewById(R.id.button_submit);
+//
+//        AlertDialog dialog = builder.create();
+//        dialog.show();
+//
+//        buttonSubmit.setOnClickListener(v -> {
+//            String prompt = editPrompt.getText().toString().trim();
+//            if (!prompt.isEmpty()) {
+//                // Укажите API-ключ здесь
+//                String apiKey = "sk-proj-KAJ1q2lMxb6dPJQmZkSST3BlbkFJDd2kv6F7EUrK1Hcikz2x";
+//
+//                if (apiKey.isEmpty()) {
+//                    Toast.makeText(WorkSpace.this, "API-ключ не указан", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//
+//                try {
+//                    OpenAIHelper.generateTaskContent(apiKey, prompt, new Callback() {
+//                        @Override
+//                        public void onFailure(Call call, IOException e) {
+//                            Log.e("OpenAI", "Ошибка запроса", e); // Лог ошибки
+//                            runOnUiThread(() -> Toast.makeText(WorkSpace.this, "Ошибка генерации задачи", Toast.LENGTH_SHORT).show());
+//                        }
+//
+//                        @Override
+//                        public void onResponse(Call call, Response response) throws IOException {
+//                            if (response.isSuccessful()) {
+//                                String responseBody = response.body().string();
+//                                try {
+//                                    JSONObject jsonObject = new JSONObject(responseBody);
+//                                    String generatedText = jsonObject.getJSONArray("choices").getJSONObject(0).getString("text").trim();
+//                                    runOnUiThread(() -> {
+//                                        String[] parts = generatedText.split("\\n", 2);
+//                                        if (parts.length == 2) {
+//                                            editTitleTask.setText(parts[0]);
+//                                            editTextTask.setText(parts[1]);
+//                                        } else {
+//                                            editTextTask.setText(generatedText);
+//                                        }
+//                                        dialog.dismiss();
+//                                    });
+//                                } catch (JSONException e) {
+//                                    Log.e("OpenAI", "Ошибка обработки JSON", e); // Лог ошибки JSON
+//                                    runOnUiThread(() -> Toast.makeText(WorkSpace.this, "Ошибка обработки JSON ответа", Toast.LENGTH_SHORT).show());
+//                                }
+//                            } else {
+//                                Log.e("OpenAI", "Ошибка ответа: " + response.code()); // Лог кода ответа
+//                                runOnUiThread(() -> Toast.makeText(WorkSpace.this, "Ошибка генерации задачи", Toast.LENGTH_SHORT).show());
+//                            }
+//                        }
+//                    });
+//                } catch (JSONException e) {
+//                    Log.e("OpenAI", "Ошибка создания JSON запроса", e); // Лог ошибки JSON
+//                    Toast.makeText(WorkSpace.this, "Ошибка создания JSON запроса", Toast.LENGTH_SHORT).show();
+//                }
+//            } else {
+//                Toast.makeText(this, "Пожалуйста, введите запрос", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     private void showRepeatingTaskSettingsDialog(Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

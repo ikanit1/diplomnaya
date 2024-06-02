@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -41,6 +42,10 @@
         <activity android:name=".Register" android:exported="true">
             <!-- Атрибуты активности -->
         </activity>
+        <activity android:name=".ChangePasswordActivity" android:exported="true">
+            <!-- Атрибуты активности -->
+        </activity>
+
         <activity android:name=".WorkSpace" android:exported="false" android:label="@string/title_activity_work_space" android:theme="@style/Theme.Diplomnaya" />
 
         <!-- Сервисы -->

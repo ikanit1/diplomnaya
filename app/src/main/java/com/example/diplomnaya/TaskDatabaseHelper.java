@@ -10,13 +10,21 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 
-import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.*;
+
 
 public class TaskDatabaseHelper {
     private final DatabaseReference databaseReference;
     private final FirebaseAuth mAuth;
     private final Context mContext;
     private String currentGroupId;
+    private static final String FCM_API_URL = "https://fcm.googleapis.com/fcm/send";
+    private static final String SERVER_KEY = "AAAAY6erBQk:APA91bHn_JZ86GgfErCtG2zs4kzGN0VrsZR0H_aWX_luA8e_LAsFABBKek7qoi7d5QzfjiVPwkT7KiiVaLdBeijtXX7o_MzwDmzsFx2v-UEbkVOwliNTDanw6LW2rF4WJfbVIjOvoo3f"; // Замените на ваш серверный ключ
 
     public TaskDatabaseHelper(Context context) {
         mAuth = FirebaseAuth.getInstance();
@@ -71,7 +79,7 @@ public class TaskDatabaseHelper {
             checkGroupExistence(task.getGroupId(), new GroupExistenceCallback() {
                 @Override
                 public void onGroupExists() {
-                    addTaskToDatabase(task, true);  // Добавляем с флагом для распределения задачи
+                    addTaskToDatabase(task);
                 }
 
                 @Override
@@ -82,11 +90,11 @@ public class TaskDatabaseHelper {
         } else {
             // Если GroupId не установлен, использовать текущую группу
             task.setGroupId(currentGroupId);
-            addTaskToDatabase(task, true);  // Добавляем с флагом для распределения задачи
+            addTaskToDatabase(task);
         }
     }
 
-    private void addTaskToDatabase(Task task, boolean distributeTask) {
+    private void addTaskToDatabase(Task task) {
         String key = databaseReference.push().getKey();
         if (key != null) {
             task.setId(key);
@@ -96,7 +104,7 @@ public class TaskDatabaseHelper {
             databaseReference.child(key).setValue(task)
                     .addOnSuccessListener(aVoid -> {
                         Log.d("TaskDatabaseHelper", "Задача успешно добавлена");
-                        if (distributeTask && task.getGroupId() != null) {
+                        if (task.getGroupId() != null) {
                             distributeTaskToGroupMembers(task);
                         } else {
                             Log.e("TaskDatabaseHelper", "GroupId is null. Task not distributed.");
@@ -371,8 +379,63 @@ public class TaskDatabaseHelper {
         Log.e("TaskDatabaseHelper", "Exception: " + errorMessage, exception);
         Toast.makeText(mContext, "Ошибка: " + errorMessage, Toast.LENGTH_SHORT).show();
     }
+    private void sendNewTaskNotification(Task task) {
+        DatabaseReference tokensRef = FirebaseDatabase.getInstance().getReference("tokens");
 
+        tokensRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot tokenSnapshot : dataSnapshot.getChildren()) {
+                    String token = tokenSnapshot.getValue(String.class);
+                    sendNotificationToToken(token, task);
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("TaskDatabaseHelper", "Ошибка получения токенов для уведомлений", databaseError.toException());
+            }
+        });
+    }
+
+    public void sendNotificationToToken(String token, Task task) {
+        OkHttpClient client = new OkHttpClient();
+
+        JSONObject payload = new JSONObject();
+        try {
+            payload.put("to", token);
+
+            JSONObject notification = new JSONObject();
+            notification.put("title", "Новая задача");
+            notification.put("body", task.getTitle());
+            payload.put("notification", notification);
+
+            RequestBody body = RequestBody.create(payload.toString(), MediaType.parse("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(FCM_API_URL)
+                    .post(body)
+                    .addHeader("Authorization", "key=" + SERVER_KEY)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e("TaskDatabaseHelper", "Ошибка отправки уведомления", e);
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        Log.e("TaskDatabaseHelper", "Ошибка ответа от FCM: " + response.body().string());
+                    } else {
+                        Log.d("TaskDatabaseHelper", "Уведомление успешно отправлено");
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            Log.e("TaskDatabaseHelper", "Ошибка создания JSON для уведомления", e);
+        }
+    }
 
     private interface GroupExistenceCallback {
         void onGroupExists();
