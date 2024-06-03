@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="16dp"
+        android:hint="Введите новое Имя"
+        android:textColorHint="@color/white"
+        android:textColor="@color/white" />
+
+    <ImageView
+        android:id="@+id/imageViewProfile"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/editTextName"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/user" />
+
+    <Button
+        android:id="@+id/buttonChooseImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageViewProfile"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Выбрать изображение" />
+
+    <Button
+        android:id="@+id/buttonSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonChooseImage"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_button_background"
+        android:text="Сохранить" />
+
+</RelativeLayout>

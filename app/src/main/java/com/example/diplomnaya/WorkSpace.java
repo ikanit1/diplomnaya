@@ -220,7 +220,7 @@ public class WorkSpace extends AppCompatActivity {
 //            String prompt = editPrompt.getText().toString().trim();
 //            if (!prompt.isEmpty()) {
 //                // Укажите API-ключ здесь
-//                String apiKey = "sk-proj-KAJ1q2lMxb6dPJQmZkSST3BlbkFJDd2kv6F7EUrK1Hcikz2x";
+//                String apiKey = "ключ";
 //
 //                if (apiKey.isEmpty()) {
 //                    Toast.makeText(WorkSpace.this, "API-ключ не указан", Toast.LENGTH_SHORT).show();

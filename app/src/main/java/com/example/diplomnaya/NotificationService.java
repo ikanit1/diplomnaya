@@ -72,6 +72,7 @@ public class NotificationService extends Service {
         registerReceiver(bootReceiver, filter);
     }
 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Task task = intent.getParcelableExtra("TASK");
