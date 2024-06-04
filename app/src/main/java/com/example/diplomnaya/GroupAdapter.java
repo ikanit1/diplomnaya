@@ -1,5 +1,7 @@
 package com.example.diplomnaya;
 
+import android.content.ClipboardManager;
+import android.content.ClipData;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +71,13 @@ public class GroupAdapter extends ArrayAdapter<Group> {
 
         viewMembersButton.setOnClickListener(v -> viewMembers(group));
 
+        groupCode.setOnClickListener(v -> {
+            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("Group Code", group.getGroupCode());
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(context, "Код группы скопирован в буфер обмена", Toast.LENGTH_SHORT).show();
+        });
+
         return convertView;
     }
 
@@ -131,7 +140,6 @@ public class GroupAdapter extends ArrayAdapter<Group> {
             }
         });
     }
-
 
     private void leaveGroup(Group group) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();

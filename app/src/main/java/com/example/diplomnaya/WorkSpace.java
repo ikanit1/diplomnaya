@@ -19,6 +19,7 @@ import android.os.Bundle;
 //import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -112,10 +113,7 @@ public class WorkSpace extends AppCompatActivity {
             swipeRefreshLayout.setRefreshing(false);
         });
     }
-    // Метод для установки значения currentUserId
-    public void setCurrentUserId(String userId) {
-        this.currentUserId = userId;
-    }
+
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -129,9 +127,9 @@ public class WorkSpace extends AppCompatActivity {
         }
     }
 
-    private void showTaskDialog(Task task, boolean isEdit) {
+    private void showAddTaskDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(isEdit ? "Редактировать задачу" : "Добавить задачу");
+        builder.setTitle("Добавить задачу");
 
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_task, null);
@@ -146,58 +144,45 @@ public class WorkSpace extends AppCompatActivity {
         RadioButton radioButtonOneTime = dialogView.findViewById(R.id.radioButtonOneTime);
         RadioButton radioButtonRepeating = dialogView.findViewById(R.id.radioButtonRepeating);
 
-        // Set initial values if editing
-        if (isEdit) {
-            editTitleTask.setText(task.getTitle());
-            editTextTask.setText(task.getText());
-            textViewDateTime.setText(task.getDateCreated() + " " + task.getTimeCreated());
-            switchPriority.setChecked(task.isImportant());
-            switchNotify.setChecked(task.isNotify());
-            radioGroupTaskType.check(task.isRepeating() ? R.id.radioButtonRepeating : R.id.radioButtonOneTime);
-        }
+        Task newTask = new Task();
 
         radioGroupTaskType.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.radioButtonRepeating) {
-                task.setRepeating(true);
-                showRepeatingTaskSettingsDialog(task);
+                newTask.setRepeating(true);
+                showRepeatingTaskSettingsDialog(newTask);
             } else if (checkedId == R.id.radioButtonOneTime) {
-                task.setRepeating(false);
-                showDateTimePickerDialog(textViewDateTime, task);
+                newTask.setRepeating(false);
+                showDateTimePickerDialog(textViewDateTime, newTask);
             }
         });
 
-        builder.setPositiveButton(isEdit ? "Сохранить" : "Добавить", (dialog, which) -> {
+        builder.setPositiveButton("Добавить", (dialog, which) -> {
             String taskText = editTextTask.getText().toString().trim();
             String taskTitle = editTitleTask.getText().toString().trim();
             String dateTime = textViewDateTime.getText().toString().trim();
 
-            if (taskText.isEmpty() || taskTitle.isEmpty()) {
-                Toast.makeText(this, "Пожалуйста, введите заголовок и текст задачи", Toast.LENGTH_SHORT).show();
+            if (taskText.isEmpty()) {
+                Toast.makeText(this, "Пожалуйста, введите текст задачи", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            task.setText(taskText);
-            task.setTitle(taskTitle);
-            task.setImportant(switchPriority.isChecked());
-            task.setNotify(switchNotify.isChecked());
+            newTask.setText(taskText);
+            newTask.setTitle(taskTitle);
+            newTask.setImportant(switchPriority.isChecked());
+            newTask.setNotify(switchNotify.isChecked());
 
             if (!dateTime.isEmpty()) {
                 String[] dateTimeParts = dateTime.split(" ");
-                task.setDateCreated(dateTimeParts[0]);
-                task.setTimeCreated(dateTimeParts[1]);
+                newTask.setDateCreated(dateTimeParts[0]);
+                newTask.setTimeCreated(dateTimeParts[1]);
             } else {
-                task.setDateCreated(null);
-                task.setTimeCreated(null);
+                newTask.setDateCreated(null);
+                newTask.setTimeCreated(null);
             }
 
-            if (isEdit) {
-                dbHelper.updateTask(task);
-            } else {
-                dbHelper.addTask(task);
-                addTaskToLayout(task);
-            }
-
-            scheduleNotification(task);
+            dbHelper.addTask(newTask);
+            addTaskToLayout(newTask);
+            scheduleNotification(newTask);
             loadTasks();
         });
 
@@ -206,24 +191,83 @@ public class WorkSpace extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Ensure buttons are white
-        dialog.setOnShowListener(d -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            positiveButton.setTextColor(Color.WHITE);
-            negativeButton.setTextColor(Color.WHITE);
-        });
+        // Установка фокуса на поле ввода заголовка задачи и открытие клавиатуры
+        editTitleTask.requestFocus();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
-    private void showAddTaskDialog() {
-        Task newTask = new Task();
-        showTaskDialog(newTask, false);
-    }
 
-    private void showEditTaskDialog(View taskView, Task task) {
-        showTaskDialog(task, true);
-    }
 
+
+//    private void showAIInputDialog(EditText editTitleTask, EditText editTextTask) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle("Сгенерировать задачу");
+//
+//        LayoutInflater inflater = getLayoutInflater();
+//        View dialogView = inflater.inflate(R.layout.dialog_ai_input, null);
+//        builder.setView(dialogView);
+//
+//        EditText editPrompt = dialogView.findViewById(R.id.editPrompt);
+//        Button buttonSubmit = dialogView.findViewById(R.id.button_submit);
+//
+//        AlertDialog dialog = builder.create();
+//        dialog.show();
+//
+//        buttonSubmit.setOnClickListener(v -> {
+//            String prompt = editPrompt.getText().toString().trim();
+//            if (!prompt.isEmpty()) {
+//                // Укажите API-ключ здесь
+//                String apiKey = "ключ";
+//
+//                if (apiKey.isEmpty()) {
+//                    Toast.makeText(WorkSpace.this, "API-ключ не указан", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//
+//                try {
+//                    OpenAIHelper.generateTaskContent(apiKey, prompt, new Callback() {
+//                        @Override
+//                        public void onFailure(Call call, IOException e) {
+//                            Log.e("OpenAI", "Ошибка запроса", e); // Лог ошибки
+//                            runOnUiThread(() -> Toast.makeText(WorkSpace.this, "Ошибка генерации задачи", Toast.LENGTH_SHORT).show());
+//                        }
+//
+//                        @Override
+//                        public void onResponse(Call call, Response response) throws IOException {
+//                            if (response.isSuccessful()) {
+//                                String responseBody = response.body().string();
+//                                try {
+//                                    JSONObject jsonObject = new JSONObject(responseBody);
+//                                    String generatedText = jsonObject.getJSONArray("choices").getJSONObject(0).getString("text").trim();
+//                                    runOnUiThread(() -> {
+//                                        String[] parts = generatedText.split("\\n", 2);
+//                                        if (parts.length == 2) {
+//                                            editTitleTask.setText(parts[0]);
+//                                            editTextTask.setText(parts[1]);
+//                                        } else {
+//                                            editTextTask.setText(generatedText);
+//                                        }
+//                                        dialog.dismiss();
+//                                    });
+//                                } catch (JSONException e) {
+//                                    Log.e("OpenAI", "Ошибка обработки JSON", e); // Лог ошибки JSON
+//                                    runOnUiThread(() -> Toast.makeText(WorkSpace.this, "Ошибка обработки JSON ответа", Toast.LENGTH_SHORT).show());
+//                                }
+//                            } else {
+//                                Log.e("OpenAI", "Ошибка ответа: " + response.code()); // Лог кода ответа
+//                                runOnUiThread(() -> Toast.makeText(WorkSpace.this, "Ошибка генерации задачи", Toast.LENGTH_SHORT).show());
+//                            }
+//                        }
+//                    });
+//                } catch (JSONException e) {
+//                    Log.e("OpenAI", "Ошибка создания JSON запроса", e); // Лог ошибки JSON
+//                    Toast.makeText(WorkSpace.this, "Ошибка создания JSON запроса", Toast.LENGTH_SHORT).show();
+//                }
+//            } else {
+//                Toast.makeText(this, "Пожалуйста, введите запрос", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     private void showRepeatingTaskSettingsDialog(Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -571,6 +615,95 @@ public class WorkSpace extends AppCompatActivity {
             imageStar.setVisibility(View.GONE);
         }
     }
+
+    private void showEditTaskDialog(View taskView, Task task) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Редактировать задачу");
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_task, null);
+        builder.setView(dialogView);
+
+        // Получение элементов управления из макета диалогового окна
+        EditText editTitleTask = dialogView.findViewById(R.id.editTitleTask);
+        EditText editTextTask = dialogView.findViewById(R.id.editTextTask);
+        TextView textViewDateTime = dialogView.findViewById(R.id.textViewDateTime);
+        Switch switchPriority = dialogView.findViewById(R.id.switchPriority);
+        Switch switchNotify = dialogView.findViewById(R.id.switch_notify);
+        RadioGroup radioGroupTaskType = dialogView.findViewById(R.id.radioGroupTaskType);
+        RadioButton radioButtonOneTime = dialogView.findViewById(R.id.radioButtonOneTime);
+        RadioButton radioButtonRepeating = dialogView.findViewById(R.id.radioButtonRepeating);
+
+        // Установка значений в элементы управления из текущей задачи
+        editTitleTask.setText(task.getTitle());
+        editTextTask.setText(task.getText());
+        textViewDateTime.setText(task.getDateCreated() + " " + task.getTimeCreated());
+        switchPriority.setChecked(task.isImportant());
+        switchNotify.setChecked(task.isNotify());
+        radioGroupTaskType.check(task.isRepeating() ? R.id.radioButtonRepeating : R.id.radioButtonOneTime);
+
+        // Обработчик выбора типа задачи (одноразовой или повторяющейся)
+        radioGroupTaskType.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radioButtonOneTime) {
+                // Задача одноразовая: показать диалог для выбора даты и времени
+                showDateTimePickerDialog(textViewDateTime, task);
+            } else if (checkedId == R.id.radioButtonRepeating) {
+                // Задача повторяющаяся: показать диалог для выбора дней повторения и времени
+                showRepeatingTaskSettingsDialog(task);
+            }
+        });
+
+        // Обработчик для сохранения изменений в задаче
+        builder.setPositiveButton("Сохранить", (dialog, which) -> {
+            // Получение значений из формы диалога
+            String taskTitle = editTitleTask.getText().toString().trim();
+            String taskText = editTextTask.getText().toString().trim();
+            String dateTime = textViewDateTime.getText().toString().trim();
+
+            // Проверка на пустые значения заголовка или текста задачи
+            if (taskTitle.isEmpty() || taskText.isEmpty()) {
+                Toast.makeText(this, "Пожалуйста, введите заголовок или текст задачи", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Установка значений задачи
+            task.setTitle(taskTitle);
+            task.setText(taskText);
+            task.setImportant(switchPriority.isChecked());
+            task.setNotify(switchNotify.isChecked());
+            task.setRepeating(radioGroupTaskType.getCheckedRadioButtonId() == R.id.radioButtonRepeating);
+
+            // Установка даты и времени задачи, если они не пустые
+            if (!dateTime.isEmpty()) {
+                String[] dateTimeParts = dateTime.split(" ");
+                task.setDateCreated(dateTimeParts[0]);
+                task.setTimeCreated(dateTimeParts[1]);
+            } else {
+                task.setDateCreated(null);
+                task.setTimeCreated(null);
+            }
+
+            // Обновление задачи в базе данных
+            dbHelper.updateTask(task);
+            updateTaskView(taskView, task);
+            scheduleNotification(task);
+            loadTasks();
+        });
+
+        // Обработчик для отмены редактирования
+        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+        positiveButton.setTextColor(getResources().getColor(R.color.white));
+        negativeButton.setTextColor(getResources().getColor(R.color.white));
+    }
+
+
+
+
 
     @SuppressLint("ScheduleExactAlarm")
     private void scheduleNotification(Task task) {
