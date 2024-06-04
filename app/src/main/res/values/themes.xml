@@ -1,11 +1,68 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme -->
     <style name="Base.Theme.Diplomnaya" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <item name="colorPrimary">#000000</item> <!-- Цвет вашего ActionBar или Toolbar -->
+        <!-- Customize your light theme here -->
+        <item name="colorPrimary">#000000</item> <!-- Color of your ActionBar or Toolbar -->
         <item name="android:windowActionBarOverlay">true</item>
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:colorBackground">#FFFFFF</item> <!-- Background color for the whole application -->
+        <item name="android:textColorPrimary">#000000</item> <!-- Primary text color -->
+        <item name="android:textColorSecondary">#808080</item> <!-- Secondary text color -->
+        <item name="android:buttonStyle">@style/CustomButton</item>
+        <item name="switchStyle">@style/CustomSwitch</item>
+        <item name="checkboxStyle">@style/CustomCheckbox</item>
+        <item name="editTextStyle">@style/CustomEditText</item>
+        <item name="android:textViewStyle">@style/CustomTextView</item>
+        <item name="toolbarStyle">@style/CustomToolbar</item>
     </style>
 
     <style name="Theme.Diplomnaya" parent="Base.Theme.Diplomnaya" />
+
+    <!-- Custom button style with white text -->
+    <style name="CustomButton" parent="Widget.Material3.Button">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:backgroundTint">#000000</item> <!-- Black background for buttons -->
+    </style>
+
+    <!-- Custom switch style with white thumb and track -->
+    <style name="CustomSwitch" parent="Widget.Material3.CompoundButton.Switch">
+        <item name="android:thumbTint">@android:color/white</item>
+        <item name="android:trackTint">@android:color/white</item>
+    </style>
+
+    <!-- Custom checkbox style with white box and black checkmark -->
+    <style name="CustomCheckbox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="android:buttonTint">@android:color/white</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <!-- Custom EditText style -->
+    <style name="CustomEditText" parent="Widget.Material3.TextInputEditText.FilledBox">
+        <item name="android:backgroundTint">#FFFFFF</item> <!-- Black underline -->
+        <item name="android:textColor">#FFFFFF</item> <!-- Black text color -->
+        <item name="android:textColorHint">#FFFFFF</item> <!-- Grey hint text color -->
+    </style>
+
+    <!-- Custom TextView style -->
+    <style name="CustomTextView" parent="Widget.Material3.TextInputEditText.FilledBox">
+        <item name="android:textColor">#000000</item> <!-- Black text color -->
+    </style>
+
+    <!-- Custom Toolbar style -->
+    <style name="CustomToolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">#FFFFFF</item> <!-- White background -->
+        <item name="titleTextColor">#000000</item> <!-- Black title text color -->
+        <item name="subtitleTextColor">#808080</item> <!-- Grey subtitle text color -->
+    </style>
+
+    <!-- Custom RadioButton style with white tint and black text -->
+    <style name="CustomRadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="android:buttonTint">@android:color/white</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <!-- Custom SeekBar style with white thumb and track -->
+    <style name="CustomSeekBar" parent="Widget.Material3.Light.ActionBar.Solid">
+        <item name="android:thumbTint">@android:color/white</item>
+        <item name="android:progressTint">#000000</item>
+    </style>
 </resources>

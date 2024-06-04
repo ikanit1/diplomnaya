@@ -44,7 +44,7 @@
             android:id="@+id/radioGroupTaskType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <RadioButton
                 android:id="@+id/radioButtonOneTime"
@@ -76,8 +76,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:minHeight="48dp"
             android:text="Избранное"
             android:textColor="@color/white"
+            android:textColorLink="#FFFFFF"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <Switch
@@ -85,8 +87,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
+            android:minHeight="48dp"
             android:text="Уведомить"
             android:textColor="@color/white"
+            android:textColorLink="#FFFFFF"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
 <!--        <Button-->

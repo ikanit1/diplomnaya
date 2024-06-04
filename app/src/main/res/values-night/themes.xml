@@ -1,9 +1,70 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Diplomnaya" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <item name="colorPrimary">#000000</item> <!-- Цвет вашего ActionBar или Toolbar -->
+    <!-- Base application theme -->
+    <style name="Base.Theme.Diplomnaya" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your dark theme here -->
+        <item name="colorPrimary">#FFFFFF</item> <!-- Color of your ActionBar or Toolbar -->
         <item name="android:windowActionBarOverlay">true</item>
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="android:colorBackground">#000000</item> <!-- Background color for the whole application -->
+        <item name="android:textColorPrimary">#FFFFFF</item> <!-- Primary text color -->
+        <item name="android:textColorSecondary">#CCCCCC</item> <!-- Secondary text color -->
+        <item name="buttonStyle">@style/CustomButtonNight</item>
+        <item name="switchStyle">@style/CustomSwitchNight</item>
+        <item name="checkboxStyle">@style/CustomCheckboxNight</item>
+        <item name="editTextStyle">@style/CustomEditTextNight</item>
+        <item name="android:textViewStyle">@style/CustomTextViewNight</item>
+        <item name="toolbarStyle">@style/CustomToolbarNight</item>
+        <item name="radioButtonStyle">@style/CustomRadioButtonNight</item>
+        <item name="seekBarStyle">@style/CustomSeekBarNight</item>
+    </style>
+
+    <style name="Theme.Diplomnaya" parent="Base.Theme.Diplomnaya" />
+
+    <!-- Custom button style with white text -->
+    <style name="CustomButtonNight" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:backgroundTint">#FFFFFF</item> <!-- White background for buttons -->
+    </style>
+
+    <!-- Custom switch style with white thumb and track -->
+    <style name="CustomSwitchNight" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="android:thumbTint">@android:color/white</item>
+        <item name="android:trackTint">@android:color/white</item>
+    </style>
+
+    <!-- Custom checkbox style with white box and black checkmark -->
+    <style name="CustomCheckboxNight" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
+        <item name="android:buttonTint">@android:color/white</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <!-- Custom EditText style -->
+    <style name="CustomEditTextNight" parent="Widget.MaterialComponents.TextInputEditText.FilledBox">
+        <item name="android:backgroundTint">#FFFFFF</item> <!-- White underline -->
+        <item name="android:textColor">#FFFFFF</item> <!-- White text color -->
+        <item name="android:textColorHint">#CCCCCC</item> <!-- Grey hint text color -->
+    </style>
+
+    <!-- Custom TextView style -->
+    <style name="CustomTextViewNight" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">#FFFFFF</item> <!-- White text color -->
+    </style>
+
+    <!-- Custom Toolbar style -->
+    <style name="CustomToolbarNight" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">#000000</item> <!-- Black background -->
+        <item name="titleTextColor">#FFFFFF</item> <!-- White title text color -->
+        <item name="subtitleTextColor">#CCCCCC</item> <!-- Grey subtitle text color -->
+    </style>
+
+    <!-- Custom RadioButton style with white tint and black text -->
+    <style name="CustomRadioButtonNight" parent="Widget.MaterialComponents.CompoundButton.RadioButton">
+        <item name="android:buttonTint">@android:color/white</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <!-- Custom SeekBar style with white thumb and track -->
+    <style name="CustomSeekBarNight" parent="Widget.MaterialComponents.ActionBar.Solid">
+        <item name="android:thumbTint">@android:color/white</item>
+        <item name="android:progressTint">#FFFFFF</item>
     </style>
 </resources>
