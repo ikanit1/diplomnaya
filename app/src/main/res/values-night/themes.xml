@@ -6,7 +6,7 @@
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:colorBackground">#000000</item> <!-- Background color for the whole application -->
         <item name="android:textColorPrimary">#FFFFFF</item> <!-- Primary text color -->
-        <item name="android:textColorSecondary">#CCCCCC</item> <!-- Secondary text color -->
+        <item name="android:textColorSecondary">#FFFFFF</item> <!-- Secondary text color -->
         <item name="buttonStyle">@style/CustomButtonNight</item>
         <item name="switchStyle">@style/CustomSwitchNight</item>
         <item name="checkboxStyle">@style/CustomCheckboxNight</item>
@@ -41,7 +41,7 @@
     <style name="CustomEditTextNight" parent="Widget.MaterialComponents.TextInputEditText.FilledBox">
         <item name="android:backgroundTint">#FFFFFF</item> <!-- White underline -->
         <item name="android:textColor">#FFFFFF</item> <!-- White text color -->
-        <item name="android:textColorHint">#CCCCCC</item> <!-- Grey hint text color -->
+        <item name="android:textColorHint">#FFFFFF</item> <!-- Grey hint text color -->
     </style>
 
     <!-- Custom TextView style -->
@@ -53,7 +53,7 @@
     <style name="CustomToolbarNight" parent="Widget.MaterialComponents.Toolbar">
         <item name="android:background">#000000</item> <!-- Black background -->
         <item name="titleTextColor">#FFFFFF</item> <!-- White title text color -->
-        <item name="subtitleTextColor">#CCCCCC</item> <!-- Grey subtitle text color -->
+        <item name="subtitleTextColor">#FFFFFF</item> <!-- Grey subtitle text color -->
     </style>
 
     <!-- Custom RadioButton style with white tint and black text -->

@@ -6,7 +6,7 @@
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:colorBackground">#FFFFFF</item> <!-- Background color for the whole application -->
         <item name="android:textColorPrimary">#000000</item> <!-- Primary text color -->
-        <item name="android:textColorSecondary">#808080</item> <!-- Secondary text color -->
+        <item name="android:textColorSecondary">#FFFFFF</item> <!-- Secondary text color -->
         <item name="android:buttonStyle">@style/CustomButton</item>
         <item name="switchStyle">@style/CustomSwitch</item>
         <item name="checkboxStyle">@style/CustomCheckbox</item>
@@ -20,7 +20,7 @@
     <!-- Custom button style with white text -->
     <style name="CustomButton" parent="Widget.Material3.Button">
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:backgroundTint">#000000</item> <!-- Black background for buttons -->
+        <item name="android:backgroundTint">#FFFFFF</item> <!-- Black background for buttons -->
     </style>
 
     <!-- Custom switch style with white thumb and track -->
@@ -51,7 +51,7 @@
     <style name="CustomToolbar" parent="Widget.Material3.Toolbar">
         <item name="android:background">#FFFFFF</item> <!-- White background -->
         <item name="titleTextColor">#000000</item> <!-- Black title text color -->
-        <item name="subtitleTextColor">#808080</item> <!-- Grey subtitle text color -->
+        <item name="subtitleTextColor">#FFFFFF</item> <!-- Grey subtitle text color -->
     </style>
 
     <!-- Custom RadioButton style with white tint and black text -->
