@@ -113,17 +113,30 @@ public class WorkSpace extends AppCompatActivity {
             swipeRefreshLayout.setRefreshing(false);
         });
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Handle focus or reinitialization if needed
+        loadTasks(); // Reload tasks when the activity resumes
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Release resources or save state if needed
+    }
 
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            NotificationChannel channel = new NotificationChannel(
-                    "channel_name",
-                    getString(R.string.channel_name),
-                    NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription(getString(R.string.channel_name));
-            manager.createNotificationChannel(channel);
+            CharSequence name = "Уведомления заметок";
+            String description = "Как будут появлятся заметки";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("channel_name", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
         }
     }
 
