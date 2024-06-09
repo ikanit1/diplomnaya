@@ -1,11 +1,68 @@
 <resources>
+    <!-- Custom Dialog Theme with Gradient Background -->
+    <style name="CustomDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@drawable/background_gradient</item>
+        <item name="android:windowBackground">@drawable/background_gradient</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:layout_margin">16dp</item>
+    </style>
+
+    <!-- Base application theme -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="android:typeface">monospace</item>
         <item name="android:fontFamily">@font/roboto_bold</item>
         <item name="android:windowBackground">@drawable/background_gradient</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:buttonStyle">@style/CustomButton</item>
+        <item name="android:editTextStyle">@style/CustomEditText</item>
+        <item name="android:checkboxStyle">@style/CustomCheckbox</item>
+        <item name="android:radioButtonStyle">@style/CustomRadioButton</item>
+        <item name="android:dialogTheme">@style/CustomDialogTheme</item>
+        <item name="android:seekBarStyle">@style/CustomSeekBar</item>
+        <item name="android:toolbarStyle">@style/CustomToolbar</item>
+    </style>
+
+    <!-- Custom button style -->
+    <style name="CustomButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/rounded_white_background</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <!-- Custom EditText style -->
+    <style name="CustomEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/rounded_white_background</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <!-- Custom Checkbox style -->
+    <style name="CustomCheckbox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:buttonTint">@color/black</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <!-- Custom RadioButton style -->
+    <style name="CustomRadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:buttonTint">@color/black</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+
+    <!-- Custom SeekBar style -->
+    <style name="CustomSeekBar" parent="Widget.AppCompat.SeekBar">
+        <item name="android:thumbTint">@color/black</item>
+        <item name="android:progressTint">@color/black</item>
+    </style>
+
+    <!-- Custom Toolbar style -->
+    <style name="CustomToolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@drawable/background_gradient</item>
+        <item name="titleTextColor">@color/black</item>
+        <item name="subtitleTextColor">@color/black</item>
     </style>
 </resources>

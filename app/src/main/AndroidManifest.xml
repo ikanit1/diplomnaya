@@ -46,7 +46,7 @@
             <!-- Атрибуты активности -->
         </activity>
 
-        <activity android:name=".WorkSpace" android:exported="false" android:label="@string/title_activity_work_space" android:theme="@style/Theme.Diplomnaya" />
+        <activity android:name=".WorkSpace" android:exported="false" android:label="@string/title_activity_work_space" />
 
         <!-- Сервисы -->
         <service android:name=".NotificationService" android:exported="true" />

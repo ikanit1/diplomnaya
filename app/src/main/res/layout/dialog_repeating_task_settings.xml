@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:background="@drawable/background_gradient"
+    android:orientation="vertical"
     android:padding="8dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Выберите дни недели:"
-        android:paddingBottom="4dp" />
+        android:paddingBottom="4dp"
+        android:text="Выберите дни недели:" />
 
     <CheckBox
         android:id="@+id/checkbox_monday"
@@ -18,7 +18,8 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:paddingBottom="4dp"
-        android:text="Понедельник" />
+        android:text="Понедельник"
+        android:textColor="#FFFFFF" />
 
     <CheckBox
         android:id="@+id/checkbox_tuesday"
@@ -26,7 +27,8 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:paddingBottom="4dp"
-        android:text="Вторник" />
+        android:text="Вторник"
+        android:textColor="#FFFFFF" />
 
     <CheckBox
         android:id="@+id/checkbox_wednesday"
@@ -34,7 +36,8 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:paddingBottom="4dp"
-        android:text="Среда" />
+        android:text="Среда"
+        android:textColor="#FFFFFF" />
 
     <CheckBox
         android:id="@+id/checkbox_thursday"
@@ -42,7 +45,8 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:paddingBottom="4dp"
-        android:text="Четверг" />
+        android:text="Четверг"
+        android:textColor="#FFFFFF" />
 
     <CheckBox
         android:id="@+id/checkbox_friday"
@@ -50,7 +54,8 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:paddingBottom="4dp"
-        android:text="Пятница" />
+        android:text="Пятница"
+        android:textColor="#FFFFFF" />
 
     <CheckBox
         android:id="@+id/checkbox_saturday"
@@ -58,7 +63,8 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:paddingBottom="4dp"
-        android:text="Суббота" />
+        android:text="Суббота"
+        android:textColor="#FFFFFF" />
 
     <CheckBox
         android:id="@+id/checkbox_sunday"
@@ -66,13 +72,14 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:paddingBottom="8dp"
-        android:text="Воскресенье" />
+        android:text="Воскресенье"
+        android:textColor="#FFFFFF" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Выберите время повторения:"
-        android:paddingBottom="4dp" />
+        android:paddingBottom="4dp"
+        android:text="Выберите время повторения:" />
 
     <!-- TimePicker с 24-часовым форматом -->
     <TimePicker
@@ -86,9 +93,9 @@
         android:id="@+id/btn_apply"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Сохранить"
-        android:background="@drawable/rounded_white_background"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_white_background"
+        android:text="Сохранить" />
 
 </LinearLayout>

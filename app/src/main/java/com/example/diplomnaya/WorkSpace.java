@@ -710,8 +710,8 @@ public class WorkSpace extends AppCompatActivity {
         Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
 
-        positiveButton.setTextColor(getResources().getColor(R.color.white));
-        negativeButton.setTextColor(getResources().getColor(R.color.white));
+        positiveButton.setTextColor(getResources().getColor(R.color.black));
+        negativeButton.setTextColor(getResources().getColor(R.color.black));
     }
 
 

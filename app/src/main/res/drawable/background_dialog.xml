@@ -1,0 +1,13 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="20"
+                android:centerColor="#252323"
+                android:startColor="#292727"
+                android:endColor="#1E1C1C"
+                android:type="radial"
+                android:gradientRadius="200dp" /> <!-- Указание радиуса градиента -->
+        </shape>
+    </item>
+</layer-list>
