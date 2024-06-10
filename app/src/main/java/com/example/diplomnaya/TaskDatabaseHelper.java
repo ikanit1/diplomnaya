@@ -50,7 +50,7 @@ public class TaskDatabaseHelper {
                 .child(userId)
                 .child("groups");
 
-        userGroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        userGroupsRef.addValueEventListener(new ValueEventListener() { // Use addValueEventListener instead of addListenerForSingleValueEvent
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
