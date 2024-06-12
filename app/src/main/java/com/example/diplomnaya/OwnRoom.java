@@ -31,6 +31,7 @@ public class OwnRoom extends AppCompatActivity {
     private Button buttonDeleteAccount;
     private Button buttonEditProfile;
     private Button buttonChangePassword;
+    private Button buttonShareApp;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -47,6 +48,7 @@ public class OwnRoom extends AppCompatActivity {
         buttonLogout = findViewById(R.id.buttonLogout);
         buttonDeleteAccount = findViewById(R.id.buttonDeleteAccount);
         buttonChangePassword = findViewById(R.id.buttonChangePassword);
+        buttonShareApp = findViewById(R.id.buttonShareApp);
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
@@ -63,8 +65,6 @@ public class OwnRoom extends AppCompatActivity {
                 }
             }
         }
-
-
 
         buttonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,6 +86,13 @@ public class OwnRoom extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(OwnRoom.this, ChangePasswordActivity.class));
+            }
+        });
+
+        buttonShareApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareAppLink();
             }
         });
     }
@@ -124,6 +131,17 @@ public class OwnRoom extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void shareAppLink() {
+        String appUrl = "https://diplomnaya-e24de.web.app";
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "Привет! приглашаю тебя попробовать приложение для заметок в группах. Скачай приложение тут -> " + appUrl);
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent = Intent.createChooser(sendIntent, null);
+        startActivity(shareIntent);
     }
 
     private static final int PICK_IMAGE_REQUEST = 1;

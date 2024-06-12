@@ -73,4 +73,20 @@
         android:textColor="@android:color/black"
         android:textSize="16sp" />
 
+    <Button
+        android:id="@+id/buttonShareApp"
+        android:layout_width="59dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="18dp"
+        android:background="@drawable/rounded_button_background"
+        android:drawableLeft="@drawable/button_share"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
+        android:padding="10dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
 </RelativeLayout>
